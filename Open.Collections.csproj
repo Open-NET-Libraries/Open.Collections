@@ -8,9 +8,13 @@
     <Description>Useful set of collections, and extensions for collections with thread-safe read-write access options.
 
 Part of the "Open" set of libraries.</Description>
-    <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/electricessence/Open.Collections/blob/master/LISCENSE.md</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageTags>dotnet, dotnetcore, cs, collections, extensions, threadsafe, thread-safe, lazylist, memoize, concurrency, concurrenthashset, concurrentlist, ordereddictionary, trackedlist</PackageTags>
+    <PackageTags>dotnet, dotnet-core, dotnetcore, cs, collections, extensions, threadsafe, thread-safe, lazylist, memoize, concurrency, concurrenthashset, concurrentlist, ordereddictionary, trackedlist</PackageTags>
+    <Copyright>https://github.com/electricessence/Open.Collections/blob/master/LISCENSE.md</Copyright>
+    <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
