@@ -10,6 +10,7 @@
 Part of the "Open" set of libraries.</Description>
     <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageTags>dotnet, dotnetcore, cs, collections, extensions, threadsafe, thread-safe, lazylist, memoize, concurrency, concurrenthashset, concurrentlist, ordereddictionary, trackedlist</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
