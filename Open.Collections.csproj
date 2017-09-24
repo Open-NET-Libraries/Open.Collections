@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <Authors>electricessence</Authors>
+    <Company />
+    <Product />
+    <Description>Useful set of collections, and extensions for collections with thread-safe read-write access options.
+
+Part of the "Open" set of libraries.</Description>
+    <PackageLicenseUrl>https://github.com/electricessence/Open/blob/master/LICENSE</PackageLicenseUrl>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="IIndexed.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Open.Disposable" Version="1.0.0" />
+    <PackageReference Include="Open.Text" Version="1.0.0" />
+    <PackageReference Include="Open.Threading" Version="1.0.1" />
+    <PackageReference Include="Open.Threading.ReadWrite" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>
