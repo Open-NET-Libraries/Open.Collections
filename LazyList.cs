@@ -46,13 +46,20 @@ namespace Open.Collections
 
 				if (index < 0)
 					throw new ArgumentOutOfRangeException("index", "Cannot be less than zero.");
-				while (_cached.Count <= index && GetNext()) { }
-				if (index < _cached.Count)
-					return _cached[index];
+				if (!EnsureIndex(index))
+    				throw new ArgumentOutOfRangeException("index", "Great than total count.");
 
-				throw new ArgumentOutOfRangeException("index", "Great than total count.");
-			}
-		}
+                return _cached[index];
+            }
+        }
+
+        // Ensures concurrent threads don't double produce values...
+        bool EnsureIndex(int index)
+        {
+            // Only ask for GetNext if count is still not enough.
+            while (_cached.Count <= index && GetNext(index)) { }
+            return index < _cached.Count;
+        }
 
 		public int Count
 		{
@@ -69,17 +76,9 @@ namespace Open.Collections
             AssertIsAlive();
 
 			int index = 0;
-			bool more = _enumerator != null;
-			while (more || index < _cached.Count)
+			while (EnsureIndex(index))
 			{
-				if (index < _cached.Count)
-				{
-					yield return _cached[Interlocked.Increment(ref index) - 1];
-				}
-				else
-				{
-					more = GetNext();
-				}
+                yield return _cached[Interlocked.Increment(ref index) - 1]; // Interlocked allows for multi-threaded access to this enumerator.
 			}
 		}
 
@@ -89,26 +88,16 @@ namespace Open.Collections
 			if (IsEndless)
 				throw new InvalidOperationException("This list is marked as endless and may never complete. Use an enumerator, then Take(x).IndexOf().");
 
-			int index = 0;
-			bool more = _enumerator != null;
-			while (more || index < _cached.Count)
-			{
-				if (index < _cached.Count)
-				{
-					if (_cached[index].Equals(item))
-						return index;
-					index++;
-				}
-				else
-				{
-					more = GetNext();
-				}
-			}
-
-			return -1;
+            var e = GetEnumerator();
+            int index = 0;
+            while (e.MoveNext())
+            {
+                if (e.Current.Equals(item))
+                    return index;
+                index++;
+            }
+            return -1;
 		}
-
-
 
 		public bool Contains(T item)
 		{
@@ -119,7 +108,7 @@ namespace Open.Collections
 		public void CopyTo(T[] array, int arrayIndex = 0)
 		{
             AssertIsAlive();
-			var len = Math.Min(Count, array.Length - arrayIndex);
+			var len = Math.Min(IsEndless ? int.MaxValue : Count, array.Length - arrayIndex);
 			for (var i = 0; i < len; i++)
 				array[i + arrayIndex] = this[i];
 		}
@@ -129,24 +118,38 @@ namespace Open.Collections
 			return GetEnumerator();
 		}
 
-		private bool GetNext()
+		private bool GetNext(int maxIndex)
 		{
-			if (_enumerator == null) return false;
+            if (maxIndex < _cached.Count)
+                return true;
 
-			using (var uLock = Sync.UpgradableReadLock())
+            if (_enumerator == null)
+                return false;
+
+            using (var uLock = Sync.UpgradableReadLock())
 			{
-				if (_enumerator != null)
+                if (maxIndex < _cached.Count)
+                    return true;
+
+                if (_enumerator == null)
+                    return false;
+
+                uLock.UpgradeToWriteLock();
+
+                if (maxIndex < _cached.Count)
+                    return true;
+
+                if (_enumerator.MoveNext())
 				{
-					uLock.UpgradeToWriteLock();
-					if (_enumerator.MoveNext())
-					{
-						_cached.Add(_enumerator.Current);
-						return true;
-					}
-					else
-					{
-						Interlocked.Exchange(ref _enumerator, null)?.Dispose();
-					}
+                    if (_cached.Count == int.MaxValue)
+                        throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
+
+					_cached.Add(_enumerator.Current);
+					return true;
+				}
+				else
+				{
+					Interlocked.Exchange(ref _enumerator, null)?.Dispose();
 				}
 			}
 
@@ -157,7 +160,7 @@ namespace Open.Collections
 		{
 			if (IsEndless)
 				throw new InvalidOperationException("This list is marked as endless and may never complete.");
-			while (GetNext()) { }
+			while (GetNext(int.MaxValue)) { }
 		}
 
 	}
