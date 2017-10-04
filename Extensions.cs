@@ -182,7 +182,7 @@ namespace Open.Collections
 				closure);
 		}
 
-		public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, bool allowParallel)
+		public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, bool allowParallel = false)
 		{
 			if (target == null)
 				throw new NullReferenceException();
