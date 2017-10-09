@@ -641,7 +641,7 @@ namespace Open.Collections
 
 
 		/// <summary>
-		/// Thread safe value for syncronizing acquiring a value from a non-generic dictionary.
+		/// Thread safe value for syncronizing acquiring a value from a generic dictionary.
 		/// </summary>
 		/// <returns>True if a value was acquired.</returns>
 		public static bool TryGetValueSynchronized<TKey, TValue>(
@@ -1575,7 +1575,47 @@ namespace Open.Collections
 						.Combinations(k - 1, uniqueOnly)
 						.Select(c => (new[] { e }).Concat(c)));
 		}
+		
 
+		public static IEnumerable<T> TryTakeWhile<T>(this ConcurrentBag<T> target, Func<ConcurrentBag<T>, bool> predicate)
+		{
+			if (target == null) throw new NullReferenceException();
+
+			while (!target.IsEmpty && predicate(target) && target.TryTake(out T value))
+			{
+				yield return value;
+			}			
+		}
+
+		public static IEnumerable<T> TryTakeWhile<T>(this ConcurrentBag<T> target, Func<bool> predicate)
+		{
+			if (target == null) throw new NullReferenceException();
+
+			return TryTakeWhile<T>(target, t => predicate());
+		}
+
+		public static void Trim<T>(this ConcurrentBag<T> target, int maxSize)
+		{
+			if (target == null) throw new NullReferenceException();
+
+			foreach (var i in TryTakeWhile(target, t => t.Count > maxSize));
+		}
+
+		public static Task TrimAsync<T>(this ConcurrentBag<T> target, int maxSize, Action<T> handler)
+		{
+			if (target == null) throw new NullReferenceException();
+
+			return Task.WhenAll(
+				TryTakeWhile(target, t => t.Count > maxSize)
+					.Select(t => Task.Run(() => handler(t)))
+					.ToArray() // Buffer trimmed so that when this method is returned the target is already trimmed but awaiting handlers to be complete.
+			);
+		}
+
+		public static Task ClearAsync<T>(this ConcurrentBag<T> target, Action<T> handler)
+		{
+			return TrimAsync<T>(target, 0, handler);
+		}
 	}
 }
 
