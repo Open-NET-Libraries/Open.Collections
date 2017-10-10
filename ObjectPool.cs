@@ -2,6 +2,7 @@
 using Open.Threading;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Open.Collections
@@ -12,39 +13,54 @@ namespace Open.Collections
 
 		ConcurrentBag<T> _pool;
 		Func<T> _generator;
+		Action<T> _recycler;
 
 
-		Task _trimmer;
-		Task _flusher;
-		Task _autoFlusher;
+		ActionRunner _trimmer;
+		ActionRunner _flusher;
+		ActionRunner _autoFlusher;
 
 		/**
-		 * A transient amount of object to exist over _maxSize until trim() is called.
+		 * A transient amount of object to exist over MaxSize until trim() is called.
 		 * But any added objects over _localAbsMaxSize will be disposed immediately.
 		 */
-		ushort _localAbsMaxSize;
-
-		/**
-		 * By default will clear after 5 seconds of non-use.
-		 */
-		int autoClearTimeout = 5000;
+		uint _localAbsMaxSize;
 
 
-		/**
-		 * Defines the maximum at which trimming should allow.
-		 * @returns {number}
-		 */
+		public ObjectPool(
+			ushort maxSize,
+			Func<T> generator = null,
+			Action<T> recycler = null)
+		{
+			MaxSize = maxSize;
+			_localAbsMaxSize = Math.Min((uint)maxSize * 2, ushort.MaxValue);
 
+			_generator = generator;
+			_recycler = recycler;
+
+			_trimmer = new ActionRunner(TrimInternal);
+			_flusher = new ActionRunner(ClearInternal);
+			_autoFlusher = new ActionRunner(ClearInternal);
+		}
+
+		/// <summary>
+		/// By default will clear after 5 seconds of non-use.
+		/// </summary>
+		public TimeSpan AutoClearTimeout = TimeSpan.FromSeconds(5);
+
+		/// <summary>
+		/// Defines the maximum at which trimming should allow.
+		/// </summary>
 		public ushort MaxSize
 		{
 			get;
 			private set;
 		}
 
-		/**
-		 * Current number of objects in pool.
-		 * @returns {number}
-		 */
+
+		/// <summary>
+		/// Current number of objects in pool.
+		/// </summary>
 		public int Count
 		{
 			get
@@ -53,187 +69,152 @@ namespace Open.Collections
 			}
 		}
 
+		private void _onTaken()
+		{
+			var len = _pool.Count;
+			if(len<=MaxSize)
+				_trimmer.Cancel();
+			if(len!=0)
+				ExtendAutoClear();
+		}
+
+		/// <summary>
+		/// Attempts to extract an item from the pool but if none are availalbe returns false.
+		/// </summary>
+		/// <param name="value">The item taken.</param>
+		/// <returns>If one was available.</returns>
+		public bool TryTake(out T value)
+		{
+			AssertIsAlive();
+
+			bool taken = false;
+			try
+			{
+				taken = _pool.TryTake(out value);
+			}
+			finally
+			{
+				if (taken)
+					_onTaken();
+			}
+			return taken;
+		}
+
+		/// <summary>
+		/// Attempts to extract an item from the pool but if non are availalbe it creates a new one from the factory provided or the underlying generator.
+		/// </summary>
+		/// <param name="factory">An optional custom factory to use if no items are in the pool.</param>
+		/// <returns></returns>
 		public T Take(Func<T> factory = null)
 		{
 			this.AssertIsAlive();
 			if (_generator == null && factory == null)
 				throw new ArgumentException("factory", "Must provide a factory if on was not provided at construction time.");
 
-			try
-			{
-				return _pool.TryTake(out T value)
-					? value
-					: (factory ?? _generator).Invoke();
-			}
-			finally
-			{
-				_onTaken();
-			}
+			return TryTake(out T value)
+				? value
+				: (factory ?? _generator).Invoke();
 		}
 
-		public ObjectPool(
-			ushort maxSize,
-			Func<T> generator = null,
-			Action<T> recycler = null)
+
+		protected void TrimInternal()
 		{
-			//ushort.MaxValue
-			//this._localAbsMaxSize = Math.min(_maxSize*2, ABSOLUTE_MAX_SIZE);
-
-			//const _ = this;
-			//_._disposableObjectName = OBJECT_POOL;
-			//_._pool = [];
-			//_._trimmer = new TaskHandler(()=>_._trim());
-			//const clear = () => _._clear();
-			_flusher = new AsyncProcess(Clear);
-			_autoFlusher = new AsyncProcess(Clear);
+			_trimmer.Cancel();
+			_flusher.Cancel();
+			_autoFlusher.Cancel();
+			foreach(var e in _pool.TryTakeWhile(b=> b.Count > MaxSize))
+				(e as IDisposable)?.Dispose();
 		}
 
-
-		protected void _trim()
-		{
-			//foreach(var t in _pool.TryTakeWhile()
-			//{
-			//		dispose.single(< any > pool.pop(), true);
-			//	}
-		}
-
-		/**
-		 * Will trim ensure the pool is less than the maxSize.
-		 * @param defer A delay before trimming.  Will be overridden by later calls.
-		 */
-		public void Trim(int defer = 0)
-		{
-			//this.throwIfDisposed();
-			//this._trimmer.start(defer);
-		}
-
-		protected void _clear()
-		{
-			//var p = _pool;
-			//_._trimmer.cancel();
-			//_._flusher.cancel();
-			//_._autoFlusher.cancel();
-			//dispose.these.noCopy(<any>p, true);
-			//p.length = 0;
-		}
-
-		/**
-		 * Will clear out the pool.
-		 * Cancels any scheduled trims when executed.
-		 * @param defer A delay before clearing.  Will be overridden by later calls.
-		 */
-		public void Clear(int defer = 0)
+		/// <summary>
+		/// Will initiate trimming the pool to ensure it is less than the maxSize.
+		/// </summary>
+		/// <param name="defer">Optional millisecond value to wait until trimming starts.</param>
+		/// <returns></returns>
+		public async Task Trim(int defer = 0)
 		{
 			AssertIsAlive();
-			if (defer == 0)
-			{
-				_flusher.EnsureActive();
-				_flusher.Wait(); // Newer verson has a combined method.. ^^^
-			}
-			else
-			{
-				Task.Delay(defer)
-					.ContinueWith(t=>Clear());
-			}
+			await _trimmer.Defer(defer);
 		}
 
-		void Clear(Progress p)
+		protected void ClearInternal()
 		{
-			Clear();
+			var p = Interlocked.Exchange(ref _pool, new ConcurrentBag<T>());
+			_trimmer.Cancel();
+			_flusher.Cancel();
+			_autoFlusher.Cancel();
+			Clear(ref p);
 		}
 
-		public T[] ToArrayAndClear()
+		protected static Task Clear(ref ConcurrentBag<T> bag)
+		{
+			var b = bag;
+			bag = null;
+			return b.ClearAsync(e => (e as IDisposable)?.Dispose());
+		}
+
+		/// <summary>
+		/// Will clear out the pool.
+		/// Cancels any scheduled trims when executed.
+		/// </summary>
+		/// <param name="defer">A delay before clearing.  Will be overridden by later calls.</param>
+		/// <returns></returns>
+		public async Task Clear(int defer = 0)
 		{
 			AssertIsAlive();
-			//_._trimmer.cancel();
-			//_._flusher.cancel();
-			var p = _pool;
-			_pool = new ConcurrentBag<T>();
-			return p.ToArray();
+			await _flusher.Defer(defer);
 		}
 
-		/**
-		 * Shortcut for toArrayAndClear();
-		 */
-		public T[] Dump()
+		/// <summary>
+		/// Replaces current bag with a new one and returns the existing bag.
+		/// </summary>
+		/// <returns>The previous ConcurrentBag<T>.</returns>
+		public ConcurrentBag<T> Dump()
 		{
-			return ToArrayAndClear();
+			AssertIsAlive();
+			_trimmer.Cancel();
+			_flusher.Cancel();
+			return Interlocked.Exchange(ref _pool, new ConcurrentBag<T>());
 		}
 
 
 		protected override void OnDispose(bool calledExplicitly)
 		{
+			Interlocked.Exchange(ref _generator, null);
+			Interlocked.Exchange(ref _recycler, null);
 
-			//const _:any = this;
-			//_._generator = null;
-			//_._recycler = null;
-			//dispose(
-			//	_._trimmer,
-			//	_._flusher,
-			//	_._autoFlusher
-			//);
-			//_._trimmer = null;
-			//_._flusher = null;
-			//_._autoFlusher = null;
-
-			//_._pool.length = 0;
-			//_._pool = null;
-
+			Interlocked.Exchange(ref _trimmer, null)?.Dispose();
+			Interlocked.Exchange(ref _flusher, null)?.Dispose();
+			Interlocked.Exchange(ref _autoFlusher, null)?.Dispose();
+			Clear(ref _pool);
 		}
 
+		/// <summary>
+		/// Simply extends the auto-clear sequence from now until later by the AutoClearTimeout value.
+		/// </summary>
 		public void ExtendAutoClear()
 		{
-			//const _ = this;
-			//_.throwIfDisposed();
-			//const t = _.autoClearTimeout;
-			//if(isFinite(t) && !_._autoFlusher.isScheduled)
-			//	_._autoFlusher.start(t);
+			AssertIsAlive();
+			_autoFlusher.Defer(AutoClearTimeout);
 		}
 
-		public void Add(T o)
+		public void Give(ref T item)
 		{
-			//const _ = this;
-			//_.throwIfDisposed();
-			//if(_._pool.length>=_._localAbsMaxSize)
-			//{
-			//	// Getting too big, dispose immediately...
-			//	dispose(<any>o);
-			//}
-			//else
-			//{
-			//	if(_._recycler) _._recycler(o);
-			//_._pool.push(o);
-			//	const m = _._maxSize;
-			//	if(m<ABSOLUTE_MAX_SIZE && _._pool.length> m)
-			//		_._trimmer.start(500);
-			//}
-			//_.extendAutoClear();
-
+			AssertIsAlive();
+			var p = _pool;
+			if(p.Count>=_localAbsMaxSize)
+			{
+				// Getting too big, dispose immediately...
+				(item as IDisposable)?.Dispose();
+			}
+			else
+			{
+				_recycler?.Invoke(item);
+				p.Add(item);
+				if (p.Count > MaxSize)
+					_trimmer.Defer(500);
+			}
+			ExtendAutoClear();
 		}
-
-		private void _onTaken()
-		{
-			//const _ = this, len = _._pool.length;
-			//if(len<=_._maxSize)
-			//	_._trimmer.cancel();
-			//if(len)
-			//	_.extendAutoClear();
-		}
-
-		public T TryTake()
-		{
-			//const _ = this;
-			//_.throwIfDisposed();
-
-			//try
-			//{
-			//	return _._pool.pop();
-			//}
-			//finally
-			//{
-			//	_._onTaken();
-			//}
-		}
-
 	}
 }

@@ -15,7 +15,7 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>1.1.5</Version>
+    <Version>1.2.0</Version>
     <AssemblyVersion>1.1.1.1</AssemblyVersion>
     <FileVersion>1.1.1.1</FileVersion>
   </PropertyGroup>
@@ -27,7 +27,7 @@ Part of the "Open" set of libraries.</Description>
   <ItemGroup>
     <PackageReference Include="Open.Disposable" Version="1.0.0" />
     <PackageReference Include="Open.Text" Version="1.0.0" />
-    <PackageReference Include="Open.Threading" Version="1.0.1" />
+    <PackageReference Include="Open.Threading" Version="1.1.0" />
     <PackageReference Include="Open.Threading.ReadWrite" Version="1.0.1" />
   </ItemGroup>
 
