@@ -38,6 +38,7 @@ namespace Open.Collections
 			_generator = generator;
 			_recycler = recycler;
 
+            _pool = new ConcurrentBag<T>();
 			_trimmer = new ActionRunner(TrimInternal);
 			_flusher = new ActionRunner(ClearInternal);
 			_autoFlusher = new ActionRunner(ClearInternal);
@@ -195,7 +196,7 @@ namespace Open.Collections
 		public void ExtendAutoClear()
 		{
 			AssertIsAlive();
-			_autoFlusher.Defer(AutoClearTimeout);
+			_autoFlusher?.Defer(AutoClearTimeout);
 		}
 
 		public void Give(ref T item)
