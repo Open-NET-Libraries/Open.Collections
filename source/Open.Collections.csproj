@@ -25,7 +25,7 @@ Part of the "Open" set of libraries.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Open.Disposable" Version="1.0.0" />
+    <PackageReference Include="Open.Disposable" Version="1.0.2" />
     <PackageReference Include="Open.Text" Version="1.0.0" />
     <PackageReference Include="Open.Threading" Version="1.1.4" />
     <PackageReference Include="Open.Threading.ReadWrite" Version="1.0.1" />
