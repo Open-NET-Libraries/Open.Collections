@@ -3,7 +3,7 @@ using Open.Threading;
 
 namespace Open.Collections
 {
-    public class ConcurrentHashSet<T> : ConcurrentCollectionBase<T, HashSet<T>>, ISet<T>
+    public sealed class ConcurrentHashSet<T> : ConcurrentCollectionBase<T, HashSet<T>>, ISet<T>
 	{
 
 		public ConcurrentHashSet() : base(new HashSet<T>()) { }

@@ -3,7 +3,7 @@ using Open.Threading;
 
 namespace Open.Collections
 {
-    public class ConcurrentList<T> : ConcurrentCollectionBase<T, List<T>>, IList<T>
+    public sealed class ConcurrentList<T> : ConcurrentCollectionBase<T, List<T>>, IList<T>
 	{
 
 		public ConcurrentList() : base(new List<T>()) { }
@@ -39,5 +39,6 @@ namespace Open.Collections
 		{
 			Sync.Write(() => InternalSource.RemoveAt(index));
 		}
+
 	}
 }
