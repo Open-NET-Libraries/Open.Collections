@@ -15,7 +15,7 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <AssemblyVersion>1.1.1.1</AssemblyVersion>
     <FileVersion>1.1.1.1</FileVersion>
     <PackageReleaseNotes>Significant structure changes for organization.  Concurrent classes are now broken into their actual implementation.
@@ -34,8 +34,8 @@ After benchmarking, suggested using the Lock-Synchronized versions for most use 
   <ItemGroup>
     <PackageReference Include="Open.Disposable" Version="1.0.4" />
     <PackageReference Include="Open.Text" Version="1.0.0" />
-    <PackageReference Include="Open.Threading" Version="1.2.0" />
-    <PackageReference Include="Open.Threading.ReadWrite" Version="1.0.1" />
+    <PackageReference Include="Open.Threading" Version="1.2.1" />
+    <PackageReference Include="Open.Threading.ReadWrite" Version="1.0.3" />
   </ItemGroup>
 
 </Project>
