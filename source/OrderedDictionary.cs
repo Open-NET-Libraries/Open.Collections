@@ -102,9 +102,7 @@ namespace Open.Collections
 
 		protected virtual void OnItemChanged(ItemChangedEventArgs<TKey, TValue> e)
 		{
-			var handler = ItemChanged;
-			if (handler != null)
-				handler(this, e);
+			ItemChanged?.Invoke(this, e);
 		}
 
 		private const int DefaultInitialCapacity = 0;
@@ -414,17 +412,13 @@ namespace Open.Collections
 		public event EventHandler BeforeCleared;
 		protected virtual void OnBeforeCleared(EventArgs e)
 		{
-			var handler = BeforeCleared;
-			if (handler != null)
-				handler(this, e);
+			BeforeCleared?.Invoke(this, e);
 		}
 
 		public event EventHandler AfterCleared;
 		protected virtual void OnAfterCleared(EventArgs e)
 		{
-			var handler = AfterCleared;
-			if (handler != null)
-				handler(this, e);
+			AfterCleared?.Invoke(this, e);
 		}
 
 		/// <summary>

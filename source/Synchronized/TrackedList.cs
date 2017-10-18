@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using Open.Threading;
 
-namespace Open.Collections
+namespace Open.Collections.Synchronized
 {
 	public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
 	{

@@ -24,18 +24,22 @@ namespace Open.Collections
 		{
 			_enumerator = source.GetEnumerator();
 			_cached = new List<T>();
-			Sync = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion);
+			Sync = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion); // This is important as it's possible to recurse infinitely to generate a result. :(
 			IsEndless = isEndless; // To indicate if a source is not allowed to fully enumerate.
 		}
 
 		protected override void OnDispose(bool calledExplicitly)
 		{
-			using (Sync.WriteLock())
+			if(calledExplicitly)
 			{
-				Interlocked.Exchange(ref _enumerator, null)?.Dispose();
-				Interlocked.Exchange(ref _cached, null)?.Dispose();
+				using (Sync.WriteLock())
+				{
+					DisposeOf(ref _enumerator);
+					Nullify(ref _cached)?.Clear();
+				}
+
+				DisposeOf(ref Sync);
 			}
-			Interlocked.Exchange(ref Sync, null)?.Dispose();
 		}
 
 		public T this[int index]
@@ -126,6 +130,7 @@ namespace Open.Collections
             if (_enumerator == null)
                 return false;
 
+			// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
             using (var uLock = Sync.UpgradableReadLock())
 			{
                 if (maxIndex < _cached.Count)
@@ -136,10 +141,7 @@ namespace Open.Collections
 
                 uLock.UpgradeToWriteLock();
 
-                if (maxIndex < _cached.Count)
-                    return true;
-
-                if (_enumerator.MoveNext())
+				if (_enumerator.MoveNext())
 				{
                     if (_cached.Count == int.MaxValue)
                         throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
@@ -149,7 +151,7 @@ namespace Open.Collections
 				}
 				else
 				{
-					Interlocked.Exchange(ref _enumerator, null)?.Dispose();
+					DisposeOf(ref _enumerator);
 				}
 			}
 

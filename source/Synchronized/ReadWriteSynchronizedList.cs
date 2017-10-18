@@ -1,27 +1,29 @@
 using System.Collections.Generic;
 using Open.Threading;
 
-namespace Open.Collections
+namespace Open.Collections.Synchronized
 {
-    public sealed class ConcurrentList<T> : ConcurrentCollectionBase<T, List<T>>, IList<T>
+    public sealed class ReadWriteSynchronizedList<T> : ReadWriteSynchronizedCollectionWrapper<T, List<T>>, IList<T>
 	{
 
-		public ConcurrentList() : base(new List<T>()) { }
-		public ConcurrentList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
+		public ReadWriteSynchronizedList() : base(new List<T>()) { }
+		public ReadWriteSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
 
 		// This is a simplified version.
 		// It could be possible to allow indexed values to change independently of one another.
 		// If that fine grained of read-write control is necessary, then use the ThreadSafety utility and extensions.
+
 		public T this[int index]
 		{
 			get
 			{
-				return Sync.ReadValue(() => InternalSource[index]);
+				return InternalSource[index];
 			}
 
 			set
 			{
-				Sync.Write(() => InternalSource[index] = value);
+				// Using Sync.Read simply means that "the collection is not changing" so changing a value within the collection is okay.
+				Sync.Read(() => InternalSource[index] = value);
 			}
 		}
 
