@@ -1,4 +1,5 @@
 ﻿using Open.Threading;
+using System;
 using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
@@ -78,6 +79,15 @@ namespace Open.Collections.Synchronized
 			Sync.Write(() => InternalSource.UnionWith(other));
 		}
 
+		public override bool IfContains(T item, Action<HashSet<T>> action)
+		{
+			return InternalSource.Contains(item) ? base.IfContains(item, action) : false;
+		}
+
+		public override bool IfNotContains(T item, Action<HashSet<T>> action)
+		{
+			return !InternalSource.Contains(item) ? base.IfNotContains(item, action) : false;
+		}
 	}
 
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Open.Collections.Synchronized
@@ -76,6 +77,16 @@ namespace Open.Collections.Synchronized
 		public bool SetEquals(IEnumerable<T> other)
 		{
 			lock (Sync) return InternalSource.SetEquals(other);
+		}
+
+		public override bool IfContains(T item, Action<HashSet<T>> action)
+		{
+			return InternalSource.Contains(item) ? base.IfContains(item, action) : false;
+		}
+
+		public override bool IfNotContains(T item, Action<HashSet<T>> action)
+		{
+			return !InternalSource.Contains(item) ? base.IfNotContains(item, action) : false;
 		}
 
 	}

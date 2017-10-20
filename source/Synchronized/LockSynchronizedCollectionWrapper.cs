@@ -117,30 +117,24 @@ namespace Open.Collections.Synchronized
 			lock (Sync) return action(InternalSource);
 		}
 
-		public bool IfContains(T item, Action<TCollection> action)
+		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
-			bool contains = InternalSource.Contains(item);
-			if (contains)
+			bool contains = false;
+			lock (Sync)
 			{
-				lock (Sync)
-				{
-					if (contains = InternalSource.Contains(item))
-						action(InternalSource);
-				}
+				if (contains = InternalSource.Contains(item))
+					action(InternalSource);
 			}
 			return contains;
 		}
 
-		public bool IfNotContains(T item, Action<TCollection> action)
+		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
-			bool notContains = !InternalSource.Contains(item);
-			if (notContains)
+			bool notContains = false;
+			lock (Sync)
 			{
-				lock (Sync)
-				{
-					if (notContains = !InternalSource.Contains(item))
-						action(InternalSource);
-				}
+				if (notContains = !InternalSource.Contains(item))
+					action(InternalSource);
 			}
 			return notContains;
 		}

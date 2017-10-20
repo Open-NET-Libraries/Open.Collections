@@ -135,7 +135,7 @@ namespace Open.Collections.Synchronized
 			return Sync.WriteValue(() => action(InternalSource));
 		}
 
-		public bool IfContains(T item, Action<TCollection> action)
+		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
 			bool executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => InternalSource.Contains(item), () =>
@@ -146,7 +146,7 @@ namespace Open.Collections.Synchronized
 			return executed;
 		}
 
-		public bool IfNotContains(T item, Action<TCollection> action)
+		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
 			bool executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => !InternalSource.Contains(item), () =>
