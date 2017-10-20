@@ -18,8 +18,7 @@ Part of the "Open" set of libraries.</Description>
     <Version>2.1.0</Version>
     <AssemblyVersion>1.1.1.1</AssemblyVersion>
     <FileVersion>1.1.1.1</FileVersion>
-    <PackageReleaseNotes>Significant structure changes for organization.  Concurrent classes are now broken into their actual implementation.
-After benchmarking, suggested using the Lock-Synchronized versions for most use cases.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
