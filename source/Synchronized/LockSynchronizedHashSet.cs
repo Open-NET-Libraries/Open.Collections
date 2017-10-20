@@ -1,7 +1,5 @@
-﻿using Open.Threading;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
+
 
 namespace Open.Collections.Synchronized
 {
@@ -21,7 +19,13 @@ namespace Open.Collections.Synchronized
 
 		public new bool Add(T item)
 		{
-			return IfNotContains(item, () => base.Add(item));
+			return IfNotContains(item, c => c.Add(item));
+		}
+
+		public override bool Remove(T item)
+		{
+			if (!Contains(item)) return false;
+			return base.Remove(item);
 		}
 
 		public void ExceptWith(IEnumerable<T> other)
@@ -74,16 +78,5 @@ namespace Open.Collections.Synchronized
 			lock (Sync) return InternalSource.SetEquals(other);
 		}
 
-		public override bool IfContains(T item, Action action)
-		{
-			if (!InternalSource.Contains(item)) return false;
-			return base.IfContains(item, action);
-		}
-
-		public override bool IfNotContains(T item, Action action)
-		{
-			if (InternalSource.Contains(item)) return false;
-			return base.IfNotContains(item, action);
-		}
 	}
 }

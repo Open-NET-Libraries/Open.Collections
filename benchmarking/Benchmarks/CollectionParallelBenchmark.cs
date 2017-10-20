@@ -45,7 +45,40 @@ namespace Open.Collections
 				Parallel.For(0, TestSize, i => c.Add(_items[i]));
 			});
 
-			yield return TimedResult.Measure("Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("50/50 Mixed Read/Write (In Parallel)", () =>
+			{
+				Parallel.For(0, TestSize, i =>
+				{
+					if (i % 2 == 0)
+						c.Contains(_items[i]);
+					else
+						c.Add(_items[i]);
+				});
+			});
+
+			yield return TimedResult.Measure("10/90 Mixed Read/Write (In Parallel)", () =>
+			{
+				Parallel.For(0, TestSize, i =>
+				{
+					if (i % 10 == 0)
+						c.Contains(_items[i]);
+					else
+						c.Add(_items[i]);
+				});
+			});
+
+			yield return TimedResult.Measure("90/10 Mixed Read/Write (In Parallel)", () =>
+			{
+				Parallel.For(0, TestSize, i =>
+				{
+					if (i % 10 != 9)
+						c.Contains(_items[i]);
+					else
+						c.Add(_items[i]);
+				});
+			});
+
+			yield return TimedResult.Measure("50/50 Mixed Add/Remove (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{

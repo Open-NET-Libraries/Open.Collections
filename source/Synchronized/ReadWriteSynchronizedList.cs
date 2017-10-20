@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using Open.Threading;
+using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
 {
-    public sealed class ReadWriteSynchronizedList<T> : ReadWriteSynchronizedCollectionWrapper<T, List<T>>, IList<T>
+	public sealed class ReadWriteSynchronizedList<T> : ReadWriteSynchronizedCollectionWrapper<T, List<T>>, IList<T>
 	{
 
 		public ReadWriteSynchronizedList() : base(new List<T>()) { }

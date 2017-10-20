@@ -2,8 +2,8 @@
 
 ## Lock Synchronized
 
-Some classes work faster/better when a simple Monitor (lock) is used.
+Most of these classes synchronize access very fast when a simple Monitor (lock) is used properly.
 
 ## Read-Write Synchronized
 
-These classes use a ReaderWriterLockSlim to synchronize read-write access.
+These classes use a ReaderWriterLockSlim to synchronize read-write access and can be faster in some specific cases.

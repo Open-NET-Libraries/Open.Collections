@@ -38,7 +38,7 @@ namespace Open.Collections
 				Parallel.For(0, TestSize, i => c.AddLast(_item));
 			});
 
-			yield return TimedResult.Measure("Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("Mixed Add/Remove Last (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{

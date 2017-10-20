@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using Open.Threading;
+
 
 namespace Open.Collections.Synchronized
 {
-    public sealed class LockSynchronizedList<T> : LockSynchronizedCollectionWrapper<T, List<T>>, IList<T>
+	public sealed class LockSynchronizedList<T> : LockSynchronizedCollectionWrapper<T, List<T>>, IList<T>
 	{
 
 		public LockSynchronizedList() : base(new List<T>()) { }

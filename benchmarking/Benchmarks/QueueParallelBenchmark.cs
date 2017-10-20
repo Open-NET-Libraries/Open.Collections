@@ -30,7 +30,7 @@ namespace Open.Collections
 			});
 
 
-			yield return TimedResult.Measure("Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("Mixed Enqueue/TryDequeue (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{

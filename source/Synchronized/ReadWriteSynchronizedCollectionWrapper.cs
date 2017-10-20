@@ -6,7 +6,7 @@ using Open.Threading;
 
 namespace Open.Collections.Synchronized
 {
-	public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollection<T>
+	public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 	{
 		protected ReaderWriterLockSlim Sync = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
@@ -19,6 +19,26 @@ namespace Open.Collections.Synchronized
 		public override void Add(T item)
 		{
 			Sync.Write(() => InternalSource.Add(item));
+		}
+
+		public override void Add(T item1, T item2, params T[] items)
+		{
+			Sync.Write(() =>
+			{
+				InternalSource.Add(item1);
+				InternalSource.Add(item2);
+				foreach (var i in items)
+					InternalSource.Add(i);
+			});
+		}
+
+		public override void Add(T[] items)
+		{
+			Sync.Write(() =>
+			{
+				foreach (var i in items)
+					InternalSource.Add(i);
+			});
 		}
 
 		public override void Clear()
@@ -61,6 +81,11 @@ namespace Open.Collections.Synchronized
 			Sync.Read(() => to.Add(InternalSource));
 		}
 
+		public override void CopyTo(T[] array, int arrayIndex)
+		{
+			Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
+		}
+
 		#endregion
 
 		#region Dispose
@@ -98,50 +123,35 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
-		public override void CopyTo(T[] array, int arrayIndex)
+
+
+		public void Modify(Action<TCollection> action)
 		{
-			Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
+			Sync.Write(() => action(InternalSource));
 		}
 
-
-		public void Modify(Action action)
+		public TResult Modify<TResult>(Func<TCollection, TResult> action)
 		{
-			Sync.Write(action);
+			return Sync.WriteValue(() => action(InternalSource));
 		}
 
-		public T Modify(Func<T> action)
-		{
-			return Sync.WriteValue(action);
-		}
-
-
-		public bool Contains(T item, Action<bool> action)
-		{
-			return Sync.WriteValue(()=>
-			{
-				var contains = InternalSource.Contains(item);
-				action(contains);
-				return contains;
-			});
-		}
-
-		public virtual bool IfContains(T item, Action action)
+		public bool IfContains(T item, Action<TCollection> action)
 		{
 			bool executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => InternalSource.Contains(item), () =>
 			{
-				action();
+				action(InternalSource);
 				executed = true;
 			});
 			return executed;
 		}
 
-		public virtual bool IfNotContains(T item, Action action)
+		public bool IfNotContains(T item, Action<TCollection> action)
 		{
 			bool executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => !InternalSource.Contains(item), () =>
 			{
-				action();
+				action(InternalSource);
 				executed = true;
 			});
 			return executed;

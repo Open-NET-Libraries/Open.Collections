@@ -6,7 +6,7 @@ using Open.Threading;
 
 namespace Open.Collections.Synchronized
 {
-	public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollection<T>
+	public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 	{
 		protected LockSynchronizedCollectionWrapper(TCollection source) : base(source)
@@ -22,6 +22,27 @@ namespace Open.Collections.Synchronized
 		{
 			lock (Sync) InternalSource.Add(item);
 		}
+
+		public override void Add(T item1, T item2, params T[] items)
+		{
+			lock(items)
+			{
+				InternalSource.Add(item1);
+				InternalSource.Add(item2);
+				foreach (var i in items)
+					InternalSource.Add(i);
+			}
+		}
+
+		public override void Add(T[] items)
+		{
+			lock (items)
+			{
+				foreach (var i in items)
+					InternalSource.Add(i);
+			}
+		}
+
 
 		public override void Clear()
 		{
@@ -86,42 +107,40 @@ namespace Open.Collections.Synchronized
 			lock (Sync) InternalSource.CopyTo(array, arrayIndex);
 		}
 
-		public void Modify(Action action)
+		public void Modify(Action<TCollection> action)
 		{
-			lock (Sync) action();
+			lock (Sync) action(InternalSource);
 		}
 
-		public T Modify(Func<T> action)
+		public TResult Modify<TResult>(Func<TCollection, TResult> action)
 		{
-			lock (Sync) return action();
+			lock (Sync) return action(InternalSource);
 		}
 
-
-		public bool Contains(T item, Action<bool> action)
+		public bool IfContains(T item, Action<TCollection> action)
 		{
-			bool contains;
-			lock (Sync) action(contains = InternalSource.Contains(item));
-			return contains;
-		}
-
-		public virtual bool IfContains(T item, Action action)
-		{
-			bool contains;
-			lock(Sync)
+			bool contains = InternalSource.Contains(item);
+			if (contains)
 			{
-				if (contains = InternalSource.Contains(item))
-					action();
+				lock (Sync)
+				{
+					if (contains = InternalSource.Contains(item))
+						action(InternalSource);
+				}
 			}
 			return contains;
 		}
 
-		public virtual bool IfNotContains(T item, Action action)
+		public bool IfNotContains(T item, Action<TCollection> action)
 		{
-			bool notContains;
-			lock (Sync)
+			bool notContains = !InternalSource.Contains(item);
+			if (notContains)
 			{
-				if (notContains = !InternalSource.Contains(item))
-					action();
+				lock (Sync)
+				{
+					if (notContains = !InternalSource.Contains(item))
+						action(InternalSource);
+				}
 			}
 			return notContains;
 		}
