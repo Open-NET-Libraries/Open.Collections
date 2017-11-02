@@ -1,4 +1,6 @@
-namespace System.Collections.Generic
+using System.Collections.Generic;
+
+namespace Open.Collections
 {
 	public static class KeyValuePair
 	{
