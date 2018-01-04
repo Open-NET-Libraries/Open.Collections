@@ -499,7 +499,11 @@ namespace Open.Collections
 
 			var result = new SortedDictionary<TKey, TValue>();
 			foreach (var s in source)
-				result.Add(keySelector(s), valueSelector(s));
+			{
+				var key = keySelector(s);
+				var value = valueSelector(s);
+				result.Add(key, value);
+			}
 
 			return result;
 		}
