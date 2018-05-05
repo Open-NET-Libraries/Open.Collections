@@ -134,7 +134,7 @@ namespace Open.Collections
 			: this(capacity, null)
 		{
 			if (capacity < 0)
-				throw new ArgumentOutOfRangeException("capacity", capacity, "Cannot be less than zero.");
+				throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Cannot be less than zero.");
 		}
 
 		/// <summary>
@@ -155,7 +155,7 @@ namespace Open.Collections
 		public OrderedDictionary(int capacity, IEqualityComparer<TKey> comparer)
 		{
 			if (capacity < 0)
-				throw new ArgumentOutOfRangeException("capacity", capacity, "Cannot be less than zero.");
+				throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Cannot be less than zero.");
 
 			_initialCapacity = capacity;
 			_comparer = comparer;
@@ -268,12 +268,12 @@ namespace Open.Collections
 		public void Insert(int index, TKey key, TValue value)
 		{
 			if (index < 0)
-				throw new ArgumentOutOfRangeException("index", index, "Cannot be negative.");
+				throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be negative.");
 
 			lock (SyncRoot)
 			{
 				if (index > Count)
-					throw new ArgumentOutOfRangeException("index", index, "Cannot be greater than the count.");
+					throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
 
 				Dictionary.Add(key, value);
 				List.Insert(index, key);
@@ -299,7 +299,7 @@ namespace Open.Collections
 			lock (SyncRoot)
 			{
 				if (index > Count)
-					throw new ArgumentOutOfRangeException("index", index, "Cannot be greater than the count.");
+					throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
 
 				key = List[index];
 				value = Dictionary[key];
@@ -339,7 +339,7 @@ namespace Open.Collections
 				lock (SyncRoot)
 				{
 					if (index > Count)
-						throw new ArgumentOutOfRangeException("index", index, "Cannot be greater than the count.");
+						throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
 
 					key = List[index];
 
@@ -472,7 +472,7 @@ namespace Open.Collections
 		public int IndexOfKey(TKey key)
 		{
 			if (key != null)
-				throw new ArgumentNullException("key");
+				throw new ArgumentNullException(nameof(key));
 
 			return List.IndexOf(key);
 		}
@@ -485,7 +485,7 @@ namespace Open.Collections
 		public bool Remove(TKey key)
 		{
 			if (key != null)
-				throw new ArgumentNullException("key");
+				throw new ArgumentNullException(nameof(key));
 			int index;
 			TValue value;
 			lock (SyncRoot)
@@ -494,7 +494,7 @@ namespace Open.Collections
 				if (index >= 0)
 				{
 					if (index > Count)
-						throw new ArgumentOutOfRangeException("index", index, "Cannot be greater than the count.");
+						throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
 					List.RemoveAt(index);
 					value = Dictionary[key];
 					Dictionary.Remove(key);

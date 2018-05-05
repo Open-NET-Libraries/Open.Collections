@@ -49,9 +49,9 @@ namespace Open.Collections
 				AssertIsAlive();
 
 				if (index < 0)
-					throw new ArgumentOutOfRangeException("index", "Cannot be less than zero.");
+					throw new ArgumentOutOfRangeException(nameof(index), "Cannot be less than zero.");
 				if (!EnsureIndex(index))
-    				throw new ArgumentOutOfRangeException("index", "Great than total count.");
+    				throw new ArgumentOutOfRangeException(nameof(index), "Great than total count.");
 
                 return _cached[index];
             }

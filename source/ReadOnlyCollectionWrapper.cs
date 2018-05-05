@@ -15,7 +15,7 @@ namespace Open.Collections
 
 		protected ReadOnlyCollectionWrapper(TCollection source)
 		{
-			InternalSource = source ?? throw new ArgumentNullException("source");
+			InternalSource = source ?? throw new ArgumentNullException(nameof(source));
 		}
 
 		#region Implementation of IReadOnlyCollection<T>

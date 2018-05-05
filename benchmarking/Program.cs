@@ -87,7 +87,7 @@ class Program
 
 		Console.WriteLine("::: Synchronized Lists :::\n");
 		{
-			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, (c, r, p) => CollectionParallelBenchmark.Results(c, r, p));
+			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, (c, r, p) => ListParallelBenchmark.Results(c, r, p));
 
 			report.AddBenchmark("LockSynchronizedList",
 				count => () => new LockSynchronizedList<object>());

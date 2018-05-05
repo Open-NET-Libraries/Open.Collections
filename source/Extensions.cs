@@ -4,13 +4,11 @@
  */
 
 using Open.Text;
-using Open.Threading;
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Dynamic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -33,6 +31,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var expando = new ExpandoObject();
 			var expandoDic = (IDictionary<string, object>)expando;
@@ -81,6 +80,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var d0 = source.GetLength(0);
 			var d1 = source.GetLength(1);
@@ -97,7 +97,8 @@ namespace Open.Collections
 			if (source == null)
 				throw new NullReferenceException();
 			if (target == null)
-				throw new ArgumentNullException("target");
+				throw new ArgumentNullException(nameof(target));
+			Contract.EndContractBlock();
 
 			source.ForEach((x, y, value) => target[x, y] = value);
 		}
@@ -107,7 +108,8 @@ namespace Open.Collections
 			if (source == null)
 				throw new NullReferenceException();
 			if (closure == null)
-				throw new ArgumentNullException("closure");
+				throw new ArgumentNullException(nameof(closure));
+			Contract.EndContractBlock();
 
 			var d0 = source.GetLength(0);
 			var d1 = source.GetLength(1);
@@ -125,6 +127,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var newArray = new T[source.Length];
 			for (var i = 0; i < source.Length; i++)
@@ -145,7 +148,8 @@ namespace Open.Collections
 		public static void ForEach<T>(this IEnumerable<T> target, ParallelOptions parallelOptions, Action<T> closure)
 		{
 			if (closure == null)
-				throw new ArgumentNullException("closure");
+				throw new ArgumentNullException(nameof(closure));
+			Contract.EndContractBlock();
 
 			if (target != null)
 			{
@@ -171,6 +175,7 @@ namespace Open.Collections
 		{
 			if (target == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			target.ForEach(
 				parallel == 0
@@ -183,6 +188,7 @@ namespace Open.Collections
 		{
 			if (target == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			if (target != null)
 			{
@@ -204,6 +210,7 @@ namespace Open.Collections
 		{
 			if (target == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			if (target != null)
 				foreach (var t in target)
@@ -229,10 +236,11 @@ namespace Open.Collections
 		public static bool HasAtLeast<T>(this IEnumerable<T> source, int minimum)
 		{
 			if (minimum < 1)
-				throw new ArgumentOutOfRangeException("minimum", minimum, "Cannot be zero or negative.");
+				throw new ArgumentOutOfRangeException(nameof(minimum), minimum, "Cannot be zero or negative.");
 
 			if (source == null)
-				throw new ArgumentNullException("source");
+				throw new ArgumentNullException(nameof(source));
+			Contract.EndContractBlock();
 
 			if (source is System.Array)
 				return ((System.Array)source).Length >= minimum;
@@ -296,7 +304,7 @@ namespace Open.Collections
 			var queue = new BufferBlock<T>();
 			ActionBlock<bool> worker = null;
 
-			Func<bool> tryQueue = () =>
+			bool tryQueue() =>
 				e.ConcurrentMoveNext(
 					value => queue.Post(value),
 					() => worker.Complete());
@@ -349,10 +357,6 @@ namespace Open.Collections
                 }
 		}
 
-
-		// The idea here is a zero capacity string array is effectively imutable and will not change.  So it can be reused for comparison.
-		public static readonly string[] StringArrayEmpty = new string[0];
-
 		/// <summary>
 		/// Concatentates any enumerable into a string using an optional separator.
 		/// </summary>
@@ -384,6 +388,7 @@ namespace Open.Collections
 		{
 			if (array == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 
 			return String.Join(separator + String.Empty, array);
@@ -394,7 +399,8 @@ namespace Open.Collections
 			if (array == null)
 				throw new NullReferenceException();
 			if (separator == null)
-				throw new ArgumentNullException("separator");
+				throw new ArgumentNullException(nameof(separator));
+			Contract.EndContractBlock();
 
 			return String.Join(separator, array);
 		}
@@ -408,6 +414,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return (new StringBuilder()).AppendAll(source, separator).ToString();
 		}
@@ -420,7 +427,8 @@ namespace Open.Collections
 			if (source == null)
 				throw new NullReferenceException();
 			if (separator == null)
-				throw new ArgumentNullException("separator");
+				throw new ArgumentNullException(nameof(separator));
+			Contract.EndContractBlock();
 
 			return (new StringBuilder()).AppendAll(source, separator).ToString();
 		}
@@ -436,6 +444,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 		}
@@ -444,6 +453,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 		}
@@ -452,6 +462,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var result = new SortedDictionary<TKey, TValue>();
 			foreach (var kv in source)
@@ -466,9 +477,10 @@ namespace Open.Collections
 			if (source == null)
 				throw new NullReferenceException();
 			if (keySelector == null)
-				throw new ArgumentNullException("keySelector");
+				throw new ArgumentNullException(nameof(keySelector));
 			if (valueSelector == null)
-				throw new ArgumentNullException("valueSelector");
+				throw new ArgumentNullException(nameof(valueSelector));
+			Contract.EndContractBlock();
 
 			var result = new SortedDictionary<TKey, TValue>();
 			foreach (var s in source)
@@ -481,6 +493,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var result = new SortedDictionary<TKey, IEnumerable<TValue>>();
 			foreach (var g in source)
@@ -496,6 +509,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			var result = new SortedDictionary<TKey, TValue>();
 			foreach (var s in source)
@@ -513,6 +527,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return new HashSet<T>(source);
 		}
@@ -569,7 +584,8 @@ namespace Open.Collections
 		/// </summary>
 		public static string[] ToStringArray<T>(this IEnumerable<T> list)
 		{
-			if (list == null) throw new ArgumentNullException("list");
+			if (list == null) throw new ArgumentNullException(nameof(list));
+			Contract.EndContractBlock();
 
 			return list.Select(r => r.ToString()).ToArray();
 		}
@@ -581,6 +597,7 @@ namespace Open.Collections
 		public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> target)
 		{
 			if (target == null) throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			foreach (var i in target)
 				foreach (var t in i)
@@ -593,6 +610,7 @@ namespace Open.Collections
 		public static IEnumerable<T> OrderBy<T>(this IEnumerable<T> enumerable, string orderBy)
 		{
 			if (enumerable == null) throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return enumerable.AsQueryable().OrderBy(orderBy).AsEnumerable();
 		}
@@ -610,6 +628,7 @@ namespace Open.Collections
 		public static IQueryable<T> OrderBy<T>(this IQueryable<T> collection, string orderBy)
 		{
 			if (collection == null) throw new NullReferenceException();
+			Contract.EndContractBlock();
 
 			return ParseOrderBy(orderBy).Aggregate(collection, ApplyOrderBy);
 		}
@@ -617,8 +636,9 @@ namespace Open.Collections
 
 		private static IQueryable<T> ApplyOrderBy<T>(IQueryable<T> collection, OrderByInfo orderByInfo)
 		{
-			if (collection == null) throw new ArgumentNullException("collection");
-			if (orderByInfo == null) throw new ArgumentNullException("orderByInfo");
+			if (collection == null) throw new ArgumentNullException(nameof(collection));
+			if (orderByInfo == null) throw new ArgumentNullException(nameof(orderByInfo));
+			Contract.EndContractBlock();
 
 			string[] props = orderByInfo.PropertyName.Split('.');
 			Type typeT = typeof(T);
@@ -812,7 +832,8 @@ namespace Open.Collections
 		public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k, bool uniqueOnly = false)
 		{
 			if (k < 0)
-				throw new ArgumentOutOfRangeException("k", k, "Cannot be less than zero.");
+				throw new ArgumentOutOfRangeException(nameof(k), k, "Cannot be less than zero.");
+			Contract.EndContractBlock();
 
 			return k == 0 ? new[] { new T[0] } :
 				elements.SelectMany((e, i) =>

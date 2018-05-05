@@ -13,7 +13,7 @@ namespace Open.Collections
 			if (source == null)
 				throw new NullReferenceException();
 			if (target == null)
-				throw new ArgumentNullException("target");
+				throw new ArgumentNullException(nameof(target));
 
 			byte[] bytes = new byte[4096];
 

@@ -1,8 +1,5 @@
-﻿using Open.Threading;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 
 
 namespace Open.Collections.NonGeneric
@@ -14,7 +11,7 @@ namespace Open.Collections.NonGeneric
 		internal static void ValidateMillisecondsTimeout(int? millisecondsTimeout)
 		{
 			if ((millisecondsTimeout ?? 0) < 0)
-				throw new ArgumentOutOfRangeException("millisecondsTimeout", millisecondsTimeout, "Cannot be a negative value.");
+				throw new ArgumentOutOfRangeException(nameof(millisecondsTimeout), millisecondsTimeout, "Cannot be a negative value.");
 		}
 
 		/// <summary>
@@ -27,8 +24,8 @@ namespace Open.Collections.NonGeneric
 			Func<object, T> valueFactory)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
-			if (valueFactory == null) throw new ArgumentNullException("valueFactory");
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
 			if (!target.TryGetValue(key, out T value))
 				target.Add(key, value = valueFactory(key));
@@ -45,7 +42,7 @@ namespace Open.Collections.NonGeneric
 			T value)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			if (!target.TryGetValue(key, out T v))
 				target.Add(key, v = value);
@@ -61,7 +58,7 @@ namespace Open.Collections.NonGeneric
 		public static bool TryGetValue<T>(this IDictionary target, object key, out T value)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			if (target.Contains(key))
 			{
@@ -83,8 +80,8 @@ namespace Open.Collections.NonGeneric
 			Func<object, T> valueFactory)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
-			if (valueFactory == null) throw new ArgumentNullException("valueFactory");
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
 			return target.TryGetValue(key, out T value) ? value : valueFactory(key);
 		}
@@ -98,7 +95,7 @@ namespace Open.Collections.NonGeneric
 			T defaultValue)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			return target.TryGetValue(key, out T value) ? value : defaultValue;
 		}

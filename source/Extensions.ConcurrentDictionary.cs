@@ -24,7 +24,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			var u = false;
 
@@ -46,7 +46,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			var u = false;
 
@@ -64,7 +64,7 @@ namespace Open.Collections
 		{
 			if (source == null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			// Use temporary update value to allow code contract resolution.
 			DateTime now = DateTime.Now;

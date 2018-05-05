@@ -23,7 +23,7 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			bool added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -50,7 +50,7 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			bool added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -77,7 +77,7 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			bool removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -98,7 +98,7 @@ namespace Open.Collections.NonGeneric
 		public static bool TryGetValueSynchronized<T>(this IDictionary target, object key, out T value)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			T result = default(T);
 			bool success = ThreadSafety.SynchronizeRead(target, key, () =>
@@ -119,7 +119,7 @@ namespace Open.Collections.NonGeneric
 		public static T GetValueTypeSynchronized<T>(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			object value = target.GetValueSynchronized(key, throwIfNotExists);
 			try
@@ -134,7 +134,7 @@ namespace Open.Collections.NonGeneric
 		public static object GetValueSynchronized(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			var exists = target.TryGetValueSynchronized(key, out object value);
 
@@ -157,7 +157,7 @@ namespace Open.Collections.NonGeneric
 			bool throwsOnTimeout = true)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
+			if (key == null) throw new ArgumentNullException(nameof(key));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
 			T result = default(T);
@@ -187,8 +187,8 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
 			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException("key");
-			if (valueFactory == null) throw new ArgumentNullException("valueFactory");
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
 			T result = default(T);
