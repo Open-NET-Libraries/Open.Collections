@@ -29,7 +29,7 @@ namespace Open.Collections.Synchronized
 		bool IfContains(T item, Action<TCollection> action);
 
 		/// <summary>
-		/// If the item is within, allows locks the collection before executing the action.
+		/// If the item is not within, allows locks the collection before executing the action.
 		/// </summary>
 		/// <param name="item">The item to look for.</param>
 		/// <param name="action">The action to execute safely on the underlying collection safely.</param>
