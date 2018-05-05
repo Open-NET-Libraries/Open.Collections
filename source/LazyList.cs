@@ -4,11 +4,11 @@
  * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
  */
 
+using Open.Disposable;
+using Open.Threading;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Open.Threading;
-using Open.Disposable;
 
 namespace Open.Collections
 {
@@ -30,7 +30,7 @@ namespace Open.Collections
 
 		protected override void OnDispose(bool calledExplicitly)
 		{
-			if(calledExplicitly)
+			if (calledExplicitly)
 			{
 				using (Sync.WriteLock())
 				{
@@ -51,25 +51,25 @@ namespace Open.Collections
 				if (index < 0)
 					throw new ArgumentOutOfRangeException(nameof(index), "Cannot be less than zero.");
 				if (!EnsureIndex(index))
-    				throw new ArgumentOutOfRangeException(nameof(index), "Great than total count.");
+					throw new ArgumentOutOfRangeException(nameof(index), "Great than total count.");
 
-                return _cached[index];
-            }
-        }
+				return _cached[index];
+			}
+		}
 
-        // Ensures concurrent threads don't double produce values...
-        bool EnsureIndex(int index)
-        {
-            // Only ask for GetNext if count is still not enough.
-            while (_cached.Count <= index && GetNext(index)) { }
-            return index < _cached.Count;
-        }
+		// Ensures concurrent threads don't double produce values...
+		bool EnsureIndex(int index)
+		{
+			// Only ask for GetNext if count is still not enough.
+			while (_cached.Count <= index && GetNext(index)) { }
+			return index < _cached.Count;
+		}
 
 		public int Count
 		{
 			get
 			{
-                AssertIsAlive();
+				AssertIsAlive();
 				Finish();
 				return _cached.Count;
 			}
@@ -77,41 +77,41 @@ namespace Open.Collections
 
 		public IEnumerator<T> GetEnumerator()
 		{
-            AssertIsAlive();
+			AssertIsAlive();
 
 			int index = 0;
 			while (EnsureIndex(index))
 			{
-                yield return _cached[Interlocked.Increment(ref index) - 1]; // Interlocked allows for multi-threaded access to this enumerator.
+				yield return _cached[Interlocked.Increment(ref index) - 1]; // Interlocked allows for multi-threaded access to this enumerator.
 			}
 		}
 
 		public int IndexOf(T item)
 		{
-            AssertIsAlive();
+			AssertIsAlive();
 			if (IsEndless)
 				throw new InvalidOperationException("This list is marked as endless and may never complete. Use an enumerator, then Take(x).IndexOf().");
 
-            var e = GetEnumerator();
-            int index = 0;
-            while (e.MoveNext())
-            {
-                if (e.Current.Equals(item))
-                    return index;
-                index++;
-            }
-            return -1;
+			var e = GetEnumerator();
+			int index = 0;
+			while (e.MoveNext())
+			{
+				if (e.Current.Equals(item))
+					return index;
+				index++;
+			}
+			return -1;
 		}
 
 		public bool Contains(T item)
 		{
-            AssertIsAlive();
+			AssertIsAlive();
 			return IndexOf(item) != -1;
 		}
 
 		public void CopyTo(T[] array, int arrayIndex = 0)
 		{
-            AssertIsAlive();
+			AssertIsAlive();
 			var len = Math.Min(IsEndless ? int.MaxValue : Count, array.Length - arrayIndex);
 			for (var i = 0; i < len; i++)
 				array[i + arrayIndex] = this[i];
@@ -124,27 +124,27 @@ namespace Open.Collections
 
 		private bool GetNext(int maxIndex)
 		{
-            if (maxIndex < _cached.Count)
-                return true;
+			if (maxIndex < _cached.Count)
+				return true;
 
-            if (_enumerator == null)
-                return false;
+			if (_enumerator == null)
+				return false;
 
 			// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
-            using (var uLock = Sync.UpgradableReadLock())
+			using (var uLock = Sync.UpgradableReadLock())
 			{
-                if (maxIndex < _cached.Count)
-                    return true;
+				if (maxIndex < _cached.Count)
+					return true;
 
-                if (_enumerator == null)
-                    return false;
+				if (_enumerator == null)
+					return false;
 
-                uLock.UpgradeToWriteLock();
+				uLock.UpgradeToWriteLock();
 
 				if (_enumerator.MoveNext())
 				{
-                    if (_cached.Count == int.MaxValue)
-                        throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
+					if (_cached.Count == int.MaxValue)
+						throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
 
 					_cached.Add(_enumerator.Current);
 					return true;

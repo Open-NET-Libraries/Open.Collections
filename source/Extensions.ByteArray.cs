@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Open.Collections
 {
-    public static partial class Extensions
-    {
+	public static partial class Extensions
+	{
 		/// <summary>
 		/// Converts a string to a byte array.
 		/// </summary>

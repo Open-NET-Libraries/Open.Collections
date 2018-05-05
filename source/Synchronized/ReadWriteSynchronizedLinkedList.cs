@@ -1,8 +1,6 @@
 ﻿using Open.Threading;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 
 namespace Open.Collections.Synchronized
 {
@@ -93,7 +91,7 @@ namespace Open.Collections.Synchronized
 			LinkedListNode<T> node = null;
 			T result = default(T);
 			Sync.ReadWriteConditionalOptimized(
-				lockType => (node = InternalSource.Last) !=null,
+				lockType => (node = InternalSource.Last) != null,
 				() =>
 				{
 					result = node.Value;

@@ -1,16 +1,12 @@
 ﻿using Open.Diagnostics;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Open.Collections
 {
 	public class QueueBenchmark : BenchmarkBase<Func<IQueue<object>>>
 	{
-		public QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory) : base(size,repeat,queueFactory)
+		public QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory) : base(size, repeat, queueFactory)
 		{
 		}
 

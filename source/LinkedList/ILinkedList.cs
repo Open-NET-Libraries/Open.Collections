@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Open.Collections
 {
-    public interface ILinkedList<T> : ICollection<T>
-    {
+	public interface ILinkedList<T> : ICollection<T>
+	{
 		LinkedListNode<T> First { get; }
 		LinkedListNode<T> Last { get; }
 

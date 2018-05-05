@@ -1,16 +1,12 @@
 ﻿using Open.Diagnostics;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Open.Collections
 {
 	public class LinkedListBenchmark : BenchmarkBase<Func<ILinkedList<object>>>
 	{
-		public LinkedListBenchmark(uint size, uint repeat, Func<ILinkedList<object>> factory) : base(size,repeat,factory)
+		public LinkedListBenchmark(uint size, uint repeat, Func<ILinkedList<object>> factory) : base(size, repeat, factory)
 		{
 		}
 

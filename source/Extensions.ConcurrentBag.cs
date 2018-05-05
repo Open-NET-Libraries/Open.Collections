@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Open.Collections
 {
 	public static partial class Extensions
-    {
+	{
 
 
 		public static IEnumerable<T> TryTakeWhile<T>(this ConcurrentBag<T> target, Func<ConcurrentBag<T>, bool> predicate)

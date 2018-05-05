@@ -7,7 +7,7 @@ namespace Open.Collections
 {
 	public class CollectionParallelBenchmark : CollectionBenchmark
 	{
-		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size,repeat,factory)
+		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory)
 		{
 
 		}
@@ -19,7 +19,7 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure("Fill (.Add(item)) (In Parallel)", () =>
 			{
-				Parallel.For(0, TestSize, i => c.Add(_items[i]) );
+				Parallel.For(0, TestSize, i => c.Add(_items[i]));
 			});
 
 			yield return TimedResult.Measure("Enumerate", () =>

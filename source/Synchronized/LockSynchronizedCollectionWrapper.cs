@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using Open.Threading;
 
 namespace Open.Collections.Synchronized
 {
@@ -25,7 +23,7 @@ namespace Open.Collections.Synchronized
 
 		public override void Add(T item1, T item2, params T[] items)
 		{
-			lock(items)
+			lock (items)
 			{
 				InternalSource.Add(item1);
 				InternalSource.Add(item2);

@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 namespace Open.Collections
 {
 	public static partial class Extensions
-    {
+	{
 		/// <summary>
 		/// Shortcut for removeing a value without needing an 'out' parameter.
 		/// </summary>

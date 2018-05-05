@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
 {
-	public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T,HashSet<T>>, ISet<T>, ISynchronizedCollection<T>
+	public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>, ISynchronizedCollection<T>
 	{
 		public LockSynchronizedHashSet() : base(new HashSet<T>()) { }
 		public LockSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }

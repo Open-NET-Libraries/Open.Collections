@@ -4,7 +4,7 @@ using System.IO;
 namespace Open.Collections
 {
 	public static partial class Extensions
-    {
+	{
 		/// <summary>
 		/// Copies the source stream to the target.
 		/// </summary>

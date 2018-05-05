@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Open.Collections
 {
-    public static partial class Extensions
-    {
+	public static partial class Extensions
+	{
 		/// <summary>
 		/// Will remove an entry if the value is null or matches the default type value.
 		/// Otherwise will set the value.

@@ -291,8 +291,8 @@ namespace Open.Collections
 					return true;
 				}
 			}
-            falseHandler?.Invoke();
-            return false;
+			falseHandler?.Invoke();
+			return false;
 		}
 
 		/// <summary>
@@ -310,51 +310,51 @@ namespace Open.Collections
 					() => worker.Complete());
 
 			worker = new ActionBlock<bool>(synchronousFill =>
-				{ while (queue.Count < count && tryQueue() && synchronousFill); },
+				{ while (queue.Count < count && tryQueue() && synchronousFill) ; },
 				// The consumers will dictate the amount of parallelism.
 				new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = 32 });
 
-            worker.Completion.ContinueWith(task =>
-            {
-                if (task.IsFaulted)
-                    ((IDataflowBlock)queue).Fault(task.Exception.InnerException);
-                else
-                    queue.Complete();
-            });
+			worker.Completion.ContinueWith(task =>
+			{
+				if (task.IsFaulted)
+					((IDataflowBlock)queue).Fault(task.Exception.InnerException);
+				else
+					queue.Complete();
+			});
 
 			// The very first call (kick-off) should be synchronous.
-			if(tryQueue()) while (true)
-			{
-                    // Is something already availaible in the queue?  Get it.
-                    if (queue.TryReceive(null, out T item))
-                    {
-                        worker.SendAsync(true);
-                        yield return item;
-                    }
-                    else
-                    {
-                        // At this point, something could be in the queue again, but let's assume not and try an trigger more.
-                        if (worker.Post(true))
-                        {
-                            // The .Post call is 'accepted' (doesn't mean it was run).
-                            // Setup the wait for recieve the next avaialable.
-                            var task = queue.ReceiveAsync();
-                            task.Wait();
-                            if (task.IsFaulted)
-                            {
-                                throw task.Exception.InnerException;
-                            }
-                            if (!task.IsCanceled) // Cancelled means there's nothing to get.
-                            {
-                                // Task was not cancelled and there is a result availaible;
-                                yield return task.Result;
-                                continue;
-                            }
-                        }
+			if (tryQueue()) while (true)
+				{
+					// Is something already availaible in the queue?  Get it.
+					if (queue.TryReceive(null, out T item))
+					{
+						worker.SendAsync(true);
+						yield return item;
+					}
+					else
+					{
+						// At this point, something could be in the queue again, but let's assume not and try an trigger more.
+						if (worker.Post(true))
+						{
+							// The .Post call is 'accepted' (doesn't mean it was run).
+							// Setup the wait for recieve the next avaialable.
+							var task = queue.ReceiveAsync();
+							task.Wait();
+							if (task.IsFaulted)
+							{
+								throw task.Exception.InnerException;
+							}
+							if (!task.IsCanceled) // Cancelled means there's nothing to get.
+							{
+								// Task was not cancelled and there is a result availaible;
+								yield return task.Result;
+								continue;
+							}
+						}
 
-                        yield break;
-                    }
-                }
+						yield break;
+					}
+				}
 		}
 
 		/// <summary>
@@ -603,7 +603,7 @@ namespace Open.Collections
 				foreach (var t in i)
 					yield return t;
 		}
-        
+
 		/// <summary>
 		/// Shortcut for ordering an enumerable by an "ORDER BY" string.
 		/// </summary>
@@ -842,6 +842,6 @@ namespace Open.Collections
 						.Combinations(k - 1, uniqueOnly)
 						.Select(c => (new[] { e }).Concat(c)));
 		}
-		
+
 	}
 }

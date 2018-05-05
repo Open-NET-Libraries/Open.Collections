@@ -1,9 +1,7 @@
-﻿using Open.Diagnostics;
-using Open.Collections;
-using System;
-using System.IO;
-using System.Text;
+﻿using Open.Collections;
 using Open.Collections.Synchronized;
+using Open.Diagnostics;
+using System;
 using System.Collections.Generic;
 
 class Program
@@ -119,7 +117,7 @@ class Program
 			report.Test(100);
 			report.Test(250);
 			report.Test(1000);
-			report.Test(2000,2);
+			report.Test(2000, 2);
 		}
 
 	}

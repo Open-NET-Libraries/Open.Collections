@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Collections;
-using Open.Threading;
-using Open.Disposable;
+﻿using System.Collections.Generic;
 
 namespace Open.Collections
 {
 	public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>
 		where TCollection : class, ICollection<T>
 	{
-		protected CollectionWrapper(TCollection source):base(source)
+		protected CollectionWrapper(TCollection source) : base(source)
 		{
 		}
 

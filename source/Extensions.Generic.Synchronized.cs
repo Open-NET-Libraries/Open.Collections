@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Text;
 
 namespace Open.Collections
 {
-    public static partial class Extensions
-    {
+	public static partial class Extensions
+	{
 
 		const int SYNC_TIMEOUT_DEFAULT_MILLISECONDS = 10000;
 

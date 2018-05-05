@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Open.Collections.Synchronized
 {
-    public interface ISynchronizedCollectionWrapper<T, TCollection> : ISynchronizedCollection<T>
+	public interface ISynchronizedCollectionWrapper<T, TCollection> : ISynchronizedCollection<T>
 		where TCollection : ICollection<T>
-    {
+	{
 		/// <summary>
 		/// Allows for multiple modifications at once.
 		/// </summary>

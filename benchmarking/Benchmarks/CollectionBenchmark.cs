@@ -7,7 +7,7 @@ namespace Open.Collections
 {
 	public class CollectionBenchmark : BenchmarkBase<Func<ICollection<object>>>
 	{
-		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size,repeat,factory)
+		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory)
 		{
 			_items = Enumerable.Range(0, (int)TestSize).Select(i => new Object()).ToArray();
 		}
@@ -27,7 +27,7 @@ namespace Open.Collections
 			yield return TimedResult.Measure("Enumerate", () =>
 			{
 				var x = 0;
-				foreach(var i in c) { x++; }
+				foreach (var i in c) { x++; }
 			});
 
 			yield return TimedResult.Measure(".Contains(item)", () =>
@@ -37,7 +37,7 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure("Empty Backwards (.Remove(last))", () =>
 			{
-				for (var i = 0; i < TestSize; i++) c.Remove(_items[TestSize-i-1]);
+				for (var i = 0; i < TestSize; i++) c.Remove(_items[TestSize - i - 1]);
 			});
 
 			yield return TimedResult.Measure("Refill (.Add(item))", () =>
