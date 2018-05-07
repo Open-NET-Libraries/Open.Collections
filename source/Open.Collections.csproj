@@ -15,10 +15,10 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.2.0</Version>
-    <AssemblyVersion>2.2.0.0</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
-    <PackageReleaseNotes>Updated to .NET Standard for compatability.</PackageReleaseNotes>
+    <Version>2.2.1</Version>
+    <AssemblyVersion>2.2.1.0</AssemblyVersion>
+    <FileVersion>2.2.1.0</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -35,7 +35,6 @@ Part of the "Open" set of libraries.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
     <PackageReference Include="Open.Disposable" Version="1.1.0" />
     <PackageReference Include="Open.Text" Version="1.1.0" />
     <PackageReference Include="Open.Threading" Version="1.3.0" />

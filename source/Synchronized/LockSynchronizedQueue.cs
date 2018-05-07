@@ -18,7 +18,7 @@
 				lock (this)
 					return base.TryDequeue(out item);
 
-			item = default(T);
+			item = default;
 			return false;
 		}
 
@@ -28,7 +28,7 @@
 				lock (this)
 					return base.TryPeek(out item);
 
-			item = default(T);
+			item = default;
 			return false;
 		}
 	}

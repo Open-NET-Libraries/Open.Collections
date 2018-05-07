@@ -1,48 +1,49 @@
 ﻿using Open.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Open.Collections
 {
 	public class ListParallelBenchmark : CollectionParallelBenchmark
 	{
-		public ListParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory)
+		public ListParallelBenchmark(uint size, uint repeat, Func<IList<object>> factory) : base(size, repeat, factory)
 		{
 
 		}
 
+		// Get/Set (mutating entry) operations have no benefit to synchronization and are inherently thread safe.
+		//protected override IEnumerable<TimedResult> TestOnceInternal()
+		//{
+		//	foreach (var t in base.TestOnceInternal())
+		//	{
+		//		yield return t;
+		//	}
 
-		protected override IEnumerable<TimedResult> TestOnceInternal()
-		{
-			foreach (var t in base.TestOnceInternal())
-			{
-				yield return t;
-			}
+		//	const int mixSize = 100;
+		//	var c = (IList<object>)Param();
+		//	for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
+		//	var items = Enumerable.Range(0, mixSize).Select(i => new object()).ToArray();
 
-			var c = Param();
-			for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
+		//	yield return TimedResult.Measure("Random Set/Get", () =>
+		//	{
+		//		for (var i = 0; i < TestSize; i++)
+		//		{
+		//			Parallel.For(0, mixSize, x =>
+		//			{
+		//				if (x % 2 == 0)
+		//				{
+		//					c[i] = items[x];
+		//				}
+		//				else
+		//				{
+		//					var value = c[i];
+		//				}
+		//			});
+		//		}
+		//	});
+		//}
 
-			yield return TimedResult.Measure("Random Set/Get", () =>
-			{
-				for (var i = 0; i < TestSize; i++)
-				{
-					Parallel.For(0, TestSize, x =>
-					{
-						if (x % 2 == 0)
-						{
-							_items[i] = _items[x];
-						}
-						else
-						{
-							var value = _items[i];
-						}
-					});
-				}
-			});
-		}
-
-		public static new TimedResult[] Results(uint size, uint repeat, Func<ICollection<object>> factory)
+		public static TimedResult[] Results(uint size, uint repeat, Func<IList<object>> factory)
 		{
 			return (new ListParallelBenchmark(size, repeat, factory)).Result;
 		}

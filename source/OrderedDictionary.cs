@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * @author electricessence / https://github.com/electricessence/
  * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
  */
@@ -171,7 +171,7 @@ namespace Open.Collections
 					throw new Exception("Invalid initialization values.  Value array is longer than key array.");
 
 				for (var i = 0; i < keys.Length; i++)
-					AddInternal(keys[i], (hasValues && i < values.Length) ? values[i] : default(TValue));
+					AddInternal(keys[i], (hasValues && i < values.Length) ? values[i] : default);
 			}
 			else if (values != null && values.Length != 0)
 			{
@@ -202,7 +202,7 @@ namespace Open.Collections
 		private static TValue ConvertToValueType(object value)
 		{
 			if (value == null)
-				return default(TValue);
+				return default;
 
 			return (TValue)value;
 		}
@@ -307,7 +307,7 @@ namespace Open.Collections
 				List.RemoveAt(index);
 				Dictionary.Remove(key);
 			}
-			OnItemChanged(ItemChange.Removed, index, key, value, default(TValue));
+			OnItemChanged(ItemChange.Removed, index, key, value, default);
 		}
 
 
@@ -335,7 +335,7 @@ namespace Open.Collections
 
 				TKey key;
 				bool changed = false;
-				TValue previous = default(TValue);
+				TValue previous = default;
 				lock (SyncRoot)
 				{
 					if (index > Count)
@@ -502,7 +502,7 @@ namespace Open.Collections
 				else
 					return false;
 			}
-			OnItemChanged(ItemChange.Removed, index, key, value, default(TValue));
+			OnItemChanged(ItemChange.Removed, index, key, value, default);
 			return true;
 		}
 
@@ -522,7 +522,7 @@ namespace Open.Collections
 			{
 				int index = -1;
 				var change = ItemChange.None;
-				TValue previous = default(TValue);
+				TValue previous = default;
 				lock (SyncRoot)
 				{
 					if (Dictionary.TryGetValue(key, out previous))

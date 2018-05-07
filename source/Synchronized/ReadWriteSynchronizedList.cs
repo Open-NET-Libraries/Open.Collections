@@ -1,4 +1,4 @@
-using Open.Threading;
+﻿using Open.Threading;
 using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
@@ -22,8 +22,7 @@ namespace Open.Collections.Synchronized
 
 			set
 			{
-				// Using Sync.Read simply means that "the collection is not changing" so changing a value within the collection is okay.
-				Sync.Read(() => InternalSource[index] = value);
+				InternalSource[index] = value;
 			}
 		}
 

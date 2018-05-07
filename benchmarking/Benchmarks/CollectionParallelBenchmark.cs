@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Open.Collections
 {
-	public class CollectionParallelBenchmark : CollectionBenchmark
+	public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 	{
-		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory)
+		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory, itemFactory)
 		{
 
 		}
@@ -22,10 +22,11 @@ namespace Open.Collections
 				Parallel.For(0, TestSize, i => c.Add(_items[i]));
 			});
 
-			yield return TimedResult.Measure("Enumerate", () =>
-			{
-				Parallel.ForEach(c, i => { });
-			});
+			// It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
+			//yield return TimedResult.Measure("Enumerate", () =>
+			//{
+			//	Parallel.ForEach(c, i => { });
+			//});
 
 			yield return TimedResult.Measure(".Contains(item) (In Parallel)", () =>
 			{
@@ -42,7 +43,7 @@ namespace Open.Collections
 				Parallel.For(0, TestSize, i => c.Add(_items[i]));
 			});
 
-			yield return TimedResult.Measure("50/50 Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("50/50 Mixed Contains/Add (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{
@@ -53,7 +54,7 @@ namespace Open.Collections
 				});
 			});
 
-			yield return TimedResult.Measure("10/90 Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("10/90 Mixed Contains/Add (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{
@@ -64,7 +65,7 @@ namespace Open.Collections
 				});
 			});
 
-			yield return TimedResult.Measure("90/10 Mixed Read/Write (In Parallel)", () =>
+			yield return TimedResult.Measure("90/10 Mixed Contains/Add (In Parallel)", () =>
 			{
 				Parallel.For(0, TestSize, i =>
 				{
@@ -93,10 +94,29 @@ namespace Open.Collections
 
 		}
 
-		public static new TimedResult[] Results(uint size, uint repeat, Func<ICollection<object>> factory)
+
+
+	}
+
+	public class CollectionParallelBenchmark : CollectionParallelBenchmark<object>
+	{
+		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory, i => new object())
 		{
-			return (new CollectionParallelBenchmark(size, repeat, factory)).Result;
+
+		}
+
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
+		{
+			return (new CollectionParallelBenchmark<T>(size, repeat, factory, itemFactory)).Result;
+		}
+
+
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory)
+			where T : new()
+		{
+			return (new CollectionParallelBenchmark<T>(size, repeat, factory, i => new T())).Result;
 		}
 
 	}
+
 }

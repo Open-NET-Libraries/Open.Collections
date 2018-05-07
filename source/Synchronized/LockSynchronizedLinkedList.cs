@@ -73,7 +73,7 @@ namespace Open.Collections.Synchronized
 		{
 			bool success = false;
 			LinkedListNode<T> node = null;
-			T result = default(T);
+			T result = default;
 			ThreadSafety.LockConditional(
 				this,
 				() => (node = InternalSource.First) != null,
@@ -91,7 +91,7 @@ namespace Open.Collections.Synchronized
 		{
 			bool success = false;
 			LinkedListNode<T> node = null;
-			T result = default(T);
+			T result = default;
 			ThreadSafety.LockConditional(
 				this,
 				() => (node = InternalSource.Last) != null,

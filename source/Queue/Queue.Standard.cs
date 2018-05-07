@@ -19,14 +19,14 @@ namespace Open.Collections
 			public virtual bool TryDequeue(out T item)
 			{
 				var ok = Count != 0;
-				item = ok ? Dequeue() : default(T);
+				item = ok ? Dequeue() : default;
 				return ok;
 			}
 
 			public virtual bool TryPeek(out T item)
 			{
 				var ok = Count != 0;
-				item = ok ? Peek() : default(T);
+				item = ok ? Peek() : default;
 				return ok;
 			}
 		}

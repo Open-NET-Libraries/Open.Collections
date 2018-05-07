@@ -85,7 +85,7 @@ class Program
 
 		Console.WriteLine("::: Synchronized Lists :::\n");
 		{
-			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, (c, r, p) => ListParallelBenchmark.Results(c, r, p));
+			var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, (c, r, p) => ListParallelBenchmark.Results(c, r, p));
 
 			report.AddBenchmark("LockSynchronizedList",
 				count => () => new LockSynchronizedList<object>());
@@ -95,10 +95,10 @@ class Program
 			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 
 
-			report.Test(100);
-			report.Test(250);
-			report.Test(1000);
-			report.Test(2000);
+			report.Test(100, 4);
+			report.Test(250, 4);
+			report.Test(1000, 4);
+			report.Test(2000, 4);
 		}
 
 
@@ -114,10 +114,10 @@ class Program
 			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 
 
-			report.Test(100);
-			report.Test(250);
-			report.Test(1000);
-			report.Test(2000, 2);
+			report.Test(100, 4);
+			report.Test(250, 4);
+			report.Test(1000, 4 * 4);
+			report.Test(2000, 8 * 4);
 		}
 
 	}

@@ -63,11 +63,11 @@ namespace Open.Collections.NonGeneric
 			if (target.Contains(key))
 			{
 				var result = target[key];
-				value = result == null ? default(T) : (T)result;
+				value = result == null ? default : (T)result;
 				return true;
 			}
 
-			value = default(T);
+			value = default;
 			return false;
 		}
 

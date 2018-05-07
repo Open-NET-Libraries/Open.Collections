@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace Open.Collections
 {
-	public class CollectionBenchmark : BenchmarkBase<Func<ICollection<object>>>
+	public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
 	{
-		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory)
+		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory)
 		{
-			_items = Enumerable.Range(0, (int)TestSize).Select(i => new Object()).ToArray();
+			_items = Enumerable.Range(0, (int)TestSize).Select(itemFactory).ToArray();
 		}
 
-		protected readonly object[] _items;
+		protected readonly T[] _items;
 
 		protected override IEnumerable<TimedResult> TestOnceInternal()
 		{
@@ -59,9 +59,26 @@ namespace Open.Collections
 
 		}
 
-		public static TimedResult[] Results(uint size, uint repeat, Func<ICollection<object>> factory)
+
+	}
+
+	public class CollectionBenchmark : CollectionBenchmark<object>
+	{
+		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<object>> factory) : base(size, repeat, factory, i => new object())
 		{
-			return (new CollectionBenchmark(size, repeat, factory)).Result;
+
+		}
+
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
+		{
+			return (new CollectionBenchmark<T>(size, repeat, factory, itemFactory)).Result;
+		}
+
+
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory)
+			where T : new()
+		{
+			return (new CollectionBenchmark<T>(size, repeat, factory, i => new T())).Result;
 		}
 
 	}

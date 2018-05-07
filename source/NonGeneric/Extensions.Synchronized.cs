@@ -100,7 +100,7 @@ namespace Open.Collections.NonGeneric
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			T result = default(T);
+			T result = default;
 			bool success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
@@ -124,11 +124,11 @@ namespace Open.Collections.NonGeneric
 			object value = target.GetValueSynchronized(key, throwIfNotExists);
 			try
 			{
-				return value == null ? default(T) : (T)value;
+				return value == null ? default : (T)value;
 			}
 			catch (InvalidCastException) { }
 
-			return default(T);
+			return default;
 		}
 
 		public static object GetValueSynchronized(this IDictionary target, object key, bool throwIfNotExists = false)
@@ -160,14 +160,14 @@ namespace Open.Collections.NonGeneric
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
-			T result = default(T);
+			T result = default;
 			// Uses threadsafe means to acquire value.
-			Func<LockType, bool> condition = lockType => !target.TryGetValue(key, out result);
-			Action render = () =>
+			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
+			void render()
 			{
 				result = value;
 				target.Add(key, result); // A lock is required when adding a value.  AKA 'changing the collection'.
-			};
+			}
 
 			if (!ThreadSafety.SynchronizeReadWrite(target, condition, render, millisecondsTimeout, throwsOnTimeout))
 				return value; // Value doesn'T exist and timeout exceeded? Return the add value...
@@ -191,11 +191,11 @@ namespace Open.Collections.NonGeneric
 			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
-			T result = default(T);
-			Func<LockType, bool> condition = lockType => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
+			T result = default;
+			bool condition(LockType lockType) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 			// Once a per value write lock is established, execute the scheduler, and syncronize adding...
-			Action render = () => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
+			void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
 
 			if (!ThreadSafety.SynchronizeReadWrite(target, key, condition, render, millisecondsTimeout, false))
 				render(); // Timeout failed? Lock insert anyway and move on...

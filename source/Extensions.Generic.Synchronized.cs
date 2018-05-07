@@ -28,7 +28,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			TValue result = default(TValue);
+			TValue result = default;
 			bool success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
@@ -54,7 +54,7 @@ namespace Open.Collections
 			if (!exists && throwIfNotExists)
 				throw new KeyNotFoundException(key.ToString());
 
-			return exists ? value : default(TValue);
+			return exists ? value : default;
 		}
 
 
@@ -85,7 +85,7 @@ namespace Open.Collections
 			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
 			Contract.EndContractBlock();
 
-			T valueUsed = default(T);
+			T valueUsed = default;
 
 			// First we get a lock on the key action which should prevent the individual action from changing..
 			ThreadSafety.SynchronizeWrite(target, key, () =>
@@ -124,7 +124,7 @@ namespace Open.Collections
 			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
 			Contract.EndContractBlock();
 
-			T valueUsed = default(T);
+			T valueUsed = default;
 
 			// First we get a lock on the key action which should prevent the individual action from changing..
 			ThreadSafety.SynchronizeWrite(target, key, () =>
@@ -226,13 +226,13 @@ namespace Open.Collections
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 			Contract.EndContractBlock();
 
-			T result = default(T);
-			Func<LockType, bool> condition = lockType => !target.TryGetValue(key, out result);
-			Action render = () =>
+			T result = default;
+			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
+			void render()
 			{
 				result = value;
 				target.Add(key, result);
-			};
+			}
 
 			if (!ThreadSafety.SynchronizeReadWrite(target, condition, render, millisecondsTimeout, throwsOnTimeout))
 				return value; // Value doesn't exist and timeout exceeded? Return the add value...
@@ -256,12 +256,12 @@ namespace Open.Collections
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 			Contract.EndContractBlock();
 
-			T result = default(T);
+			T result = default;
 			// Note, the following sync read is on the TARGET and not the key. See below.
-			Func<LockType, bool> condition = lockType => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
+			bool condition(LockType lockType) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 			// Once a per value write lock is established, execute the scheduler, and syncronize adding...
-			Action render = () => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
+			void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
 
 			// This will queue up subsequent reads for the same value.
 			if (!ThreadSafety.SynchronizeReadWrite(target, key, condition, render, millisecondsTimeout, false))
@@ -378,7 +378,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			value = default(T);
+			value = default;
 			bool removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref value,
@@ -387,7 +387,7 @@ namespace Open.Collections
 				{
 					var r = target[key];
 					removed = target.Remove(key);
-					return removed ? r : default(T);
+					return removed ? r : default;
 				},
 					millisecondsTimeout, false);
 			return removed;

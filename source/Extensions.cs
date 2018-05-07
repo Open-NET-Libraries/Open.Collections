@@ -276,7 +276,7 @@ namespace Open.Collections
 					return true;
 				}
 			}
-			item = default(T);
+			item = default;
 			return false;
 		}
 
@@ -504,23 +504,23 @@ namespace Open.Collections
 			return result;
 		}
 
-		public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<dynamic> source,
-			Func<dynamic, TKey> keySelector, Func<dynamic, TValue> valueSelector)
-		{
-			if (source == null)
-				throw new NullReferenceException();
-			Contract.EndContractBlock();
+		//public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<dynamic> source,
+		//	Func<dynamic, TKey> keySelector, Func<dynamic, TValue> valueSelector)
+		//{
+		//	if (source == null)
+		//		throw new NullReferenceException();
+		//	Contract.EndContractBlock();
 
-			var result = new SortedDictionary<TKey, TValue>();
-			foreach (var s in source)
-			{
-				var key = keySelector(s);
-				var value = valueSelector(s);
-				result.Add(key, value);
-			}
+		//	var result = new SortedDictionary<TKey, TValue>();
+		//	foreach (var s in source)
+		//	{
+		//		var key = keySelector(s);
+		//		var value = valueSelector(s);
+		//		result.Add(key, value);
+		//	}
 
-			return result;
-		}
+		//	return result;
+		//}
 
 		// Smilar effect can be done with .Distinct();
 		public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)

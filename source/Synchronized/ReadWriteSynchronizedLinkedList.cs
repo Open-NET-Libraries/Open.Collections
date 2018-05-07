@@ -72,7 +72,7 @@ namespace Open.Collections.Synchronized
 		{
 			bool success = false;
 			LinkedListNode<T> node = null;
-			T result = default(T);
+			T result = default;
 			Sync.ReadWriteConditionalOptimized(
 				lockType => (node = InternalSource.First) != null,
 				() =>
@@ -89,7 +89,7 @@ namespace Open.Collections.Synchronized
 		{
 			bool success = false;
 			LinkedListNode<T> node = null;
-			T result = default(T);
+			T result = default;
 			Sync.ReadWriteConditionalOptimized(
 				lockType => (node = InternalSource.Last) != null,
 				() =>
