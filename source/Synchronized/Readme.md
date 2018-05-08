@@ -35,3 +35,11 @@ Best to use these classes when expecting a mix of read/write but with a majority
 These classes use a ReaderWriterLockSlim to synchronize read-write access and can be faster in some specific cases.
 
 Best to use these classes when expecting a mix of read/write but with a majority of reads.
+
+## Benchmarks
+
+*Important Observations:*
+
+* Be sure to benchmark the 'Release' configuration as the difference in performance versus 'Debug' can be dramatic.
+* Observe results on different machines with different core counts.
+* As collection sizes increase, performance behavior changes.  For example, for smaller collection sizes (~1000 or less) Read-Write synchronization wins most of the time.  But larger than that, a 'lock' for writes begins to out perform.

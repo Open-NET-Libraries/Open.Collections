@@ -1,8 +1,8 @@
+﻿using Open.Threading;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Open.Threading;
 
 namespace Open.Collections.Synchronized
 {
@@ -93,7 +93,7 @@ namespace Open.Collections.Synchronized
 		{
 			if (calledExplicitly)
 			{
-				Interlocked.Exchange(ref Sync, null).Dispose();
+				Interlocked.Exchange(ref Sync, null)?.Dispose();
 			}
 
 			base.OnDispose(calledExplicitly);
