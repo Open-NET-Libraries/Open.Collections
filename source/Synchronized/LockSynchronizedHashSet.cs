@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
 {
-	public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>, ISynchronizedCollection<T>
+	public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
 	{
 		public LockSynchronizedHashSet() : base(new HashSet<T>()) { }
 		public LockSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }
@@ -15,6 +15,7 @@ namespace Open.Collections.Synchronized
 
 		public override bool Contains(T item)
 		{
+			// ReSharper disable once InconsistentlySynchronizedField
 			return InternalSource.Contains(item);
 		}
 
@@ -81,12 +82,14 @@ namespace Open.Collections.Synchronized
 
 		public override bool IfContains(T item, Action<HashSet<T>> action)
 		{
-			return InternalSource.Contains(item) ? base.IfContains(item, action) : false;
+			// ReSharper disable once InconsistentlySynchronizedField
+			return InternalSource.Contains(item) && base.IfContains(item, action);
 		}
 
 		public override bool IfNotContains(T item, Action<HashSet<T>> action)
 		{
-			return !InternalSource.Contains(item) ? base.IfNotContains(item, action) : false;
+			// ReSharper disable once InconsistentlySynchronizedField
+			return !InternalSource.Contains(item) && base.IfNotContains(item, action);
 		}
 
 	}

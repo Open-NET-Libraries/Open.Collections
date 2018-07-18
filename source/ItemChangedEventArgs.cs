@@ -1,4 +1,7 @@
-using System;
+﻿using System;
+
+// ReSharper disable NotAccessedField.Global
+// ReSharper disable MemberCanBeProtected.Global
 
 namespace Open.Collections
 {
@@ -30,7 +33,7 @@ namespace Open.Collections
 		}
 	}
 
-	public delegate void ItemChangedEventHandler<TIValue>(Object source, ItemChangedEventArgs<TIValue> e);
+	public delegate void ItemChangedEventHandler<TIValue>(object source, ItemChangedEventArgs<TIValue> e);
 
 	public class KeyValueChangedEventArgs<TIKey, TIValue> : ItemChangedEventArgs<TIValue>
 	{
@@ -47,6 +50,6 @@ namespace Open.Collections
 		}
 	}
 
-	public delegate void KeyValueChangedEventHandler<TIKey, TIValue>(Object source, KeyValueChangedEventArgs<TIKey, TIValue> e);
+	public delegate void KeyValueChangedEventHandler<TIKey, TIValue>(object source, KeyValueChangedEventArgs<TIKey, TIValue> e);
 
 }

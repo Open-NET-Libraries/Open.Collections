@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections
 {
+	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	public interface IQueue<T>
 	{
 		void Enqueue(T item);

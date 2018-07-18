@@ -58,7 +58,7 @@ namespace Open.Collections
 		public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)
 		{
 			if (target == null) throw new NullReferenceException();
-			int count = 0;
+			var count = 0;
 			if (values != null)
 			{
 				foreach (var value in values)
@@ -86,7 +86,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			T valueUsed;
-			if (target.TryGetValue(key, out T old))
+			if (target.TryGetValue(key, out _))
 				target[key] = valueUsed = updateValue;
 			else
 				target.Add(key, valueUsed = value);
@@ -108,7 +108,7 @@ namespace Open.Collections
 			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
 
 			T valueUsed;
-			if (target.TryGetValue(key, out T old))
+			if (target.TryGetValue(key, out var old))
 				target[key] = valueUsed = updateValueFactory(key, old);
 			else
 				target.Add(key, valueUsed = value);
@@ -132,7 +132,7 @@ namespace Open.Collections
 			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
 
 			T valueUsed;
-			if (target.TryGetValue(key, out T old))
+			if (target.TryGetValue(key, out var old))
 				target[key] = valueUsed = updateValueFactory(key, old);
 			else
 				target.Add(key, valueUsed = newValueFactory(key));
@@ -209,7 +209,7 @@ namespace Open.Collections
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			return target.TryGetValue(key, out T value) ? value : defaultValue;
+			return target.TryGetValue(key, out var value) ? value : defaultValue;
 		}
 
 
@@ -225,7 +225,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-			return target.TryGetValue(key, out T value) ? value : valueFactory(key);
+			return target.TryGetValue(key, out var value) ? value : valueFactory(key);
 		}
 
 
@@ -242,7 +242,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-			if (!target.TryGetValue(key, out T value))
+			if (!target.TryGetValue(key, out var value))
 				target.Add(key, value = valueFactory(key));
 			return value;
 		}
@@ -259,7 +259,7 @@ namespace Open.Collections
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			if (!target.TryGetValue(key, out T v))
+			if (!target.TryGetValue(key, out var v))
 				target.Add(key, v = value);
 			return v;
 		}

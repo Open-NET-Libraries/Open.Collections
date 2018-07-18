@@ -2,11 +2,6 @@
 {
 	public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 	{
-		public LockSynchronizedQueue() : base()
-		{
-
-		}
-
 		public new void Enqueue(T item)
 		{
 			lock (this) base.Enqueue(item);
@@ -33,4 +28,3 @@
 		}
 	}
 }
-

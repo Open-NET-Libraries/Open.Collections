@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized
 {
-	public interface ISynchronizedCollectionWrapper<T, TCollection> : ISynchronizedCollection<T>
+	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+	public interface ISynchronizedCollectionWrapper<T, out TCollection> : ISynchronizedCollection<T>
 		where TCollection : ICollection<T>
 	{
 		/// <summary>

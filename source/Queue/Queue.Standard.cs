@@ -4,9 +4,9 @@ namespace Open.Collections
 {
 	public static partial class Queue
 	{
-		public class Standard<T> : System.Collections.Generic.Queue<T>, IQueue<T>
+		public class Standard<T> : Queue<T>, IQueue<T>
 		{
-			public Standard() : base()
+			protected Standard()
 			{
 
 			}

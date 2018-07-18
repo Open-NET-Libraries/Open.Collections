@@ -1,14 +1,14 @@
-/*!
+﻿/*!
  * @author electricessence / https://github.com/electricessence/
  * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
  */
 
+using Open.Threading;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Open.Threading;
 
 namespace Open.Collections.Synchronized
 {
@@ -34,28 +34,18 @@ namespace Open.Collections.Synchronized
 		protected override void OnDispose(bool calledExplicitly)
 		{
 			base.OnDispose(calledExplicitly);
-			var s = Interlocked.Exchange(ref _source, null);
-			if (s != null)
-			{
-				s.Clear();
-			}
+			Interlocked.Exchange(ref _source, null)?.Clear();
 		}
 
 		public T this[int index]
 		{
-			get
+			get => Sync.Reading(() =>
 			{
-				return Sync.Reading(() =>
-				{
-					AssertIsAlive();
-					return _source[index];
-				});
-			}
+				AssertIsAlive();
+				return _source[index];
+			});
 
-			set
-			{
-				SetValue(index, value);
-			}
+			set => SetValue(index, value);
 		}
 
 		public bool SetValue(int index, T value)
@@ -94,21 +84,21 @@ namespace Open.Collections.Synchronized
 
 		public void Add(T item, T item2, params T[] items)
 		{
-			AddThese(new T[] { item, item2 }.Concat(items));
+			AddThese(new[] { item, item2 }.Concat(items));
 		}
 
 		public void AddThese(IEnumerable<T> items)
 		{
-			if (items != null && items.HasAny())
+			var enumerable = items as T[] ?? items?.ToArray();
+			if (enumerable != null && enumerable.Length != 0)
 			{
 				Sync.Modifying(AssertIsAlive, () =>
 				{
-					foreach (var item in items)
+					foreach (var item in enumerable)
 						Add(item); // Yes, we could just _source.Add() but this allows for overrideing Add();
 					return true;
 				});
 			}
-
 		}
 
 		public void Clear()
@@ -118,7 +108,7 @@ namespace Open.Collections.Synchronized
 				() =>
 				{
 					var count = Count;
-					bool hasItems = count != 0;
+					var hasItems = count != 0;
 					if (hasItems)
 					{
 						_source.Clear();
@@ -198,7 +188,7 @@ namespace Open.Collections.Synchronized
 		public bool Replace(T target, T replacement, bool throwIfNotFound = false)
 		{
 			AssertIsAlive();
-			int index = -1;
+			var index = -1;
 			return !target.Equals(replacement) && Sync.Modifying(
 				() =>
 				{

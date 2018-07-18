@@ -1,10 +1,9 @@
 ﻿using Open.Threading;
-using System;
 using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized
 {
-	public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>, ISynchronizedCollection<T>, IDisposable
+	public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 	{
 		public ReadWriteSynchronizedLinkedList() : base(new LinkedList<T>()) { }
 		public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
@@ -70,7 +69,7 @@ namespace Open.Collections.Synchronized
 
 		public bool TryTakeFirst(out T item)
 		{
-			bool success = false;
+			var success = false;
 			LinkedListNode<T> node = null;
 			T result = default;
 			Sync.ReadWriteConditionalOptimized(
@@ -87,7 +86,7 @@ namespace Open.Collections.Synchronized
 
 		public bool TryTakeLast(out T item)
 		{
-			bool success = false;
+			var success = false;
 			LinkedListNode<T> node = null;
 			T result = default;
 			Sync.ReadWriteConditionalOptimized(

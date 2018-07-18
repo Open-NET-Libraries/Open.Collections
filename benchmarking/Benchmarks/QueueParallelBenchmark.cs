@@ -23,7 +23,7 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure("Empty (In Parallel)", () =>
 			{
-				Parallel.For(0, TestSize, i => { queue.TryDequeue(out object item); });
+				Parallel.For(0, TestSize, i => { queue.TryDequeue(out var item); });
 			});
 
 
@@ -34,7 +34,7 @@ namespace Open.Collections
 					if (i % 2 == 0)
 						queue.Enqueue(_item);
 					else
-						queue.TryDequeue(out object item);
+						queue.TryDequeue(out var item);
 				});
 			});
 

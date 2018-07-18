@@ -2,11 +2,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Open.Collections.NonGeneric
 {
+	[SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Global")]
 	public static partial class Extensions
 	{
 
@@ -25,7 +26,7 @@ namespace Open.Collections.NonGeneric
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			bool added = false;
+			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref added,
 				lockType => !target.Contains(key),
@@ -52,7 +53,7 @@ namespace Open.Collections.NonGeneric
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			bool added = false;
+			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref added,
 				lockType => !target.Contains(key),
@@ -79,7 +80,7 @@ namespace Open.Collections.NonGeneric
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			bool removed = false;
+			var removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref removed,
 				lockType => target.Contains(key),
@@ -101,7 +102,7 @@ namespace Open.Collections.NonGeneric
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			T result = default;
-			bool success = ThreadSafety.SynchronizeRead(target, key, () =>
+			var success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
 				)
@@ -121,7 +122,7 @@ namespace Open.Collections.NonGeneric
 			if (target == null) throw new NullReferenceException();
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
-			object value = target.GetValueSynchronized(key, throwIfNotExists);
+			var value = target.GetValueSynchronized(key, throwIfNotExists);
 			try
 			{
 				return value == null ? default : (T)value;

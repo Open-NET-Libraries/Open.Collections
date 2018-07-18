@@ -7,23 +7,25 @@ using Open.Disposable;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+// ReSharper disable UnusedMethodReturnValue.Global
 
 
 namespace Open.Collections
 {
+	/// <inheritdoc />
 	/// <summary>
 	/// Represents a generic items of key/source pairs that are ordered independently of the key and source.
 	/// </summary>
-	/// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
-	/// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
+	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	{
 		/// <summary>
 		/// Adds an entry with the specified key and source into the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> items with the lowest available index.
 		/// </summary>
 		/// <param name="key">The key of the entry to add.</param>
-		/// <param name="source">The source of the entry to add.</param>
+		/// <param name="value">The value of the entry to add.</param>
 		/// <returns>The index of the newly added entry</returns>
 		/// <remarks>
 		/// <para>You can also use the <see cref="P:System.Collections.Generic.IDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the source of a key that does not exist in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> items; however, if the specified key already exists in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:Item(TKey)"/> property overwrites the old source. In contrast, the <see cref="M:AddSynchronized"/> method does not modify existing elements.</para></remarks>
@@ -38,7 +40,7 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="index">The zero-based index at which the element should be inserted.</param>
 		/// <param name="key">The key of the entry to add.</param>
-		/// <param name="source">The source of the entry to add. The source can be <null/> if the type of the values in the dictionary is a reference type.</param>
+		/// <param name="value">The value of the entry to add. The source can be <null/> if the type of the values in the dictionary is a reference type.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
 		/// -or-<br/>
 		/// <paramref name="index"/> is greater than <see cref="System.Collections.ICollection.Count"/>.</exception>
@@ -64,16 +66,14 @@ namespace Open.Collections
 	}
 
 
-	/// <summary>
-	/// Represents a generic items of key/source pairs that are ordered independently of the key and source.
-	/// </summary>
-	/// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
-	/// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
+	/// <inheritdoc cref="IOrderedDictionary&lt;TKey, TValue&gt;"/>
+	[SuppressMessage("ReSharper", "UnusedMember.Local")]
 	public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionary<TKey, TValue>
 	{
 
-		public class ItemChangedEventArgs<TIKey, TIValue> : KeyValueChangedEventArgs<TKey, TValue>
+		public class ItemChangedEventArgs : KeyValueChangedEventArgs<TKey, TValue>
 		{
+			// ReSharper disable once NotAccessedField.Global
 			public readonly int Index;
 
 			public ItemChangedEventArgs(ItemChange action, int index, TKey key, TValue value) : base(action, key, value)
@@ -86,34 +86,30 @@ namespace Open.Collections
 			}
 		}
 
-		public delegate void ItemChangedEventHandler<TIKey, TIValue>(Object source, ItemChangedEventArgs<TIKey, TIValue> e);
+		public delegate void ItemChangedEventHandler(object source, ItemChangedEventArgs e);
 
-		public event ItemChangedEventHandler<TKey, TValue> ItemChanged;
+		public event ItemChangedEventHandler ItemChanged;
 
 		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue value)
 		{
-			OnItemChanged(new ItemChangedEventArgs<TKey, TValue>(action, index, key, value));
+			OnItemChanged(new ItemChangedEventArgs(action, index, key, value));
 		}
 
 		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue previous, TValue value)
 		{
-			OnItemChanged(new ItemChangedEventArgs<TKey, TValue>(action, index, key, previous, value));
+			OnItemChanged(new ItemChangedEventArgs(action, index, key, previous, value));
 		}
 
-		protected virtual void OnItemChanged(ItemChangedEventArgs<TKey, TValue> e)
+		protected virtual void OnItemChanged(ItemChangedEventArgs e)
 		{
 			ItemChanged?.Invoke(this, e);
 		}
 
 		private const int DefaultInitialCapacity = 0;
 
-		private static readonly string _keyTypeName = typeof(TKey).FullName;
-		private static readonly string _valueTypeName = typeof(TValue).FullName;
-
 		private Dictionary<TKey, TValue> _dictionary;
 		private List<TKey> _list;
-		private IEqualityComparer<TKey> _comparer;
-		private readonly object _syncRoot = new Object();
+		private readonly IEqualityComparer<TKey> _comparer;
 		private readonly int _initialCapacity;
 
 
@@ -187,18 +183,15 @@ namespace Open.Collections
 		/// <returns>The key object, cast as the key type of the dictionary</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="keyObject"/> is <null/>.</exception>
 		/// <exception cref="ArgumentException">The key type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="keyObject"/>.</exception>
-		private static TKey ConvertToKeyType(object keyObject)
-		{
-			return (TKey)keyObject;
-		}
+		private static TKey ConvertToKeyType(object keyObject) => (TKey)keyObject;
 
 		/// <summary>
 		/// Converts the object passed as a source to the source type of the dictionary
 		/// </summary>
-		/// <param name="source">The object to convert to the source type of the dictionary</param>
+		/// <param name="value">The object to convert to the source type of the dictionary</param>
 		/// <returns>The source object, converted to the source type of the dictionary</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="valueObject"/> is <null/>, and the source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is a source type.</exception>
-		/// <exception cref="ArgumentException">The source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="valueObject"/>.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <null/>, and the source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is a source type.</exception>
+		/// <exception cref="ArgumentException">The source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="value"/>.</exception>
 		private static TValue ConvertToValueType(object value)
 		{
 			if (value == null)
@@ -259,7 +252,7 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="index">The zero-based index at which the element should be inserted.</param>
 		/// <param name="key">The key of the entry to add.</param>
-		/// <param name="source">The source of the entry to add. The source can be <null/> if the type of the values in the dictionary is a reference type.</param>
+		/// <param name="value">The source of the entry to add. The source can be <null/> if the type of the values in the dictionary is a reference type.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
 		/// -or-<br/>
 		/// <paramref name="index"/> is greater than <see cref="Count"/>.</exception>
@@ -334,8 +327,8 @@ namespace Open.Collections
 				if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException();
 
 				TKey key;
-				bool changed = false;
-				TValue previous = default;
+				bool changed;
+				TValue previous;
 				lock (SyncRoot)
 				{
 					if (index > Count)
@@ -357,7 +350,7 @@ namespace Open.Collections
 		/// Adds an entry with the specified key and source into the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items with the lowest available index.
 		/// </summary>
 		/// <param name="key">The key of the entry to add.</param>
-		/// <param name="source">The source of the entry to add. This source can be <null/>.</param>
+		/// <param name="value">The value of the entry to add. This source can be <null/>.</param>
 		/// <remarks>A key cannot be <null/>, but a source can be.
 		/// <para>You can also use the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the source of a key that does not exist in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items; however, if the specified key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property overwrites the old source. In contrast, the <see cref="M:AddSynchronized"/> method does not modify existing elements.</para></remarks>
 		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
@@ -371,7 +364,7 @@ namespace Open.Collections
 		/// Adds an entry with the specified key and source into the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items with the lowest available index.
 		/// </summary>
 		/// <param name="key">The key of the entry to add.</param>
-		/// <param name="source">The source of the entry to add. This source can be <null/>.</param>
+		/// <param name="value">The value of the entry to add. This source can be <null/>.</param>
 		/// <returns>The index of the newly added entry</returns>
 		/// <remarks>A key cannot be <null/>, but a source can be.
 		/// <para>You can also use the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the source of a key that does not exist in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items; however, if the specified key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property overwrites the old source. In contrast, the <see cref="M:AddSynchronized"/> method does not modify existing elements.</para></remarks>
@@ -422,11 +415,11 @@ namespace Open.Collections
 		}
 
 		/// <summary>
-		/// Determines whether the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains a specific key.
+		/// Determines whether the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains a specific key.
 		/// </summary>
-		/// <param name="key">The key to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
-		/// <returns><see langword="true"/> if the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains an element with the specified key otherwise, <see langword="false"/>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
+		/// <param name="key">The key to locate in the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
+		/// <returns><see langword="true" /> if the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains an element with the specified key otherwise, <see langword="false" />.</returns>
+		/// <exception cref="T:System.ArgumentNullException"><paramref name="key" /> is <null /></exception>
 		public bool ContainsKey(TKey key)
 		{
 			return Dictionary.ContainsKey(key);
@@ -435,9 +428,9 @@ namespace Open.Collections
 		/// <summary>
 		/// Determines whether the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains a specific value.
 		/// </summary>
-		/// <param name="key">The value to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
+		/// <param name="value">The value to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
 		/// <returns><see langword="true"/> if the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains an element with the specified value otherwise, <see langword="false"/>.</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
+		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <null/></exception>
 		public bool ContainsValue(TValue value)
 		{
 			// Following contract is risky due to syncronization.
@@ -447,45 +440,25 @@ namespace Open.Collections
 		}
 
 
-		/// <summary>
-		/// Gets a source indicating whether the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items is read-only.
-		/// </summary>
-		/// <source><see langword="true"/> if the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is read-only; otherwise, <see langword="false"/>. The default is <see langword="false"/>.</source>
-		/// <remarks>
-		/// A items that is read-only does not allow the source, removal, or modification of elements after the items is created.
-		/// <para>A items that is read-only is simply a items with a wrapper that prevents modification of the items; therefore, if changes are made to the underlying items, the read-only items reflects those changes.</para>
-		/// </remarks>
-		public bool IsReadOnly
-		{
-			get
-			{
-				return false;
-			}
-		}
+		/// <inheritdoc />
+		public bool IsReadOnly => false;
 
 		/// <summary>
 		/// Returns the zero-based index of the specified key in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>
 		/// </summary>
 		/// <param name="key">The key to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></param>
-		/// <returns>The zero-based index of <paramref name="key"/>, if <paramref name="ley"/> is exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>; otherwise, -1</returns>
+		/// <returns>The zero-based index of <paramref name="key"/>, if <paramref name="key"/> is exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>; otherwise, -1</returns>
 		/// <remarks>This method performs a linear search; therefore it has a cost of O(n) at worst.</remarks>
 		public int IndexOfKey(TKey key)
 		{
-			if (key != null)
-				throw new ArgumentNullException(nameof(key));
-
+			if (key == null) throw new ArgumentNullException(nameof(key));
 			return List.IndexOf(key);
 		}
 
-		/// <summary>
-		/// Removes the entry with the specified key from the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.
-		/// </summary>
-		/// <param name="key">The key of the entry to remove</param>
-		/// <returns><see langword="true"/> if the key was exists and the corresponding element was removed; otherwise, <see langword="false"/></returns>
+		/// <inheritdoc />
 		public bool Remove(TKey key)
 		{
-			if (key != null)
-				throw new ArgumentNullException(nameof(key));
+			if (key == null) throw new ArgumentNullException(nameof(key));
 			int index;
 			TValue value;
 			lock (SyncRoot)
@@ -507,22 +480,16 @@ namespace Open.Collections
 		}
 
 
-		/// <summary>
-		/// Gets or sets the source with the specified key.
-		/// </summary>
-		/// <param name="key">The key of the source to get or set.</param>
-		/// <source>The source associated with the specified key. If the specified key is not exists, attempting to get it returns <null/>, and attempting to set it creates a new element using the specified key.</source>
+		/// <inheritdoc />
 		public TValue this[TKey key]
 		{
-			get
-			{
-				return Dictionary[key];
-			}
+			get => Dictionary[key];
 			set
 			{
-				int index = -1;
+				// ReSharper disable once RedundantAssignment
+				var index = -1;
 				var change = ItemChange.None;
-				TValue previous = default;
+				TValue previous;
 				lock (SyncRoot)
 				{
 					if (Dictionary.TryGetValue(key, out previous))
@@ -558,104 +525,44 @@ namespace Open.Collections
 		/// Gets the number of key/values pairs contained in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.
 		/// </summary>
 		/// <source>The number of key/source pairs contained in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</source>
-		public int Count
-		{
-			get
-			{
-				return List.Count;
-			}
-		}
+		public int Count => List.Count;
 
 
 		/// <summary>
 		/// Gets an object that can be used to synchronize access to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> object.
 		/// </summary>
 		/// <source>An object that can be used to synchronize access to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> object.</source>
-		public object SyncRoot
-		{
-			get
-			{
-				return _syncRoot;
-			}
-		}
+		public object SyncRoot { get; } = new object();
 
 
-		/// <summary>
-		/// Gets an <see cref="TLock:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object containing the keys in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.
-		/// </summary>
-		/// <source>An <see cref="TLock:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object containing the keys in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</source>
-		/// <remarks>The returned <see cref="TLock:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object is not a static copy; instead, the items refers back to the keys in the source <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. Therefore, changes to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> continue to be reflected in the key items.</remarks>
-		public ICollection<TKey> Keys
-		{
-			get
-			{
-				return List.AsReadOnly();
-			}
-		}
+		/// <inheritdoc />
+		public ICollection<TKey> Keys => List.AsReadOnly();
 
-		/// <summary>
-		/// Gets the source associated with the specified key.
-		/// </summary>
-		/// <param name="key">The key of the source to get.</param>
-		/// <param name="source">When this method returns, contains the source associated with the specified key, if the key is exists; otherwise, the default source for the type of <paramref name="source"/>. This parameter can be passed uninitialized.</param>
-		/// <returns><see langword="true"/> if the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> contains an element with the specified key; otherwise, <see langword="false"/>.</returns>
+		/// <inheritdoc />
 		public bool TryGetValue(TKey key, out TValue value)
 		{
 			var result = Dictionary.TryGetValue(key, out value);
 			return result;
 		}
 
-		/// <summary>
-		/// Gets an <see cref="TLock:ICollection{TValue}">ICollection&lt;TValue&gt;</see> object containing the values in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.
-		/// </summary>
-		/// <source>An <see cref="TLock:ICollection{TValue}">ICollection&lt;TValue&gt;</see> object containing the values in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</source>
-		/// <remarks>The returned <see cref="TLock:ICollection{TValue}">ICollection&lt;TKey&gt;</see> object is not a static copy; instead, the items refers back to the values in the source <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. Therefore, changes to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> continue to be reflected in the source items.</remarks>
-		public ICollection<TValue> Values
-		{
-			get
-			{
-				return Dictionary.Values;
-			}
-		}
+		/// <inheritdoc />
+		public ICollection<TValue> Values => Dictionary.Values;
 
-		/// <summary>
-		/// Adds the specified source to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> with the specified key.
-		/// </summary>
-		/// <param name="item">The <see cref="TLock:KeyValuePair{TKey,TValue}">KeyValuePair&lt;TKey,TValue&gt;</see> structure representing the key and source to add to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</param>
+		/// <inheritdoc />
 		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
-		{
-			Add(item.Key, item.Value);
-		}
+			=> Add(item.Key, item.Value);
 
-		/// <summary>
-		/// Determines whether the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> contains a specific key and source.
-		/// </summary>
-		/// <param name="item">The <see cref="TLock:KeyValuePair{TKey,TValue}">KeyValuePair&lt;TKey,TValue&gt;</see> structure to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</param>
-		/// <returns><see langword="true"/> if <paramref name="keyValuePair"/> is exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>; otherwise, <see langword="false"/>.</returns>
+		/// <inheritdoc />
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
-		{
-			return ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).Contains(item);
-		}
+			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).Contains(item);
 
-		/// <summary>
-		/// Copies the elements of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> to an array of type <see cref="TLock:KeyValuePair`2>"/>, starting at the specified index.
-		/// </summary>
-		/// <param name="array">The one-dimensional array of type <see cref="TLock:KeyValuePair{TKey,TValue}">KeyValuePair&lt;TKey,TValue&gt;</see> that is the destination of the <see cref="TLock:KeyValuePair{TKey,TValue}">KeyValuePair&lt;TKey,TValue&gt;</see> elements copied from the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. The array must have zero-based indexing.</param>
-		/// <param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+		/// <inheritdoc />
 		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-		{
-			((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).CopyTo(array, arrayIndex);
-		}
+			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).CopyTo(array, arrayIndex);
 
-		/// <summary>
-		/// Removes a key and source from the dictionary.
-		/// </summary>
-		/// <param name="item">The <see cref="TLock:KeyValuePair{TKey,TValue}">KeyValuePair&lt;TKey,TValue&gt;</see> structure representing the key and source to remove from the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</param>
-		/// <returns><see langword="true"/> if the key and source represented by <paramref name="keyValuePair"/> is successfully exists and removed; otherwise, <see langword="false"/>. This method returns <see langword="false"/> if <paramref name="keyValuePair"/> is not exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</returns>
+		/// <inheritdoc />
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
-		{
-			return Remove(item.Key);
-		}
+			=> Remove(item.Key);
 
 		// Making OrderDictionary Disposable ensures that events get cleaned up.
 		protected override void OnDispose(bool calledExplicitly)

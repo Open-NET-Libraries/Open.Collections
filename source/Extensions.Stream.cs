@@ -15,7 +15,7 @@ namespace Open.Collections
 			if (target == null)
 				throw new ArgumentNullException(nameof(target));
 
-			byte[] bytes = new byte[4096];
+			var bytes = new byte[4096];
 
 			int cnt;
 			while ((cnt = source.Read(bytes, 0, bytes.Length)) != 0)

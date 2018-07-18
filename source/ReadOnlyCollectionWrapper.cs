@@ -18,9 +18,7 @@ namespace Open.Collections
 
 		#region Implementation of IReadOnlyCollection<T>
 		public virtual bool Contains(T item)
-		{
-			return InternalSource.Contains(item);
-		}
+			=> InternalSource.Contains(item);
 
 		public virtual int Count => InternalSource.Count;
 
@@ -30,20 +28,15 @@ namespace Open.Collections
 		/// To ensure expected behavior, this returns an enumerator from the underlying collection.  Exceptions can be thrown if the collection content changes.
 		/// </summary>
 		/// <returns>An enumerator from the underlying collection.</returns>
+		// ReSharper disable once InheritdocConsiderUsage
 		public IEnumerator<T> GetEnumerator()
-		{
-			return InternalSource.GetEnumerator();
-		}
+			=> InternalSource.GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
+			=> GetEnumerator();
 
 		public virtual void CopyTo(T[] array, int arrayIndex)
-		{
-			InternalSource.CopyTo(array, arrayIndex);
-		}
+			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 
 		/// <summary>

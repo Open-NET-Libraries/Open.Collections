@@ -24,7 +24,7 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure("Empty", () =>
 			{
-				for (var i = 0; i < TestSize; i++) queue.TryDequeue(out object item);
+				for (var i = 0; i < TestSize; i++) queue.TryDequeue(out var item);
 			});
 
 		}

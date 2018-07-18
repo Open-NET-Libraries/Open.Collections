@@ -7,15 +7,15 @@ using Open.Text;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 
 namespace Open.Collections
@@ -40,36 +40,37 @@ namespace Open.Collections
 
 			foreach (var kvp in source)
 			{
-				// if the value can also be turned into an ExpandoObject, then do it!
-				if (kvp.Value is IDictionary<string, object>)
+				switch (kvp.Value)
 				{
-					var expandoValue = ((IDictionary<string, object>)kvp.Value).ToExpando();
-					expandoDic.Add(kvp.Key, expandoValue);
-				}
-				else if (kvp.Value is ICollection)
-				{
-					// iterate through the collection and convert any strin-object dictionaries
-					// along the way into expando objects
-					var itemList = new List<object>();
-					foreach (var item in (ICollection)kvp.Value)
-					{
-						if (item is IDictionary<string, object>)
-						{
-							var expandoItem = ((IDictionary<string, object>)item).ToExpando();
-							itemList.Add(expandoItem);
-						}
-						else
-						{
-							itemList.Add(item);
-						}
-					}
+					// if the value can also be turned into an ExpandoObject, then do it!
+					case IDictionary<string, object> objects:
+						var expandoValue = objects.ToExpando();
+						expandoDic.Add(kvp.Key, expandoValue);
+						break;
 
+					case ICollection collection:
+						// iterate through the collection and convert any strin-object dictionaries
+						// along the way into expando objects
+						var itemList = new List<object>();
+						foreach (var item in collection)
+						{
+							if (item is IDictionary<string, object> dictionary)
+							{
+								var expandoItem = dictionary.ToExpando();
+								itemList.Add(expandoItem);
+							}
+							else
+							{
+								itemList.Add(item);
+							}
+						}
 
-					expandoDic.Add(kvp.Key, itemList);
-				}
-				else
-				{
-					expandoDic.Add(kvp);
+						expandoDic.Add(kvp.Key, itemList);
+						break;
+
+					default:
+						expandoDic.Add(kvp);
+						break;
 				}
 			}
 
@@ -190,19 +191,16 @@ namespace Open.Collections
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
-			if (target != null)
+			if (allowParallel)
 			{
-				if (allowParallel)
-				{
-					Parallel.ForEach(
-						target,
-						closure);
-				}
-				else
-				{
-					foreach (var t in target)
-						closure(t);
-				}
+				Parallel.ForEach(
+					target,
+					closure);
+			}
+			else
+			{
+				foreach (var t in target)
+					closure(t);
 			}
 		}
 
@@ -212,10 +210,9 @@ namespace Open.Collections
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
-			if (target != null)
-				foreach (var t in target)
-					if (!token.IsCancellationRequested)
-						closure(t);
+			foreach (var t in target)
+				if (!token.IsCancellationRequested)
+					closure(t);
 		}
 
 		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> target)
@@ -223,7 +220,7 @@ namespace Open.Collections
 			if (target == null)
 				return null;
 
-			Random r = new Random();
+			var r = new Random();
 			return target.OrderBy(x => (r.Next()));
 		}
 
@@ -235,21 +232,23 @@ namespace Open.Collections
 
 		public static bool HasAtLeast<T>(this IEnumerable<T> source, int minimum)
 		{
+			if (source == null)
+				throw new ArgumentNullException(nameof(source));
+
 			if (minimum < 1)
 				throw new ArgumentOutOfRangeException(nameof(minimum), minimum, "Cannot be zero or negative.");
 
-			if (source == null)
-				throw new ArgumentNullException(nameof(source));
 			Contract.EndContractBlock();
 
-			if (source is System.Array)
-				return ((System.Array)source).Length >= minimum;
+			switch (source)
+			{
+				case T[] array:
+					return array.Length >= minimum;
+				case ICollection collection:
+					return collection.Count >= minimum;
+			}
 
-			if (source is ICollection)
-				return ((ICollection)source).Count >= minimum;
-
-			var e = source.GetEnumerator();
-			try
+			using (var e = source.GetEnumerator())
 			{
 				while (e.MoveNext())
 				{
@@ -257,10 +256,6 @@ namespace Open.Collections
 						return true;
 				}
 				return false;
-			}
-			finally
-			{
-				(e as IDisposable)?.Dispose();
 			}
 
 		}
@@ -295,66 +290,73 @@ namespace Open.Collections
 			return false;
 		}
 
+		static async Task PreCacheWorker<T>(IEnumerator<T> e, Channel<T> queue)
+		{
+			try
+			{
+				using (e)
+				{
+					while (e.MoveNext())
+					{
+						var value = e.Current;
+
+						retry:
+						if (queue.Writer.TryWrite(value)) continue;
+						if (await queue.Writer.WaitToWriteAsync()) goto retry;
+
+						break;
+					}
+				}
+
+				queue.Writer.Complete();
+			}
+			catch (Exception ex)
+			{
+				queue.Writer.TryComplete(ex);
+			}
+		}
+
 		/// <summary>
 		/// Similar to a buffer but is loaded by another thread and attempts keep the buffer full while contents are being pulled.
 		/// </summary>
+		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
 		public static IEnumerable<T> PreCache<T>(this IEnumerable<T> source, int count = 1)
 		{
-			var e = source.GetEnumerator();
-			var queue = new BufferBlock<T>();
-			ActionBlock<bool> worker = null;
+			if (source == null) throw new ArgumentNullException(nameof(source));
+			Contract.EndContractBlock();
 
-			bool tryQueue() =>
-				e.ConcurrentMoveNext(
-					value => queue.Post(value),
-					() => worker.Complete());
-
-			worker = new ActionBlock<bool>(synchronousFill =>
-				{ while (queue.Count < count && tryQueue() && synchronousFill) ; },
-				// The consumers will dictate the amount of parallelism.
-				new ExecutionDataflowBlockOptions() { MaxDegreeOfParallelism = 32 });
-
-			worker.Completion.ContinueWith(task =>
+			if (count == 0)
 			{
-				if (task.IsFaulted)
-					((IDataflowBlock)queue).Fault(task.Exception.InnerException);
-				else
-					queue.Complete();
-			});
+				foreach (var item in source)
+					yield return item;
+				yield break;
+			}
+
+
+			var queue = Channel.CreateBounded<T>(count);
+			var e = source.GetEnumerator();
 
 			// The very first call (kick-off) should be synchronous.
-			if (tryQueue()) while (true)
-				{
-					// Is something already availaible in the queue?  Get it.
-					if (queue.TryReceive(null, out T item))
-					{
-						worker.SendAsync(true);
-						yield return item;
-					}
-					else
-					{
-						// At this point, something could be in the queue again, but let's assume not and try an trigger more.
-						if (worker.Post(true))
-						{
-							// The .Post call is 'accepted' (doesn't mean it was run).
-							// Setup the wait for recieve the next avaialable.
-							var task = queue.ReceiveAsync();
-							task.Wait();
-							if (task.IsFaulted)
-							{
-								throw task.Exception.InnerException;
-							}
-							if (!task.IsCanceled) // Cancelled means there's nothing to get.
-							{
-								// Task was not cancelled and there is a result availaible;
-								yield return task.Result;
-								continue;
-							}
-						}
+			if (e.MoveNext()) yield return e.Current;
+			else yield break;
 
-						yield break;
-					}
-				}
+			// Queue up.
+			PreCacheWorker(e, queue).ConfigureAwait(false);
+
+			// Dequeue into the enumerable.
+			do
+			{
+				while (queue.Reader.TryRead(out var item))
+					yield return item;
+			}
+			while (queue.Reader.WaitToReadAsync().Result);
+
+			var complete = queue.Reader.Completion;
+			if (complete.IsFaulted)
+			{
+				throw complete.Exception.InnerException;
+			}
+
 		}
 
 		/// <summary>
@@ -366,10 +368,10 @@ namespace Open.Collections
 				return null;
 
 			var b = new StringBuilder();
-			bool hasSeparator = !String.IsNullOrEmpty(separator);
-			bool needSeparator = false;
+			var hasSeparator = !string.IsNullOrEmpty(separator);
+			var needSeparator = false;
 
-			foreach (T item in source)
+			foreach (var item in source)
 			{
 				if (needSeparator)
 					b.Append(separator);
@@ -391,7 +393,7 @@ namespace Open.Collections
 			Contract.EndContractBlock();
 
 
-			return String.Join(separator + String.Empty, array);
+			return string.Join(separator + string.Empty, array);
 		}
 
 		public static string Join(this string[] array, string separator = ",")
@@ -402,7 +404,7 @@ namespace Open.Collections
 				throw new ArgumentNullException(nameof(separator));
 			Contract.EndContractBlock();
 
-			return String.Join(separator, array);
+			return string.Join(separator, array);
 		}
 
 
@@ -562,18 +564,24 @@ namespace Open.Collections
 		/// </summary>
 		public static bool IsEquivalentTo<T>(this IEnumerable<T> source, IEnumerable<T> target) where T : struct
 		{
+			// ReSharper disable once PossibleUnintendedReferenceComparison
 			if (source == target)
 				return true;
-			if (source == null || target == null || source.Count() != target.Count())
+
+			if (source == null || target == null)
 				return false;
 
-			var enumSource = source.GetEnumerator();
-			var enumTarget = target.GetEnumerator();
+			if (source is IReadOnlyCollection<T> sC && target is IReadOnlyCollection<T> tC && sC.Count != tC.Count)
+				return false;
 
-			while (enumSource.MoveNext() && enumTarget.MoveNext())
+			using (var enumSource = source.GetEnumerator())
+			using (var enumTarget = target.GetEnumerator())
 			{
-				if (!enumSource.Current.Equals(enumTarget.Current))
-					return false;
+				while (enumSource.MoveNext() && enumTarget.MoveNext())
+				{
+					if (!enumSource.Current.Equals(enumTarget.Current))
+						return false;
+				}
 			}
 
 			return true;
@@ -640,16 +648,16 @@ namespace Open.Collections
 			if (orderByInfo == null) throw new ArgumentNullException(nameof(orderByInfo));
 			Contract.EndContractBlock();
 
-			string[] props = orderByInfo.PropertyName.Split('.');
-			Type typeT = typeof(T);
-			Type type = typeT;
+			var props = orderByInfo.PropertyName.Split('.');
+			var typeT = typeof(T);
+			var type = typeT;
 
-			ParameterExpression arg = Expression.Parameter(type, "x");
+			var arg = Expression.Parameter(type, "x");
 			Expression expr = arg;
-			foreach (string prop in props)
+			foreach (var prop in props)
 			{
 				// use reflection (not ComponentModel) to mirror LINQ
-				PropertyInfo pi = type.GetProperty(prop);
+				var pi = type.GetProperty(prop);
 				if (pi == null)
 					throw new ArgumentException("'" + prop + "' does not exist as a property of " + type);
 				expr = Expression.Property(expr, pi);
@@ -657,7 +665,7 @@ namespace Open.Collections
 			}
 			var delegateTypeSource = typeof(Func<,>);
 
-			var delegateTypeSourceArgs = delegateTypeSource.GetGenericArguments();
+			//var delegateTypeSourceArgs = delegateTypeSource.GetGenericArguments();
 
 			var delegateType = delegateTypeSource.MakeGenericType(typeT, type);
 			var lambda = Expression.Lambda(delegateType, expr, arg);
@@ -665,11 +673,15 @@ namespace Open.Collections
 
 			if (!orderByInfo.Initial && collection is IOrderedQueryable<T>)
 			{
-				methodName = orderByInfo.Direction == SortDirection.Ascending ? "ThenBy" : "ThenByDescending";
+				methodName = orderByInfo.Direction == SortDirection.Ascending
+					? "ThenBy"
+					: "ThenByDescending";
 			}
 			else
 			{
-				methodName = orderByInfo.Direction == SortDirection.Ascending ? "OrderBy" : "OrderByDescending";
+				methodName = orderByInfo.Direction == SortDirection.Ascending
+					? "OrderBy"
+					: "OrderByDescending";
 			}
 
 			//TODO: apply caching to the generic methodsinfos?
@@ -691,24 +703,25 @@ namespace Open.Collections
 		private static IEnumerable<OrderByInfo> ParseOrderBy(string orderBy)
 		{
 
-			if (String.IsNullOrEmpty(orderBy))
+			if (string.IsNullOrEmpty(orderBy))
 				yield break;
 
-			string[] items = orderBy.Split(',');
-			bool initial = true;
-			foreach (string item in items)
+			var items = orderBy.Split(',');
+			var initial = true;
+			foreach (var item in items)
 			{
-				string[] pair = item.Trim().Split(' ');
+				var pair = item.Trim().Split(' ');
 
 				if (pair.Length > 2)
-					throw new ArgumentException(String.Format("Invalid OrderBy string '{0}'. Order By Format: Property, Property2 ASC, Property2 DESC", item));
+					throw new ArgumentException(
+						$"Invalid OrderBy string '{item}'. Order By Format: Property, Property2 ASC, Property2 DESC");
 
-				string prop = pair[0].Trim();
+				var prop = pair[0].Trim();
 
-				if (String.IsNullOrWhiteSpace(prop))
+				if (string.IsNullOrWhiteSpace(prop))
 					throw new ArgumentException("Invalid Property. Order By Format: Property, Property2 ASC, Property2 DESC");
 
-				SortDirection dir = SortDirection.Ascending;
+				var dir = SortDirection.Ascending;
 
 				if (pair.Length == 2)
 					dir = ("desc".Equals(pair[1].Trim(), StringComparison.OrdinalIgnoreCase)
@@ -831,16 +844,20 @@ namespace Open.Collections
 		// from http://stackoverflow.com/questions/127704/algorithm-to-return-all-combinations-of-k-elements-from-n
 		public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k, bool uniqueOnly = false)
 		{
+			if (elements == null)
+				throw new ArgumentNullException(nameof(elements));
 			if (k < 0)
 				throw new ArgumentOutOfRangeException(nameof(k), k, "Cannot be less than zero.");
 			Contract.EndContractBlock();
 
-			return k == 0 ? new[] { new T[0] } :
-				elements.SelectMany((e, i) =>
-					elements
-						.Skip(i + (uniqueOnly ? 1 : 0))
-						.Combinations(k - 1, uniqueOnly)
-						.Select(c => (new[] { e }).Concat(c)));
+			if (k == 0)
+				return Enumerable.Repeat(Enumerable.Empty<T>(), 1);
+
+			var el = elements.Memoize();
+			return el.SelectMany((e, i) => el
+					.Skip(i + (uniqueOnly ? 1 : 0))
+					.Combinations(k - 1, uniqueOnly)
+					.Select(c => (new[] { e }).Concat(c)));
 		}
 
 	}

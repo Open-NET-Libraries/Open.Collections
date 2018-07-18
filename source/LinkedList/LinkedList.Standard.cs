@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Open.Collections
 {
-	public static partial class LinkedList
+	public static class LinkedList
 	{
-		public class Standard<T> : System.Collections.Generic.LinkedList<T>, ILinkedList<T>
+		public class Standard<T> : LinkedList<T>, ILinkedList<T>
 		{
-			public Standard() : base()
+			public Standard()
 			{
 
 			}
@@ -20,4 +18,3 @@ namespace Open.Collections
 		}
 	}
 }
-

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace Open.Collections.Synchronized
@@ -13,17 +14,11 @@ namespace Open.Collections.Synchronized
 		// It could be possible to allow indexed values to change independently of one another.
 		// If that fine grained of read-write control is necessary, then use the ThreadSafety utility and extensions.
 
+		[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
 		public T this[int index]
 		{
-			get
-			{
-				return InternalSource[index];
-			}
-
-			set
-			{
-				InternalSource[index] = value;
-			}
+			get => InternalSource[index];
+			set => InternalSource[index] = value;
 		}
 
 		public int IndexOf(T item)

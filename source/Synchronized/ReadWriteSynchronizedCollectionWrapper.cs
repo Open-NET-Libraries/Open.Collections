@@ -53,7 +53,7 @@ namespace Open.Collections.Synchronized
 
 		public override bool Remove(T item)
 		{
-			bool result = false;
+			var result = false;
 			Sync.ReadWriteConditionalOptimized(
 				lockType => result = InternalSource.Contains(item),
 				() => result = InternalSource.Remove(item));
@@ -137,7 +137,7 @@ namespace Open.Collections.Synchronized
 
 		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
-			bool executed = false;
+			var executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => InternalSource.Contains(item), () =>
 			{
 				action(InternalSource);
@@ -148,7 +148,7 @@ namespace Open.Collections.Synchronized
 
 		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
-			bool executed = false;
+			var executed = false;
 			Sync.ReadWriteConditionalOptimized(lockType => !InternalSource.Contains(item), () =>
 			{
 				action(InternalSource);

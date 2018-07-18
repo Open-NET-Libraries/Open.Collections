@@ -14,7 +14,7 @@ namespace Open.Collections
 		{
 			if (target == null) throw new NullReferenceException();
 
-			while (!target.IsEmpty && predicate(target) && target.TryTake(out T value))
+			while (!target.IsEmpty && predicate(target) && target.TryTake(out var value))
 			{
 				yield return value;
 			}
@@ -24,14 +24,16 @@ namespace Open.Collections
 		{
 			if (target == null) throw new NullReferenceException();
 
-			return TryTakeWhile<T>(target, t => predicate());
+			return TryTakeWhile(target, t => predicate());
 		}
 
 		public static void Trim<T>(this ConcurrentBag<T> target, int maxSize)
 		{
 			if (target == null) throw new NullReferenceException();
 
-			foreach (var i in TryTakeWhile(target, t => t.Count > maxSize)) ;
+			foreach (var _ in TryTakeWhile(target, t => t.Count > maxSize))
+			{
+			}
 		}
 
 		public static Task TrimAsync<T>(this ConcurrentBag<T> target, int maxSize, Action<T> handler)
@@ -47,7 +49,7 @@ namespace Open.Collections
 
 		public static Task ClearAsync<T>(this ConcurrentBag<T> target, Action<T> handler)
 		{
-			return TrimAsync<T>(target, 0, handler);
+			return TrimAsync(target, 0, handler);
 		}
 	}
 }

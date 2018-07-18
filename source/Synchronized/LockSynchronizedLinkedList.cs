@@ -1,11 +1,13 @@
 ﻿using Open.Threading;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized
 {
 	// LinkedLists are a bit different and don't have an default interface.
 	// Overriding the .Value property of the nodes is beyond the scope of this.  All that's needed is to synchronize the collection.
-	public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>, ISynchronizedCollection<T>
+	[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
+	public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 	{
 		public LockSynchronizedLinkedList() : base(new LinkedList<T>()) { }
 		public LockSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
@@ -71,7 +73,7 @@ namespace Open.Collections.Synchronized
 
 		public bool TryTakeFirst(out T item)
 		{
-			bool success = false;
+			var success = false;
 			LinkedListNode<T> node = null;
 			T result = default;
 			ThreadSafety.LockConditional(
@@ -89,7 +91,7 @@ namespace Open.Collections.Synchronized
 
 		public bool TryTakeLast(out T item)
 		{
-			bool success = false;
+			var success = false;
 			LinkedListNode<T> node = null;
 			T result = default;
 			ThreadSafety.LockConditional(

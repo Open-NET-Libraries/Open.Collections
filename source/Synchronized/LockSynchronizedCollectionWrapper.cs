@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,7 +12,7 @@ namespace Open.Collections.Synchronized
 			Sync = source;
 		}
 
-		protected object Sync; // Could possibly override..
+		protected readonly object Sync; // Could possibly override..
 		public object SyncRoot => Sync;
 
 		#region Implementation of ICollection<T>
@@ -96,7 +96,7 @@ namespace Open.Collections.Synchronized
 				{
 					foreach (var item in InternalSource)
 						action(item);
-				};
+				}
 			}
 		}
 
@@ -117,24 +117,22 @@ namespace Open.Collections.Synchronized
 
 		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
-			bool contains = false;
 			lock (Sync)
 			{
-				if (contains = InternalSource.Contains(item))
-					action(InternalSource);
+				var contains = InternalSource.Contains(item);
+				if (contains) action(InternalSource);
+				return contains;
 			}
-			return contains;
 		}
 
 		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
-			bool notContains = false;
 			lock (Sync)
 			{
-				if (notContains = !InternalSource.Contains(item))
-					action(InternalSource);
+				var notContains = !InternalSource.Contains(item);
+				if (notContains) action(InternalSource);
+				return notContains;
 			}
-			return notContains;
 		}
 
 	}

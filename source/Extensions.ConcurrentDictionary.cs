@@ -12,7 +12,7 @@ namespace Open.Collections
 		{
 			if (target == null) throw new NullReferenceException();
 
-			return target.TryRemove(key, out T value);
+			return target.TryRemove(key, out _);
 		}
 
 
@@ -28,7 +28,7 @@ namespace Open.Collections
 
 			var u = false;
 
-			TValue value = source.GetOrAdd(key, (k) =>
+			var value = source.GetOrAdd(key, (k) =>
 			{
 				u = true;
 				return valueFactory(k);
@@ -50,7 +50,7 @@ namespace Open.Collections
 
 			var u = false;
 
-			TValue result = source.GetOrAdd(key, (k) =>
+			var result = source.GetOrAdd(key, (k) =>
 			{
 				u = true;
 				return value;
@@ -67,20 +67,17 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 
 			// Use temporary update value to allow code contract resolution.
-			DateTime now = DateTime.Now;
-			DateTime lastupdated = source.GetOrAdd(out bool updating, key, now);
+			var now = DateTime.Now;
+			var lastupdated = source.GetOrAdd(out var updating, key, now);
 
 			var threshhold = now.Add(-timeBeforeExpires);
 			if (!updating && lastupdated < threshhold)
 			{
-				lastupdated = source.AddOrUpdate(key, now, (k, old) =>
+				source.AddOrUpdate(key, now, (k, old) =>
 				{
-					if (old < threshhold)
-					{
-						updating = true;
-						return now;
-					}
-					return old;
+					if (old >= threshhold) return old;
+					updating = true;
+					return now;
 				});
 			}
 

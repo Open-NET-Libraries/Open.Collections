@@ -6,14 +6,9 @@ namespace Open.Collections
 	{
 		public class Concurrent<T> : ConcurrentQueue<T>, IQueue<T>
 		{
-			public Concurrent() : base()
-			{
-
-			}
-
 			public void Clear()
 			{
-				while (TryDequeue(out T item)) { };
+				while (TryDequeue(out _)) { }
 			}
 		}
 	}

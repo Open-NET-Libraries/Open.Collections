@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * @author electricessence / https://github.com/electricessence/
  * Origin: http://www.fallingcanbedeadly.com/posts/crazy-extention-methods-tolazylist/
  * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
@@ -79,7 +79,7 @@ namespace Open.Collections
 		{
 			AssertIsAlive();
 
-			int index = 0;
+			var index = 0;
 			while (EnsureIndex(index))
 			{
 				yield return _cached[Interlocked.Increment(ref index) - 1]; // Interlocked allows for multi-threaded access to this enumerator.
@@ -92,15 +92,25 @@ namespace Open.Collections
 			if (IsEndless)
 				throw new InvalidOperationException("This list is marked as endless and may never complete. Use an enumerator, then Take(x).IndexOf().");
 
-			var e = GetEnumerator();
-			int index = 0;
-			while (e.MoveNext())
+			using (var e = GetEnumerator())
 			{
-				if (e.Current.Equals(item))
-					return index;
-				index++;
+				var index = 0;
+				while (e.MoveNext())
+				{
+					var value = e.Current;
+					if (value == null)
+					{
+						if (item == null) return index;
+					}
+					else if (value.Equals(item))
+						return index;
+
+					index++;
+				}
 			}
+
 			return -1;
+
 		}
 
 		public bool Contains(T item)

@@ -1,0 +1,23 @@
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+
+namespace Open.Collections
+{
+	public partial class Extensions
+	{
+		public static Queue<T> ToQueue<T>(this IEnumerable<T> source)
+			=> new Queue<T>(source);
+
+		public static IEnumerable<T> AsDequeueingEnumerable<T>(this ConcurrentQueue<T> source)
+		{
+			while (source.TryDequeue(out var entry))
+				yield return entry;
+		}
+
+		public static IEnumerable<T> AsDequeueingEnumerable<T>(this Queue<T> source)
+		{
+			while (source.Count != 0)
+				yield return source.Dequeue();
+		}
+	}
+}

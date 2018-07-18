@@ -81,12 +81,12 @@ namespace Open.Collections.Synchronized
 
 		public override bool IfContains(T item, Action<HashSet<T>> action)
 		{
-			return InternalSource.Contains(item) ? base.IfContains(item, action) : false;
+			return InternalSource.Contains(item) && base.IfContains(item, action);
 		}
 
 		public override bool IfNotContains(T item, Action<HashSet<T>> action)
 		{
-			return !InternalSource.Contains(item) ? base.IfNotContains(item, action) : false;
+			return !InternalSource.Contains(item) && base.IfNotContains(item, action);
 		}
 	}
 

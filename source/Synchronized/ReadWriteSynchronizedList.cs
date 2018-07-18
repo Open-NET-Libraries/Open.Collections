@@ -15,15 +15,8 @@ namespace Open.Collections.Synchronized
 
 		public T this[int index]
 		{
-			get
-			{
-				return InternalSource[index];
-			}
-
-			set
-			{
-				InternalSource[index] = value;
-			}
+			get => InternalSource[index];
+			set => InternalSource[index] = value;
 		}
 
 		public int IndexOf(T item)

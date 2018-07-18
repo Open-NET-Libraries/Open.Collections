@@ -1,10 +1,12 @@
 ﻿using Open.Threading;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 
 namespace Open.Collections
 {
+	[SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Global")]
 	public static partial class Extensions
 	{
 
@@ -29,7 +31,7 @@ namespace Open.Collections
 			Contract.EndContractBlock();
 
 			TValue result = default;
-			bool success = ThreadSafety.SynchronizeRead(target, key, () =>
+			var success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
 				)
@@ -49,7 +51,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			var exists = target.TryGetValueSynchronized(key, out TValue value);
+			var exists = target.TryGetValueSynchronized(key, out var value);
 
 			if (!exists && throwIfNotExists)
 				throw new KeyNotFoundException(key.ToString());
@@ -91,7 +93,7 @@ namespace Open.Collections
 			ThreadSafety.SynchronizeWrite(target, key, () =>
 			{
 				// Synchronize reading the action and seeing what we need to do next...
-				if (target.TryGetValue(key, out T old))
+				if (target.TryGetValue(key, out var old))
 				{
 					// Since we have a lock on the entry, go ahead an render the update action.
 					var updateValue = updateValueFactory(key, old);
@@ -130,7 +132,7 @@ namespace Open.Collections
 			ThreadSafety.SynchronizeWrite(target, key, () =>
 			{
 				// Synchronize reading the action and seeing what we need to do next...
-				if (target.TryGetValue(key, out T old))
+				if (target.TryGetValue(key, out var old))
 				{
 					// Since we have a lock on the entry, go ahead an render the update action.
 					var updateValue = updateValueFactory(key, old);
@@ -296,7 +298,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			bool added = false;
+			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref added,
 			lockType => !target.ContainsKey(key),
@@ -325,7 +327,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			bool added = false;
+			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref added,
 			lockType => !target.ContainsKey(key),
@@ -353,7 +355,7 @@ namespace Open.Collections
 			if (key == null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			bool removed = false;
+			var removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref removed,
 				lockType => target.ContainsKey(key),
@@ -379,7 +381,7 @@ namespace Open.Collections
 			Contract.EndContractBlock();
 
 			value = default;
-			bool removed = false;
+			var removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
 				target, key, ref value,
 				lockType => target.ContainsKey(key),
