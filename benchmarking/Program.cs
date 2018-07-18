@@ -2,6 +2,7 @@
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 class Program
@@ -105,6 +106,9 @@ class Program
 		Console.WriteLine("::: Synchronized HashSets :::\n");
 		{
 			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, (c, r, p) => CollectionParallelBenchmark.Results(c, r, p));
+
+			report.AddBenchmark("ConcurrentDictionary",
+				count => () => new ConcurrentHashSet<object>());
 
 			report.AddBenchmark("LockSynchronizedHashSet",
 				count => () => new LockSynchronizedHashSet<object>());
