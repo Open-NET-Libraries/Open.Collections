@@ -15,10 +15,10 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.4.1</Version>
-    <AssemblyVersion>2.4.1.1</AssemblyVersion>
-    <FileVersion>2.4.1.1</FileVersion>
-    <PackageReleaseNotes>Adjustments to some extensions including .Combinations.</PackageReleaseNotes>
+    <Version>2.4.2</Version>
+    <AssemblyVersion>2.4.2.0</AssemblyVersion>
+    <FileVersion>2.4.2.0</FileVersion>
+    <PackageReleaseNotes>Added special case read-sync for LazyList&lt;T&gt;.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
