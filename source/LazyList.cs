@@ -19,7 +19,7 @@ namespace Open.Collections
 
 		ReaderWriterLockSlim Sync;
 
-		public readonly bool IsEndless;
+		public bool IsEndless { get; private set; }
 		public LazyList(IEnumerable<T> source, bool isEndless = false)
 		{
 			_enumerator = source.GetEnumerator();
@@ -30,16 +30,15 @@ namespace Open.Collections
 
 		protected override void OnDispose(bool calledExplicitly)
 		{
-			if (calledExplicitly)
-			{
-				using (Sync.WriteLock())
-				{
-					DisposeOf(ref _enumerator);
-					Nullify(ref _cached)?.Clear();
-				}
+			if (!calledExplicitly) return;
 
-				DisposeOf(ref Sync);
+			using (Sync.WriteLock())
+			{
+				DisposeOf(ref _enumerator);
+				Nullify(ref _cached)?.Clear();
 			}
+
+			DisposeOf(ref Sync);
 		}
 
 		public T this[int index]
@@ -161,6 +160,7 @@ namespace Open.Collections
 				}
 				else
 				{
+					IsEndless = false;
 					DisposeOf(ref _enumerator);
 				}
 			}

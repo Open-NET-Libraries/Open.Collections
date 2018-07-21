@@ -623,13 +623,6 @@ namespace Open.Collections
 			return enumerable.AsQueryable().OrderBy(orderBy).AsEnumerable();
 		}
 
-		/* .Cast<T> does this...
-		public static IEnumerable<T> ToGeneric<T>(this IEnumerable enumerable)
-		{
-			foreach (T item in enumerable)
-				yield return item;
-		}*/
-
 		/// <summary>
 		/// Shortcut for ordering by an "ORDER BY" string.
 		/// </summary>
@@ -687,11 +680,10 @@ namespace Open.Collections
 			//TODO: apply caching to the generic methodsinfos?
 			var methods = typeof(Queryable).GetMethods();
 			var r1 = methods
-				.Single(
-					method => method.Name == methodName
-						&& method.IsGenericMethodDefinition
-							&& method.GetGenericArguments().Length == 2
-								&& method.GetParameters().Length == 2);
+				.Single(method => method.Name == methodName
+					&& method.IsGenericMethodDefinition
+					&& method.GetGenericArguments().Length == 2
+					&& method.GetParameters().Length == 2);
 
 			var result = r1
 				.MakeGenericMethod(typeof(T), type)
@@ -752,11 +744,10 @@ namespace Open.Collections
 		public static T? NullableFirstOrDefault<T>(this IEnumerable<T> source)
 			where T : struct
 		{
-			if (source != null)
-			{
-				var result = source.Take(1).ToList();
-				if (result.Any()) return result.First();
-			}
+			if (source == null) return null;
+
+			var result = source.Take(1).ToList();
+			if (result.Any()) return result.First();
 			return null;
 		}
 
@@ -779,55 +770,37 @@ namespace Open.Collections
 				}
 			}
 
-			if (queue != null)
-			{
+			if (queue == null) yield break;
 
-				// Start by getting the first enuerator if it exists.
-				var n = queue.First;
+			// Start by getting the first enuerator if it exists.
+			var n = queue.First;
+			while (n != null)
+			{
 				while (n != null)
 				{
-					while (n != null)
+					// Loop through all the enumerators..
+					var e2 = n.Value;
+					if (e2.MoveNext())
 					{
-						// Loop through all the enumerators..
-						var e2 = n.Value;
-						if (e2.MoveNext())
-						{
-							yield return e2.Current;
-							n = n.Next;
-						}
-						else
-						{
-							// None left? Remove the node.
-							var r = n;
-							n = n.Next;
-							queue.Remove(r);
-							e2.Dispose();
-						}
+						yield return e2.Current;
+						n = n.Next;
 					}
-					// Reset and try again.
-					n = queue.First;
+					else
+					{
+						// None left? Remove the node.
+						var r = n;
+						n = n.Next;
+						queue.Remove(r);
+						e2.Dispose();
+					}
 				}
+				// Reset and try again.
+				n = queue.First;
 			}
-
-
 		}
 
 		public static LazyList<T> Memoize<T>(this IEnumerable<T> list, bool isEndless = false)
-		{
-			return new LazyList<T>(list, isEndless);
-		}
-
-		/// <summary>
-		/// Similar to Cast but filters out any that don't match.
-		/// </summary>
-		/// <typeparam name="TSource"></typeparam>
-		/// <typeparam name="T"></typeparam>
-		/// <param name="list"></param>
-		/// <returns></returns>
-		public static IEnumerable<T> OfType<TSource, T>(this IEnumerable<TSource> list)
-		{
-			return list.Where(e => e is T).Cast<T>();
-		}
+			=> new LazyList<T>(list, isEndless);
 
 		/// <summary>
 		/// .IndexOf extension optimized for an array.
@@ -851,13 +824,21 @@ namespace Open.Collections
 			Contract.EndContractBlock();
 
 			if (k == 0)
-				return Enumerable.Repeat(Enumerable.Empty<T>(), 1);
+			{
+				yield return Enumerable.Empty<T>();
+			}
+			else
+			{
+				using (var el = elements.Memoize())
+				{
+					foreach (var combination in el.SelectMany((e, i) => el
+						.Skip(i + (uniqueOnly ? 1 : 0))
+						.Combinations(k - 1, uniqueOnly)
+						.Select(c => (new[] { e }).Concat(c))))
+						yield return combination;
+				}
+			}
 
-			var el = elements.Memoize();
-			return el.SelectMany((e, i) => el
-					.Skip(i + (uniqueOnly ? 1 : 0))
-					.Combinations(k - 1, uniqueOnly)
-					.Select(c => (new[] { e }).Concat(c)));
 		}
 
 	}

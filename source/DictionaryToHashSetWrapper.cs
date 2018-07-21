@@ -7,6 +7,7 @@ namespace Open.Collections
 	{
 		protected readonly IDictionary<T, bool> InternalSource;
 
+		// ReSharper disable once MemberCanBeProtected.Global
 		public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
 		{
 			InternalSource = source;
@@ -35,12 +36,14 @@ namespace Open.Collections
 		}
 
 		public bool Remove(T item)
+			// ReSharper disable once AssignNullToNotNullAttribute
 			=> InternalSource.Remove(item);
 
 		public void Clear()
 			=> InternalSource.Clear();
 
 		public bool Contains(T item)
+			// ReSharper disable once AssignNullToNotNullAttribute
 			=> InternalSource.ContainsKey(item);
 
 		public void CopyTo(T[] array, int arrayIndex)
@@ -59,7 +62,7 @@ namespace Open.Collections
 
 		public void IntersectWith(IEnumerable<T> other)
 		{
-			foreach(var e in other)
+			foreach (var e in other)
 			{
 				if (!InternalSource.ContainsKey(e))
 					Remove(e);
@@ -101,6 +104,7 @@ namespace Open.Collections
 		}
 
 		void ICollection<T>.Add(T item)
+			// ReSharper disable once AssignNullToNotNullAttribute
 			=> Add(item);
 
 		IEnumerator IEnumerable.GetEnumerator()
