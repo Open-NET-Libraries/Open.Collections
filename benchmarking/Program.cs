@@ -2,13 +2,16 @@
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
-class Program
+internal class Program
 {
-	static void Main(string[] args)
+	static void Main()
 	{
+		TestEntry.Test1();
+		TestEntry.Test2();
 		CollectionTests();
 
 		Console.Beep();
@@ -16,6 +19,56 @@ class Program
 		Console.ReadKey();
 	}
 
+	class TestEntry
+	{
+		// ReSharper disable once MemberCanBePrivate.Local
+		public int Value;
+
+		static IEnumerable<TestEntry> EndlessTest(int limit = int.MaxValue)
+		{
+			var i = 0;
+			while (i < limit)
+				yield return new TestEntry { Value = i++ };
+			// ReSharper disable once IteratorNeverReturns
+		}
+
+		public static void Test1()
+		{
+			Console.WriteLine("Beginning LazyList concurrency test.");
+			var sw = new Stopwatch();
+			using (var list = new LazyList<TestEntry>(EndlessTest()))
+			{
+				Parallel.For(0, 10000000, i =>
+				{
+					var e = list[i];
+					if (e == null) throw new NullReferenceException();
+					Debug.Assert(e.Value == i);
+				});
+				Console.WriteLine(sw.Elapsed);
+				Debug.Assert(list.IndexOf(list[10000]) == 10000);
+			}
+
+		}
+
+		public static void Test2()
+		{
+			Console.WriteLine("Beginning LazyList.GetEnumerator() concurrency test.");
+			using (var list = new LazyList<TestEntry>(EndlessTest(10000000)))
+			{
+				var sw = new Stopwatch();
+				Parallel.ForEach(list, e =>
+				{
+					if (e == null) throw new NullReferenceException();
+				});
+				Console.WriteLine(sw.Elapsed);
+				Debug.Assert(list.IndexOf(list[10000]) == 10000);
+			}
+
+		}
+
+	}
+
+	// ReSharper disable once UnusedMember.Local
 	static void QueueTests()
 	{
 
@@ -30,25 +83,26 @@ class Program
 		 * ConcurrentQueue beats a LockSynchronizedQueue almost every time.
 		 */
 
-		{
-			var report = new BenchmarkConsoleReport<Func<IQueue<object>>>(500000, (c, r, p) => QueueParallelBenchmark.Results(c, r, p));
 
-			report.AddBenchmark("LockSynchronizedQueue",
-				count => () => new LockSynchronizedQueue<object>());
-			report.AddBenchmark("ConcurrentQueue",
-				count => () => new Queue.Concurrent<object>());
-			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+		var report = new BenchmarkConsoleReport<Func<IQueue<object>>>(500000, QueueParallelBenchmark.Results);
 
-			report.Test(50, 4);
-			report.Test(100, 8);
-			report.Test(250, 16);
-			report.Test(1000, 24);
-			report.Test(2000, 32);
-			report.Test(4000, 48);
-		}
+		report.AddBenchmark("LockSynchronizedQueue",
+			count => () => new LockSynchronizedQueue<object>());
+		report.AddBenchmark("ConcurrentQueue",
+			count => () => new Queue.Concurrent<object>());
+		report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+
+		report.Test(50, 4);
+		report.Test(100, 8);
+		report.Test(250, 16);
+		report.Test(1000, 24);
+		report.Test(2000, 32);
+		report.Test(4000, 48);
+
 
 	}
 
+	// ReSharper disable once UnusedMember.Local
 	static void LinkedListTests()
 	{
 
@@ -86,7 +140,7 @@ class Program
 
 		Console.WriteLine("::: Synchronized Lists :::\n");
 		{
-			var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, (c, r, p) => ListParallelBenchmark.Results(c, r, p));
+			var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, ListParallelBenchmark.Results);
 
 			report.AddBenchmark("LockSynchronizedList",
 				count => () => new LockSynchronizedList<object>());
@@ -105,7 +159,7 @@ class Program
 
 		Console.WriteLine("::: Synchronized HashSets :::\n");
 		{
-			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, (c, r, p) => CollectionParallelBenchmark.Results(c, r, p));
+			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, CollectionParallelBenchmark.Results);
 
 			report.AddBenchmark("ConcurrentDictionary",
 				count => () => new ConcurrentHashSet<object>());
