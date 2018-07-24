@@ -15,10 +15,10 @@ Part of the "Open" set of libraries.</Description>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.4.3</Version>
-    <AssemblyVersion>2.4.3.0</AssemblyVersion>
-    <FileVersion>2.4.3.0</FileVersion>
-    <PackageReleaseNotes>Fixed multithreaded access to LazyList... Added special 'safe count'.</PackageReleaseNotes>
+    <Version>2.4.4</Version>
+    <AssemblyVersion>2.4.4.0</AssemblyVersion>
+    <FileVersion>2.4.4.0</FileVersion>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -41,7 +41,7 @@ Part of the "Open" set of libraries.</Description>
   <ItemGroup>
     <PackageReference Include="Open.Disposable" Version="1.2.1" />
     <PackageReference Include="Open.Text" Version="1.1.0" />
-    <PackageReference Include="Open.Threading" Version="1.4.1" />
+    <PackageReference Include="Open.Threading" Version="1.4.2" />
     <PackageReference Include="Open.Threading.ReadWrite" Version="1.1.2" />
   </ItemGroup>
 
