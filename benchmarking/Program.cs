@@ -40,6 +40,7 @@ internal class Program
 			{
 				Parallel.For(0, 10000000, i =>
 				{
+					// ReSharper disable once AccessToDisposedClosure
 					var e = list[i];
 					if (e == null) throw new NullReferenceException();
 					Debug.Assert(e.Value == i);
