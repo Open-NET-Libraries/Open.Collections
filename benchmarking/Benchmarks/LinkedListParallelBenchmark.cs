@@ -1,9 +1,6 @@
 ﻿using Open.Diagnostics;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Open.Collections
@@ -56,7 +53,7 @@ namespace Open.Collections
 
 		}
 
-		public static new TimedResult[] Results(uint size, uint repeat, Func<ILinkedList<object>> factory)
+		public new static TimedResult[] Results(uint size, uint repeat, Func<ILinkedList<object>> factory)
 		{
 			return (new LinkedListParallelBenchmark(size, repeat, factory)).Result;
 		}

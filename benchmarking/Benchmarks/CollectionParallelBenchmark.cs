@@ -1,10 +1,12 @@
 ﻿using Open.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Open.Collections
 {
+	[SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
 	public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 	{
 		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory, itemFactory)
@@ -30,7 +32,7 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure(".Contains(item) (In Parallel)", () =>
 			{
-				Parallel.For(0, TestSize, i => { c.Contains(_items[i]); });
+				Parallel.For(0, TestSize, i => { var _ = c.Contains(_items[i]); });
 			});
 
 			yield return TimedResult.Measure("Empty Backwards (.Remove(last)) (In Parallel)", () =>

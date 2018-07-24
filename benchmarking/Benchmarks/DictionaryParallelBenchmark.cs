@@ -30,15 +30,16 @@ namespace Open.Collections
 			{
 				for (var i = 0; i < TestSize; i++)
 				{
+					var i1 = i;
 					Parallel.For(0, mixSize, x =>
 					{
 						if (x % 2 == 0)
 						{
-							c[i] = items[x];
+							c[i1] = items[x];
 						}
 						else
 						{
-							var value = c[i];
+							var _ = c[i1];
 						}
 					});
 				}

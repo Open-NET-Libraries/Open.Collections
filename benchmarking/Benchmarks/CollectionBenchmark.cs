@@ -26,13 +26,18 @@ namespace Open.Collections
 
 			yield return TimedResult.Measure("Enumerate", () =>
 			{
+				// ReSharper disable once NotAccessedVariable
 				var x = 0;
-				foreach (var i in c) { x++; }
+				// ReSharper disable once LoopCanBeConvertedToQuery
+				foreach (var _ in c) { x++; }
 			});
 
 			yield return TimedResult.Measure(".Contains(item)", () =>
 			{
-				for (var i = 0; i < TestSize; i++) c.Contains(_items[i]);
+				for (var i = 0; i < TestSize; i++)
+				{
+					var _ = c.Contains(_items[i]);
+				}
 			});
 
 			yield return TimedResult.Measure("Empty Backwards (.Remove(last))", () =>
