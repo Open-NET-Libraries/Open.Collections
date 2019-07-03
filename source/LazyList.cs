@@ -28,10 +28,8 @@ namespace Open.Collections
 			IsEndless = isEndless; // To indicate if a source is not allowed to fully enumerate.
 		}
 
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
-			if (!calledExplicitly) return;
-
 			using (Sync.WriteLock())
 			{
 				DisposeOf(ref _enumerator);

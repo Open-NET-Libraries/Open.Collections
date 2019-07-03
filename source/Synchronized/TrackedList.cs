@@ -3,6 +3,7 @@
  * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
  */
 
+using Open.Disposable;
 using Open.Threading;
 using System;
 using System.Collections;
@@ -31,12 +32,13 @@ namespace Open.Collections.Synchronized
 			return new ReadWriteModificationSynchronizer(sync as ReaderWriterLockSlim);
 		}
 
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
-			base.OnDispose(calledExplicitly);
-			Interlocked.Exchange(ref _source, null)?.Clear();
+			base.OnDispose();
+			Nullify(ref _source)?.Clear();
 		}
 
+		/// <inheritdoc />
 		public T this[int index]
 		{
 			get => Sync.Reading(() =>
@@ -49,9 +51,7 @@ namespace Open.Collections.Synchronized
 		}
 
 		public bool SetValue(int index, T value)
-		{
-			return Sync.Modifying(AssertIsAlive, () => SetValueInternal(index, value));
-		}
+			=> Sync.Modifying(() => AssertIsAlive(), () => SetValueInternal(index, value));
 
 		private bool SetValueInternal(int index, T value)
 		{
@@ -61,38 +61,31 @@ namespace Open.Collections.Synchronized
 			return changing;
 		}
 
+		/// <inheritdoc />
 		public int Count
-		{
-			get
+			=> Sync.Reading(() =>
 			{
-				return Sync.Reading(() =>
-				{
-					AssertIsAlive();
-					return _source.Count;
-				});
-			}
-		}
+				AssertIsAlive();
+				return _source.Count;
+			});
 
+		/// <inheritdoc />
 		public virtual void Add(T item)
-		{
-			Sync.Modifying(AssertIsAlive, () =>
+			=> Sync.Modifying(() => AssertIsAlive(), () =>
 			{
 				_source.Add(item);
 				return true;
 			});
-		}
 
 		public void Add(T item, T item2, params T[] items)
-		{
-			AddThese(new[] { item, item2 }.Concat(items));
-		}
+			=> AddThese(new[] { item, item2 }.Concat(items));
 
 		public void AddThese(IEnumerable<T> items)
 		{
 			var enumerable = items as T[] ?? items?.ToArray();
 			if (enumerable != null && enumerable.Length != 0)
 			{
-				Sync.Modifying(AssertIsAlive, () =>
+				Sync.Modifying(() => AssertIsAlive(), () =>
 				{
 					foreach (var item in enumerable)
 						Add(item); // Yes, we could just _source.Add() but this allows for overrideing Add();
@@ -101,9 +94,9 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
+		/// <inheritdoc />
 		public void Clear()
-		{
-			Sync.Modifying(
+			=> Sync.Modifying(
 				() => AssertIsAlive() && _source.Count != 0,
 				() =>
 				{
@@ -115,74 +108,61 @@ namespace Open.Collections.Synchronized
 					}
 					return hasItems;
 				});
-		}
 
+		/// <inheritdoc />
 		public bool Contains(T item)
-		{
-			return Sync.Reading(() =>
+			=> Sync.Reading(() =>
 				AssertIsAlive() && _source.Contains(item));
-		}
 
+		/// <inheritdoc />
 		public void CopyTo(T[] array, int arrayIndex)
-		{
-			Sync.Reading(() =>
+			=> Sync.Reading(() =>
 			{
 				AssertIsAlive();
 				_source.CopyTo(array, arrayIndex);
 			});
-		}
 
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
-		{
-			return Sync.Reading(() =>
+			=> Sync.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source.GetEnumerator();
 			});
-		}
 
+		/// <inheritdoc />
 		public int IndexOf(T item)
-		{
-			return Sync.Reading(() => AssertIsAlive() ? _source.IndexOf(item) : -1);
-		}
+			=> Sync.Reading(() => AssertIsAlive()
+				? _source.IndexOf(item)
+				: -1);
 
+		/// <inheritdoc />
 		public void Insert(int index, T item)
-		{
-			Sync.Modifying(
-				AssertIsAlive,
-				() =>
-				{
-					_source.Insert(index, item);
-					return true;
-				});
-		}
+			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			{
+				_source.Insert(index, item);
+				return true;
+			});
 
+		/// <inheritdoc />
 		public bool Remove(T item)
-		{
-			return Sync.Modifying(
-				AssertIsAlive,
-				() => _source.Remove(item));
-		}
+			=> Sync.Modifying(() => AssertIsAlive(), () =>
+				_source.Remove(item));
 
+		/// <inheritdoc />
 		public void RemoveAt(int index)
-		{
-			Sync.Modifying(
-				AssertIsAlive,
-				() =>
-				{
-					_source.RemoveAt(index);
-					return true;
-				});
-		}
+			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			{
+				_source.RemoveAt(index);
+				return true;
+			});
 
 		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return Sync.Reading(() =>
+			=> Sync.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source.GetEnumerator();
 			});
-		}
 
 
 		public bool Replace(T target, T replacement, bool throwIfNotFound = false)
@@ -194,13 +174,11 @@ namespace Open.Collections.Synchronized
 				{
 					AssertIsAlive();
 					index = _source.IndexOf(target);
-					if (index == -1)
-					{
-						if (throwIfNotFound)
-							throw new ArgumentException("Not found.", "target");
-						return false;
-					}
-					return true;
+					if (index != -1) return true;
+
+					if (throwIfNotFound)
+						throw new ArgumentException("Not found.", "target");
+					return false;
 				},
 				() =>
 					SetValueInternal(index, replacement)

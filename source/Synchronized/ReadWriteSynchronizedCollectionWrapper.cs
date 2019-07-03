@@ -16,11 +16,12 @@ namespace Open.Collections.Synchronized
 		}
 
 		#region Implementation of ICollection<T>
-		public override void Add(T item)
-		{
-			Sync.Write(() => InternalSource.Add(item));
-		}
 
+		/// <inheritdoc />
+		public override void Add(T item)
+			=> Sync.Write(() => InternalSource.Add(item));
+
+		/// <inheritdoc />
 		public override void Add(T item1, T item2, params T[] items)
 		{
 			Sync.Write(() =>
@@ -32,6 +33,7 @@ namespace Open.Collections.Synchronized
 			});
 		}
 
+		/// <inheritdoc />
 		public override void Add(T[] items)
 		{
 			Sync.Write(() =>
@@ -41,16 +43,15 @@ namespace Open.Collections.Synchronized
 			});
 		}
 
+		/// <inheritdoc />
 		public override void Clear()
-		{
-			Sync.Write(() => InternalSource.Clear());
-		}
+			=> Sync.Write(() => InternalSource.Clear());
 
+		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
 		public override bool Contains(T item)
-		{
-			return Sync.ReadValue(() => InternalSource.Contains(item));
-		}
+			=> Sync.ReadValue(() => InternalSource.Contains(item));
 
+		/// <inheritdoc />
 		public override bool Remove(T item)
 		{
 			var result = false;
@@ -60,43 +61,31 @@ namespace Open.Collections.Synchronized
 			return result;
 		}
 
-		public override int Count => Sync.ReadValue(() => InternalSource.Count);
+		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+		public override int Count
+			=> Sync.ReadValue(() => InternalSource.Count);
 
 
-		/// <summary>
-		/// Specialized ".ToArray()" thread-safe method.
-		/// </summary>
-		/// <returns>An array of the contents.</returns>
+		/// <inheritdoc />
 		public T[] Snapshot()
-		{
-			return Sync.ReadValue(() => InternalSource.ToArray());
-		}
+			=> Sync.ReadValue(() => InternalSource.ToArray());
 
-		/// <summary>
-		/// Adds all the current items in this collection to the one provided.
-		/// </summary>
-		/// <param name="to">The collection to add the items to.</param>
+		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
 		public override void Export(ICollection<T> to)
-		{
-			Sync.Read(() => to.Add(InternalSource));
-		}
+			=> Sync.Read(() => to.Add(InternalSource));
 
+		/// <inheritdoc />
 		public override void CopyTo(T[] array, int arrayIndex)
-		{
-			Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
-		}
+			=> Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
 
 		#endregion
 
 		#region Dispose
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
-			if (calledExplicitly)
-			{
-				Interlocked.Exchange(ref Sync, null)?.Dispose();
-			}
+			Nullify(ref Sync)?.Dispose();
 
-			base.OnDispose(calledExplicitly);
+			base.OnDispose();
 		}
 		#endregion
 
@@ -123,18 +112,27 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
+		/// <inheritdoc />
+		public void Modify(Func<bool> condition, Action<TCollection> action)
+			=> Sync.ReadWriteConditionalOptimized(lockType => condition(), () => action(InternalSource));
 
+		/// <summary>
+		/// Allows for multiple modifications at once.
+		/// </summary>
+		/// <param name="condition">Only executes the action if the condition is true.  The condition may be invoked more than once.</param>
+		/// <param name="action">The action to execute safely on the underlying collection safely.</param>
+		public void Modify(Func<LockType, bool> condition, Action<TCollection> action)
+			=> Sync.ReadWriteConditionalOptimized(condition, () => action(InternalSource));
 
+		/// <inheritdoc />
 		public void Modify(Action<TCollection> action)
-		{
-			Sync.Write(() => action(InternalSource));
-		}
+			=> Sync.Write(() => action(InternalSource));
 
+		/// <inheritdoc />
 		public TResult Modify<TResult>(Func<TCollection, TResult> action)
-		{
-			return Sync.WriteValue(() => action(InternalSource));
-		}
+			=> Sync.WriteValue(() => action(InternalSource));
 
+		/// <inheritdoc />
 		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
 			var executed = false;
@@ -146,6 +144,7 @@ namespace Open.Collections.Synchronized
 			return executed;
 		}
 
+		/// <inheritdoc />
 		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
 			var executed = false;

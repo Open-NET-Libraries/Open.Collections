@@ -17,12 +17,17 @@ namespace Open.Collections
 		}
 
 		#region Implementation of IReadOnlyCollection<T>
+		/// <inheritdoc cref="ICollection&lt;T&gt;" />
 		public virtual bool Contains(T item)
 			=> InternalSource.Contains(item);
 
-		public virtual int Count => InternalSource.Count;
+		/// <inheritdoc />
+		public virtual int Count
+			=> InternalSource.Count;
 
-		public virtual bool IsReadOnly => true;
+		/// <inheritdoc cref="ICollection&lt;T&gt;" />
+		public virtual bool IsReadOnly
+			=> true;
 
 		/// <summary>
 		/// To ensure expected behavior, this returns an enumerator from the underlying collection.  Exceptions can be thrown if the collection content changes.
@@ -35,27 +40,21 @@ namespace Open.Collections
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
 
+		/// <inheritdoc cref="ICollection&lt;T&gt;" />
 		public virtual void CopyTo(T[] array, int arrayIndex)
 			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 
-		/// <summary>
-		/// Adds all the current items in this collection to the one provided.
-		/// </summary>
-		/// <param name="to">The collection to add the items to.</param>
+		/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;" />
 		public virtual void Export(ICollection<T> to)
-		{
-			to.Add(InternalSource);
-		}
+			=> to.Add(InternalSource);
 
 		#region Dispose
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
-			if (calledExplicitly)
-			{
-				Interlocked.Exchange(ref InternalSource, null)?.Dispose();
-			}
+			Nullify(ref InternalSource)?.Dispose();
 		}
+
 		/// <summary>
 		/// Extracts the underlying collection and returns it before disposing of this synchronized wrapper.
 		/// </summary>

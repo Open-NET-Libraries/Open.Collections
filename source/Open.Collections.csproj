@@ -1,24 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Authors>electricessence</Authors>
     <Company />
     <Product />
     <Description>Useful set of collections, and extensions for collections with thread-safe read-write access options.
 
 Part of the "Open" set of libraries.</Description>
-    <PackageLicenseUrl>https://github.com/electricessence/Open.Collections/blob/master/LISCENSE.md</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageTags>dotnet, dotnet-core, dotnetcore, cs, collections, extensions, threadsafe, thread-safe, lazylist, memoize, concurrency, concurrenthashset, concurrentlist, ordereddictionary, trackedlist</PackageTags>
     <Copyright>https://github.com/electricessence/Open.Collections/blob/master/LISCENSE.md</Copyright>
     <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.4.4</Version>
-    <AssemblyVersion>2.4.4.0</AssemblyVersion>
-    <FileVersion>2.4.4.0</FileVersion>
+    <Version>2.6.0</Version>
+    <AssemblyVersion>2.6.0.0</AssemblyVersion>
+    <FileVersion>2.6.0.0</FileVersion>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,10 +40,7 @@ Part of the "Open" set of libraries.</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Open.Disposable" Version="1.2.1" />
-    <PackageReference Include="Open.Text" Version="1.1.0" />
-    <PackageReference Include="Open.Threading" Version="1.4.2" />
-    <PackageReference Include="Open.Threading.ReadWrite" Version="1.1.2" />
+    <PackageReference Include="Open.Threading" Version="1.5.2" />
   </ItemGroup>
 
 </Project>

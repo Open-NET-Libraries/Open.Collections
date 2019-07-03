@@ -3,7 +3,7 @@
  * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
  */
 
-using Open.Text;
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -418,7 +418,16 @@ namespace Open.Collections
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
-			return (new StringBuilder()).AppendAll(source, separator).ToString();
+			var sb = new StringBuilder();
+			using(var enumerator = source.GetEnumerator())
+			{
+				if (enumerator.MoveNext())
+					sb.Append(enumerator.Current);
+				while (enumerator.MoveNext())
+					sb.Append(separator).Append(enumerator.Current);
+			}
+
+			return sb.ToString();
 		}
 
 		/// <summary>
@@ -432,7 +441,16 @@ namespace Open.Collections
 				throw new ArgumentNullException(nameof(separator));
 			Contract.EndContractBlock();
 
-			return (new StringBuilder()).AppendAll(source, separator).ToString();
+			var sb = new StringBuilder();
+			using (var enumerator = source.GetEnumerator())
+			{
+				if (enumerator.MoveNext())
+					sb.Append(enumerator.Current);
+				while (enumerator.MoveNext())
+					sb.Append(separator).Append(enumerator.Current);
+			}
+
+			return sb.ToString();
 		}
 
 		/*public static T ValidateNotNull<T>(this T target)

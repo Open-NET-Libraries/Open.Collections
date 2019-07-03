@@ -13,14 +13,21 @@ namespace Open.Collections.Synchronized
 		}
 
 		protected readonly object Sync; // Could possibly override..
+
+		/// <summary>
+		/// The underlying object used for synchronization.  This is exposed to allow for more complex synchronization operations.
+		/// </summary>
 		public object SyncRoot => Sync;
 
 		#region Implementation of ICollection<T>
+
+		/// <inheritdoc />
 		public override void Add(T item)
 		{
 			lock (Sync) InternalSource.Add(item);
 		}
 
+		/// <inheritdoc />
 		public override void Add(T item1, T item2, params T[] items)
 		{
 			lock (items)
@@ -32,6 +39,7 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
+		/// <inheritdoc />
 		public override void Add(T[] items)
 		{
 			lock (items)
@@ -42,16 +50,19 @@ namespace Open.Collections.Synchronized
 		}
 
 
+		/// <inheritdoc />
 		public override void Clear()
 		{
 			lock (Sync) InternalSource.Clear();
 		}
 
+		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
 		public override bool Contains(T item)
 		{
 			lock (Sync) return InternalSource.Contains(item);
 		}
 
+		/// <inheritdoc />
 		public override bool Remove(T item)
 		{
 			lock (Sync) return InternalSource.Remove(item);
@@ -59,19 +70,13 @@ namespace Open.Collections.Synchronized
 
 		#endregion
 
-		/// <summary>
-		/// Specialized ".ToArray()" thread-safe method.
-		/// </summary>
-		/// <returns>An array of the contents.</returns>
+		/// <inheritdoc />
 		public T[] Snapshot()
 		{
 			lock (Sync) return this.ToArray();
 		}
 
-		/// <summary>
-		/// Adds all the current items in this collection to the one provided.
-		/// </summary>
-		/// <param name="to">The collection to add the items to.</param>
+		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
 		public override void Export(ICollection<T> to)
 		{
 			lock (Sync) to.Add(this);
@@ -100,21 +105,36 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
+		/// <inheritdoc />
 		public override void CopyTo(T[] array, int arrayIndex)
 		{
 			lock (Sync) InternalSource.CopyTo(array, arrayIndex);
 		}
 
+		/// <inheritdoc />
 		public void Modify(Action<TCollection> action)
 		{
 			lock (Sync) action(InternalSource);
 		}
 
+		/// <inheritdoc />
+		public void Modify(Func<bool> condition, Action<TCollection> action)
+		{
+			if (!condition()) return;
+			lock (Sync)
+			{
+				if (!condition()) return;
+				action(InternalSource);
+			}
+		}
+
+		/// <inheritdoc />
 		public TResult Modify<TResult>(Func<TCollection, TResult> action)
 		{
 			lock (Sync) return action(InternalSource);
 		}
 
+		/// <inheritdoc />
 		public virtual bool IfContains(T item, Action<TCollection> action)
 		{
 			lock (Sync)
@@ -125,6 +145,7 @@ namespace Open.Collections.Synchronized
 			}
 		}
 
+		/// <inheritdoc />
 		public virtual bool IfNotContains(T item, Action<TCollection> action)
 		{
 			lock (Sync)

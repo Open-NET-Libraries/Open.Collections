@@ -17,6 +17,13 @@ namespace Open.Collections.Synchronized
 		/// <summary>
 		/// Allows for multiple modifications at once.
 		/// </summary>
+		/// <param name="condition">Only executes the action if the condition is true.  The condition may be invoked more than once.</param>
+		/// <param name="action">The action to execute safely on the underlying collection safely.</param>
+		void Modify(Func<bool> condition, Action<TCollection> action);
+
+		/// <summary>
+		/// Allows for multiple modifications at once.
+		/// </summary>
 		/// <param name="action">The action to execute safely on the underlying collection safely.</param>
 		/// <returns>The result of the action.</returns>
 		TResult Modify<TResult>(Func<TCollection, TResult> action);

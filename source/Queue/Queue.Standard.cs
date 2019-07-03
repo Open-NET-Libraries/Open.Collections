@@ -16,6 +16,7 @@ namespace Open.Collections
 
 			}
 
+			/// <inheritdoc />
 			public virtual bool TryDequeue(out T item)
 			{
 				var ok = Count != 0;
@@ -23,6 +24,7 @@ namespace Open.Collections
 				return ok;
 			}
 
+			/// <inheritdoc />
 			public virtual bool TryPeek(out T item)
 			{
 				var ok = Count != 0;

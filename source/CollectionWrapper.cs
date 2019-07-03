@@ -10,11 +10,15 @@ namespace Open.Collections
 		}
 
 		#region Implementation of ICollection<T>
-		public virtual void Add(T item)
-		{
-			InternalSource.Add(item);
-		}
 
+		/// <inheritdoc />
+		public virtual void Add(T item)
+			=> InternalSource.Add(item);
+
+		/// <inheritdoc cref="ICollection&lt;T&gt;" />
+		/// <param name="item1">First item to add.</param>
+		/// <param name="item2">Additional item to add.</param>
+		/// <param name="items">Extended param items to add.</param>
 		public virtual void Add(T item1, T item2, params T[] items)
 		{
 			InternalSource.Add(item1);
@@ -36,22 +40,21 @@ namespace Open.Collections
 				InternalSource.Add(i);
 		}
 
+		/// <inheritdoc />
 		public virtual void Clear()
-		{
-			InternalSource.Clear();
-		}
+			=> InternalSource.Clear();
 
+		/// <inheritdoc />
 		public virtual bool Remove(T item)
-		{
-			return InternalSource.Remove(item);
-		}
+			=> InternalSource.Remove(item);
 
-		public override bool IsReadOnly => InternalSource.IsReadOnly;
+		/// <inheritdoc cref="ReadOnlyCollectionWrapper&lt;T, TCollection&gt;" />
+		public override bool IsReadOnly
+			=> InternalSource.IsReadOnly;
 
+		/// <inheritdoc cref="ReadOnlyCollectionWrapper&lt;T, TCollection&gt;" />
 		public override void CopyTo(T[] array, int arrayIndex)
-		{
-			InternalSource.CopyTo(array, arrayIndex);
-		}
+			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 	}
 }

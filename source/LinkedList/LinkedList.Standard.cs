@@ -15,6 +15,36 @@ namespace Open.Collections
 			{
 
 			}
+
+			/// <inheritdoc />
+			public bool TryTakeFirst(out T item)
+			{
+				var node = First;
+				if (node == null)
+				{
+					item = default;
+					return false;
+				}
+
+				item = node.Value;
+				RemoveFirst();
+				return true;
+			}
+
+			/// <inheritdoc />
+			public bool TryTakeLast(out T item)
+			{
+				var node = Last;
+				if (node == null)
+				{
+					item = default;
+					return false;
+				}
+
+				item = node.Value;
+				RemoveLast();
+				return true;
+			}
 		}
 	}
 }

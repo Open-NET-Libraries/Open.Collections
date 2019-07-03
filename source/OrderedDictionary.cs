@@ -565,7 +565,7 @@ namespace Open.Collections
 			=> Remove(item.Key);
 
 		// Making OrderDictionary Disposable ensures that events get cleaned up.
-		protected override void OnDispose(bool calledExplicitly)
+		protected override void OnDispose()
 		{
 			// Release items and clear events.
 			Clear();

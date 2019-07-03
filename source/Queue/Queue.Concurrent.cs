@@ -6,6 +6,7 @@ namespace Open.Collections
 	{
 		public class Concurrent<T> : ConcurrentQueue<T>, IQueue<T>
 		{
+			/// <inheritdoc />
 			public void Clear()
 			{
 				while (TryDequeue(out _)) { }
