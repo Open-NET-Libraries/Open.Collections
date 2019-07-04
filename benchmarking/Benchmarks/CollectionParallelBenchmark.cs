@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Open.Collections
@@ -24,16 +25,55 @@ namespace Open.Collections
 				Parallel.For(0, TestSize, i => c.Add(_items[i]));
 			});
 
+			yield return TimedResult.Measure("Enumerate", () =>
+			{
+				// ReSharper disable once NotAccessedVariable
+				var x = 0;
+				// ReSharper disable once LoopCanBeConvertedToQuery
+				foreach (var _ in c) { x++; }
+			});
+
 			// It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
-			//yield return TimedResult.Measure("Enumerate", () =>
-			//{
-			//	Parallel.ForEach(c, i => { });
-			//});
+			yield return TimedResult.Measure("Enumerate (In Parallel)", () =>
+			{
+				Parallel.ForEach(c, i => { });
+			});
 
 			yield return TimedResult.Measure(".Contains(item) (In Parallel)", () =>
 			{
-				Parallel.For(0, TestSize, i => { var _ = c.Contains(_items[i]); });
+				Parallel.For(0, TestSize * 2, i => { var _ = c.Contains(_items[i]); });
 			});
+
+			if (c is IList<T> list)
+			{
+				yield return TimedResult.Measure("IList<T> Read Access", () =>
+				{
+					for (var i = 0; i < TestSize; i += 2)
+					{
+						var _ = list[i];
+					}
+				});
+
+				yield return TimedResult.Measure("IList<T> Read Access (In Parallel)", () =>
+				{
+					Parallel.For(0, (int)TestSize, i => { var _ = list[i]; });
+				});
+			}
+
+			if (c is ISynchronizedCollection<T> syncList)
+			{
+				yield return TimedResult.Measure(".Snapshot()", () =>
+				{
+					var _ = syncList.Snapshot();
+				});
+			}
+			else
+			{
+				yield return TimedResult.Measure(".Snapshot()", () =>
+				{
+					var _ = c.ToArray();
+				});
+			}
 
 			yield return TimedResult.Measure("Empty Backwards (.Remove(last)) (In Parallel)", () =>
 			{

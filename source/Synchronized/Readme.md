@@ -1,4 +1,4 @@
-# Synchronized Classes
+# Synchronized Collections
 
 Keeping in mind that without an exclusive lock of some kind, the data can change from one operation to the next.
 
@@ -6,19 +6,20 @@ These classes are provided to help with simple operations that don't rely on len
 
 Some methods are available that assist with exclusive access:
 
-* ```.IfContains(item, action)```
-* ```.IfNotContains(item, action)```
-* ```.Snapshot()```
-* ```.ForEach(action, useSnapshot)```
-* ```.Export(destination)```
-* ```.CopyTo(array, arrayIndex)```
-* ```.Modify(action)```
+* `.IfContains(item, action)`
+* `.IfNotContains(item, action)`
+* `.Snapshot()`
+* `.ForEach(action, useSnapshot)`
+* `.Export(destination)`
+* `.CopyTo(array, arrayIndex)`
+* `.Modify(action)`
 
-A snapshot is simply a copy of the collection at a given moment that can then be operated on while the underlying collection can continute to mutate.
+A "snapshot" is simply a copy of the collection at a given moment that can then be operated on while the underlying collection can continue to mutate.
 
 ### Reads
 
-Any operation that the collection cannot be changing (adding/removing) while executing. ie. ```.Contains(item)```
+Any operation that the collection cannot be changing (adding/removing) while executing.  
+ie. ```.Contains(item)```
 
 ### Writes
 
@@ -32,9 +33,9 @@ Best to use these classes when expecting a mix of read/write but with a majority
 
 ## Read-Write Synchronized
 
-These classes use a ReaderWriterLockSlim to synchronize read-write access and can be faster in some specific cases.
+These classes use a `ReaderWriterLockSlim` to synchronize read-write access and can be faster in some specific cases.
 
-Best to use these classes when expecting a mix of read/write but with a majority of reads.
+Best to use these classes when expecting a mix of read/write but with a majority of reads and typically of a smaller size.
 
 ## Benchmarks
 

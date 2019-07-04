@@ -9,7 +9,7 @@ namespace Open.Collections
 	{
 		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory)
 		{
-			_items = Enumerable.Range(0, (int)TestSize).Select(itemFactory).ToArray();
+			_items = Enumerable.Range(0, (int)TestSize * 2).Select(itemFactory).ToArray();
 		}
 
 		protected readonly T[] _items;
@@ -39,6 +39,17 @@ namespace Open.Collections
 					var _ = c.Contains(_items[i]);
 				}
 			});
+
+			if (c is IList<T> list)
+			{
+				yield return TimedResult.Measure("IList<T> Read Access", () =>
+				{
+					for (var i = 0; i < TestSize; i += 2)
+					{
+						var _ = list[i];
+					}
+				});
+			}
 
 			yield return TimedResult.Measure("Empty Backwards (.Remove(last))", () =>
 			{

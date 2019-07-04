@@ -2,7 +2,6 @@
 
 namespace Open.Collections
 {
-	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	public interface IQueue<T>
 	{
 		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;"/>

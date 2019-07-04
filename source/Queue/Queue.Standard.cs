@@ -16,6 +16,7 @@ namespace Open.Collections
 
 			}
 
+#if NETSTANDARD2_0
 			/// <inheritdoc />
 			public virtual bool TryDequeue(out T item)
 			{
@@ -31,6 +32,17 @@ namespace Open.Collections
 				item = ok ? Peek() : default;
 				return ok;
 			}
+#else
+			/// <inheritdoc />
+			public new virtual bool TryDequeue(out T item)
+				=> base.TryDequeue(out item);
+
+			/// <inheritdoc />
+			public new virtual bool TryPeek(out T item)
+				=> base.TryPeek(out item);
+#endif
+
+
 		}
 	}
 }
