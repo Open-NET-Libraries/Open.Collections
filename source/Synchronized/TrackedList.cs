@@ -3,7 +3,6 @@
  * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
  */
 
-using Open.Disposable;
 using Open.Threading;
 using System;
 using System.Collections;

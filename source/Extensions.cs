@@ -248,15 +248,13 @@ namespace Open.Collections
 					return collection.Count >= minimum;
 			}
 
-			using (var e = source.GetEnumerator())
+			using var e = source.GetEnumerator();
+			while (e.MoveNext())
 			{
-				while (e.MoveNext())
-				{
-					if (--minimum == 0)
-						return true;
-				}
-				return false;
+				if (--minimum == 0)
+					return true;
 			}
+			return false;
 
 		}
 
@@ -300,7 +298,7 @@ namespace Open.Collections
 					{
 						var value = e.Current;
 
-						retry:
+					retry:
 						if (queue.Writer.TryWrite(value)) continue;
 						if (await queue.Writer.WaitToWriteAsync()) goto retry;
 
@@ -419,7 +417,7 @@ namespace Open.Collections
 			Contract.EndContractBlock();
 
 			var sb = new StringBuilder();
-			using(var enumerator = source.GetEnumerator())
+			using (var enumerator = source.GetEnumerator())
 			{
 				if (enumerator.MoveNext())
 					sb.Append(enumerator.Current);
@@ -847,14 +845,12 @@ namespace Open.Collections
 			}
 			else
 			{
-				using (var el = elements.Memoize())
-				{
-					foreach (var combination in el.SelectMany((e, i) => el
-						.Skip(i + (uniqueOnly ? 1 : 0))
-						.Combinations(k - 1, uniqueOnly)
-						.Select(c => (new[] { e }).Concat(c))))
-						yield return combination;
-				}
+				using var el = elements.Memoize();
+				foreach (var combination in el.SelectMany((e, i) => el
+.Skip(i + (uniqueOnly ? 1 : 0))
+.Combinations(k - 1, uniqueOnly)
+.Select(c => (new[] { e }).Concat(c))))
+					yield return combination;
 			}
 
 		}

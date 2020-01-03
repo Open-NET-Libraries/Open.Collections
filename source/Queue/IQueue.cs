@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections
+﻿namespace Open.Collections
 {
 	public interface IQueue<T>
 	{

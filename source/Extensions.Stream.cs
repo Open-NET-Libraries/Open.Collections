@@ -15,11 +15,11 @@ namespace Open.Collections
 			if (target == null)
 				throw new ArgumentNullException(nameof(target));
 
-			var bytes = new byte[4096];
-
+			var bytes = System.Buffers.ArrayPool<byte>.Shared.Rent(4096);
 			int cnt;
 			while ((cnt = source.Read(bytes, 0, bytes.Length)) != 0)
 				target.Write(bytes, 0, cnt);
+			System.Buffers.ArrayPool<byte>.Shared.Return(bytes, true);
 		}
 	}
 }

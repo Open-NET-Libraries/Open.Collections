@@ -36,34 +36,30 @@ internal class Program
 		{
 			Console.WriteLine("Beginning LazyList concurrency test.");
 			var sw = new Stopwatch();
-			using (var list = new LazyList<TestEntry>(EndlessTest()))
+			using var list = new LazyList<TestEntry>(EndlessTest());
+			Parallel.For(0, 10000000, i =>
 			{
-				Parallel.For(0, 10000000, i =>
-				{
-					// ReSharper disable once AccessToDisposedClosure
-					var e = list[i];
-					if (e == null) throw new NullReferenceException();
-					Debug.Assert(e.Value == i);
-				});
-				Console.WriteLine(sw.Elapsed);
-				Debug.Assert(list.IndexOf(list[10000]) == 10000);
-			}
+				// ReSharper disable once AccessToDisposedClosure
+				var e = list[i];
+				if (e == null) throw new NullReferenceException();
+				Debug.Assert(e.Value == i);
+			});
+			Console.WriteLine(sw.Elapsed);
+			Debug.Assert(list.IndexOf(list[10000]) == 10000);
 
 		}
 
 		public static void Test2()
 		{
 			Console.WriteLine("Beginning LazyList.GetEnumerator() concurrency test.");
-			using (var list = new LazyList<TestEntry>(EndlessTest(10000000)))
+			using var list = new LazyList<TestEntry>(EndlessTest(10000000));
+			var sw = new Stopwatch();
+			Parallel.ForEach(list, e =>
 			{
-				var sw = new Stopwatch();
-				Parallel.ForEach(list, e =>
-				{
-					if (e == null) throw new NullReferenceException();
-				});
-				Console.WriteLine(sw.Elapsed);
-				Debug.Assert(list.IndexOf(list[10000]) == 10000);
-			}
+				if (e == null) throw new NullReferenceException();
+			});
+			Console.WriteLine(sw.Elapsed);
+			Debug.Assert(list.IndexOf(list[10000]) == 10000);
 
 		}
 
