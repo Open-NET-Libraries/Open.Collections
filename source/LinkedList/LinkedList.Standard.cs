@@ -20,7 +20,7 @@ namespace Open.Collections
 			public bool TryTakeFirst(out T item)
 			{
 				var node = First;
-				if (node == null)
+				if (node is null)
 				{
 					item = default;
 					return false;
@@ -35,7 +35,7 @@ namespace Open.Collections
 			public bool TryTakeLast(out T item)
 			{
 				var node = Last;
-				if (node == null)
+				if (node is null)
 				{
 					item = default;
 					return false;

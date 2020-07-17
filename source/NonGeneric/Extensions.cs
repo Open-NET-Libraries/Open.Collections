@@ -23,9 +23,9 @@ namespace Open.Collections.NonGeneric
 			object key,
 			Func<object, T> valueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
 			if (!target.TryGetValue(key, out T value))
 				target.Add(key, value = valueFactory(key));
@@ -41,8 +41,8 @@ namespace Open.Collections.NonGeneric
 			object key,
 			T value)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (!target.TryGetValue(key, out T v))
 				target.Add(key, v = value);
@@ -57,13 +57,13 @@ namespace Open.Collections.NonGeneric
 		/// <returns>True if a value was acquired.</returns>
 		public static bool TryGetValue<T>(this IDictionary target, object key, out T value)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (target.Contains(key))
 			{
 				var result = target[key];
-				value = result == null ? default : (T)result;
+				value = result is null ? default : (T)result;
 				return true;
 			}
 
@@ -79,9 +79,9 @@ namespace Open.Collections.NonGeneric
 			object key,
 			Func<object, T> valueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
 			return target.TryGetValue(key, out T value) ? value : valueFactory(key);
 		}
@@ -94,8 +94,8 @@ namespace Open.Collections.NonGeneric
 			object key,
 			T defaultValue)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			return target.TryGetValue(key, out T value) ? value : defaultValue;
 		}

@@ -1,9 +1,4 @@
-﻿/*!
- * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
- */
-
-using Open.Threading;
+﻿using Open.Threading;
 using System;
 using System.Collections;
 using System.Collections.Generic;

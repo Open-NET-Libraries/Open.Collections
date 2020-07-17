@@ -12,7 +12,7 @@ namespace Open.Collections
 
 		public static IEnumerable<T> TryTakeWhile<T>(this ConcurrentBag<T> target, Func<ConcurrentBag<T>, bool> predicate)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			while (!target.IsEmpty && predicate(target) && target.TryTake(out var value))
 			{
@@ -22,14 +22,14 @@ namespace Open.Collections
 
 		public static IEnumerable<T> TryTakeWhile<T>(this ConcurrentBag<T> target, Func<bool> predicate)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			return TryTakeWhile(target, t => predicate());
 		}
 
 		public static void Trim<T>(this ConcurrentBag<T> target, int maxSize)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			foreach (var _ in TryTakeWhile(target, t => t.Count > maxSize))
 			{
@@ -38,7 +38,7 @@ namespace Open.Collections
 
 		public static Task TrimAsync<T>(this ConcurrentBag<T> target, int maxSize, Action<T> handler)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			return Task.WhenAll(
 				TryTakeWhile(target, t => t.Count > maxSize)

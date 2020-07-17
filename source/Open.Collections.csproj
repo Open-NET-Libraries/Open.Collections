@@ -1,48 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <Authors>electricessence</Authors>
-    <Company />
-    <Product />
-    <Description>Useful set of collections, and extensions for collections with thread-safe read-write access options.
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>electricessence</Authors>
+		<Description>
+			Useful set of collections, and extensions for collections with thread-safe read-write access options.
 
-Part of the "Open" set of libraries.</Description>
-    <PackageLicenseUrl></PackageLicenseUrl>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageTags>dotnet, dotnet-core, dotnetcore, cs, collections, extensions, threadsafe, thread-safe, lazylist, memoize, concurrency, concurrenthashset, concurrentlist, ordereddictionary, trackedlist</PackageTags>
-    <Copyright>https://github.com/electricessence/Open.Collections/blob/master/LISCENSE.md</Copyright>
-    <PackageProjectUrl>https://github.com/electricessence/Open.Collections/</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/electricessence/Open.Collections/</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Version>2.7.2</Version>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  </PropertyGroup>
+			Part of the "Open" set of libraries.
+		</Description>
+		<PackageTags>collections;extensions;threadsafe;thread safe;thread safety;lazy list;lazylist;memoize;concurrency;concurrenthashset;concurrentlist;ordereddictionary;trackedlist</PackageTags>
+		<Copyright>© electricessence (Oren F.) All rights reserved.</Copyright>
+		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Version>2.8.0</Version>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageIcon>logo.png</PackageIcon>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+	</ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+	<ItemGroup>
+		<Compile Remove="IIndexed.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="IIndexed.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="Extensions.ConcurrentBag.cs" />
+		<None Include="NonGeneric\Extensions.Synchronized.cs" />
+		<None Include="logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>		
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="Extensions.ConcurrentBag.cs" />
-    <None Include="NonGeneric\Extensions.Synchronized.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Open.Threading" Version="1.5.4" />
+	<ItemGroup>
+		<PackageReference Include="Open.Threading" Version="1.6.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Buffers" Version="4.5.0" />
+		<PackageReference Include="System.Buffers" Version="4.5.1" />
 	</ItemGroup>
 
 </Project>

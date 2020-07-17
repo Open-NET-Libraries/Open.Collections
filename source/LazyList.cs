@@ -1,7 +1,6 @@
 ﻿/*!
  * @author electricessence / https://github.com/electricessence/
- * Origin: http://www.fallingcanbedeadly.com/posts/crazy-extention-methods-tolazylist/
- * Licensing: MIT https://github.com/electricessence/Genetic-Algorithm-Platform/blob/master/LICENSE.md
+ * Partly based on: http://www.fallingcanbedeadly.com/posts/crazy-extention-methods-tolazylist/
  */
 
 using Open.Disposable;
@@ -97,9 +96,9 @@ namespace Open.Collections
 			while (EnsureIndex(index))
 			{
 				var value = _cached[index];
-				if (value == null)
+				if (value is null)
 				{
-					if (item == null) return index;
+					if (item is null) return index;
 				}
 				else if (value.Equals(item))
 					return index;
@@ -149,7 +148,7 @@ namespace Open.Collections
 				return true;
 			}
 
-			if (_enumerator == null)
+			if (_enumerator is null)
 				return false;
 
 			// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
@@ -164,7 +163,7 @@ namespace Open.Collections
 				if (maxIndex < _safeCount)
 					return true;
 
-				if (_enumerator == null)
+				if (_enumerator is null)
 					return false;
 
 				uLock.UpgradeToWriteLock();

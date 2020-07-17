@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Open.Diagnostics" Version="1.4.0" />
+    <PackageReference Include="Open.Diagnostics" Version="1.4.1" />
   </ItemGroup>
 
   <ItemGroup>

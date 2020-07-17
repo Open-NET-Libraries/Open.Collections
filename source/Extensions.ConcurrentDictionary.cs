@@ -10,7 +10,7 @@ namespace Open.Collections
 		/// </summary>
 		public static bool TryRemove<TKey, T>(this ConcurrentDictionary<TKey, T> target, TKey key)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			return target.TryRemove(key, out _);
 		}
@@ -22,9 +22,9 @@ namespace Open.Collections
 			TKey key,
 			Func<TKey, TValue> valueFactory)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var u = false;
 
@@ -44,9 +44,9 @@ namespace Open.Collections
 			TKey key,
 			TValue value)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var u = false;
 
@@ -62,9 +62,9 @@ namespace Open.Collections
 
 		public static bool UpdateRequired<TKey>(this ConcurrentDictionary<TKey, DateTime> source, TKey key, TimeSpan timeBeforeExpires)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			// Use temporary update value to allow code contract resolution.
 			var now = DateTime.Now;

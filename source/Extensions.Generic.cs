@@ -14,10 +14,10 @@ namespace Open.Collections
 			TKey key,
 			T value)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
-			if (value == null || value.Equals(default(T)))
+			if (value is null || value.Equals(default(T)))
 				target.Remove(key);
 			else
 				target[key] = value;
@@ -30,7 +30,7 @@ namespace Open.Collections
 		/// </summary>
 		public static void Register<T>(this ICollection<T> target, T value)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 
 			if (!target.Contains(value))
 				target.Add(value);
@@ -39,7 +39,7 @@ namespace Open.Collections
 
 		public static void Add<T>(this ICollection<T> target, IEnumerable<T> values)
 		{
-			if (target == null)
+			if (target is null)
 				throw new NullReferenceException();
 
 			if (values != null)
@@ -57,7 +57,7 @@ namespace Open.Collections
 
 		public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 			var count = 0;
 			if (values != null)
 			{
@@ -82,8 +82,8 @@ namespace Open.Collections
 			T value,
 			T updateValue)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			T valueUsed;
 			if (target.TryGetValue(key, out _))
@@ -103,9 +103,9 @@ namespace Open.Collections
 		public static T AddOrUpdate<TKey, T>(this IDictionary<TKey, T> target, TKey key, T value,
 			Func<TKey, T, T> updateValueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 
 			T valueUsed;
 			if (target.TryGetValue(key, out var old))
@@ -126,10 +126,10 @@ namespace Open.Collections
 			Func<TKey, T> newValueFactory,
 			Func<TKey, T, T> updateValueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (newValueFactory == null) throw new ArgumentNullException(nameof(newValueFactory));
-			if (updateValueFactory == null) throw new ArgumentNullException(nameof(updateValueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (newValueFactory is null) throw new ArgumentNullException(nameof(newValueFactory));
+			if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 
 			T valueUsed;
 			if (target.TryGetValue(key, out var old))
@@ -146,8 +146,8 @@ namespace Open.Collections
 		/// </summary>
 		public static void AddTo<TKey, TValue>(this IDictionary<TKey, IList<TValue>> c, TKey key, TValue value)
 		{
-			if (c == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (c is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var list = c.GetOrAdd(key, k => new List<TValue>());
 			list.Add(value);
@@ -160,8 +160,8 @@ namespace Open.Collections
 		/// </summary>
 		public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key, T defaultValue)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (!target.ContainsKey(key))
 				target.Add(key, defaultValue);
@@ -175,9 +175,9 @@ namespace Open.Collections
 		public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 			Func<TKey, T> defaultValueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (defaultValueFactory == null) throw new ArgumentNullException(nameof(defaultValueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (defaultValueFactory is null) throw new ArgumentNullException(nameof(defaultValueFactory));
 
 			if (!target.ContainsKey(key))
 				target.Add(key, defaultValueFactory(key));
@@ -192,8 +192,8 @@ namespace Open.Collections
 			this IDictionary<TKey, T> target,
 			TKey key)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			return target.GetOrDefault(key, default(T));
 		}
@@ -206,8 +206,8 @@ namespace Open.Collections
 			TKey key,
 			T defaultValue)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			return target.TryGetValue(key, out var value) ? value : defaultValue;
 		}
@@ -221,9 +221,9 @@ namespace Open.Collections
 			TKey key,
 			Func<TKey, T> valueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
 			return target.TryGetValue(key, out var value) ? value : valueFactory(key);
 		}
@@ -238,9 +238,9 @@ namespace Open.Collections
 			TKey key,
 			Func<TKey, T> valueFactory)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
 			if (!target.TryGetValue(key, out var value))
 				target.Add(key, value = valueFactory(key));
@@ -256,8 +256,8 @@ namespace Open.Collections
 			TKey key,
 			T value)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (!target.TryGetValue(key, out var v))
 				target.Add(key, v = value);

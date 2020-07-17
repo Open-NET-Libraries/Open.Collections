@@ -41,7 +41,7 @@ internal class Program
 			{
 				// ReSharper disable once AccessToDisposedClosure
 				var e = list[i];
-				if (e == null) throw new NullReferenceException();
+				if (e is null) throw new NullReferenceException();
 				Debug.Assert(e.Value == i);
 			});
 			Console.WriteLine(sw.Elapsed);
@@ -56,7 +56,7 @@ internal class Program
 			var sw = new Stopwatch();
 			Parallel.ForEach(list, e =>
 			{
-				if (e == null) throw new NullReferenceException();
+				if (e is null) throw new NullReferenceException();
 			});
 			Console.WriteLine(sw.Elapsed);
 			Debug.Assert(list.IndexOf(list[10000]) == 10000);

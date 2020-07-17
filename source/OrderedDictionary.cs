@@ -1,9 +1,4 @@
-﻿/*!
- * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
- */
-
-using Open.Disposable;
+﻿using Open.Disposable;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -194,7 +189,7 @@ namespace Open.Collections
 		/// <exception cref="ArgumentException">The source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="value"/>.</exception>
 		private static TValue ConvertToValueType(object value)
 		{
-			if (value == null)
+			if (value is null)
 				return default;
 
 			return (TValue)value;
@@ -451,14 +446,14 @@ namespace Open.Collections
 		/// <remarks>This method performs a linear search; therefore it has a cost of O(n) at worst.</remarks>
 		public int IndexOfKey(TKey key)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 			return List.IndexOf(key);
 		}
 
 		/// <inheritdoc />
 		public bool Remove(TKey key)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key is null) throw new ArgumentNullException(nameof(key));
 			int index;
 			TValue value;
 			lock (SyncRoot)

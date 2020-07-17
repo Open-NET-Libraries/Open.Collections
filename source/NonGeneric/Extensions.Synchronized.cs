@@ -23,8 +23,8 @@ namespace Open.Collections.NonGeneric
 			object value,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -50,8 +50,8 @@ namespace Open.Collections.NonGeneric
 			Func<object> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var added = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -77,8 +77,8 @@ namespace Open.Collections.NonGeneric
 			object key,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
@@ -98,8 +98,8 @@ namespace Open.Collections.NonGeneric
 		/// <returns>True if a value was acquired.</returns>
 		public static bool TryGetValueSynchronized<T>(this IDictionary target, object key, out T value)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			T result = default;
 			var success = ThreadSafety.SynchronizeRead(target, key, () =>
@@ -119,13 +119,13 @@ namespace Open.Collections.NonGeneric
 		/// </summary>
 		public static T GetValueTypeSynchronized<T>(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var value = target.GetValueSynchronized(key, throwIfNotExists);
 			try
 			{
-				return value == null ? default : (T)value;
+				return value is null ? default : (T)value;
 			}
 			catch (InvalidCastException) { }
 
@@ -134,8 +134,8 @@ namespace Open.Collections.NonGeneric
 
 		public static object GetValueSynchronized(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var exists = target.TryGetValueSynchronized(key, out object value);
 
@@ -157,8 +157,8 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS,
 			bool throwsOnTimeout = true)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
 			T result = default;
@@ -187,9 +187,9 @@ namespace Open.Collections.NonGeneric
 			Func<object, T> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target == null) throw new NullReferenceException();
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
+			if (target is null) throw new NullReferenceException();
+			if (key is null) throw new ArgumentNullException(nameof(key));
+			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
 			T result = default;

@@ -10,9 +10,9 @@ namespace Open.Collections
 		/// </summary>
 		public static void CopyTo(this Stream source, Stream target)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (target == null)
+			if (target is null)
 				throw new ArgumentNullException(nameof(target));
 
 			var bytes = System.Buffers.ArrayPool<byte>.Shared.Rent(4096);

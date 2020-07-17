@@ -1,10 +1,4 @@
-﻿/*!
- * @author electricessence / https://github.com/electricessence/
- * Licensing: MIT https://github.com/electricessence/Open/blob/dotnet-core/LICENSE.md
- */
-
-
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -29,7 +23,7 @@ namespace Open.Collections
 		/// </summary>
 		public static ExpandoObject ToExpando(this IEnumerable<KeyValuePair<string, object>> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -79,7 +73,7 @@ namespace Open.Collections
 
 		public static T[,] BiClone<T>(this T[,] source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -95,9 +89,9 @@ namespace Open.Collections
 
 		public static void Overwrite<T>(this T[,] source, T[,] target)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (target == null)
+			if (target is null)
 				throw new ArgumentNullException(nameof(target));
 			Contract.EndContractBlock();
 
@@ -106,9 +100,9 @@ namespace Open.Collections
 
 		public static void ForEach<T>(this T[,] source, Action<int, int, T> closure)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (closure == null)
+			if (closure is null)
 				throw new ArgumentNullException(nameof(closure));
 			Contract.EndContractBlock();
 
@@ -126,7 +120,7 @@ namespace Open.Collections
 
 		public static T[] AsCopy<T>(this T[] source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -138,7 +132,7 @@ namespace Open.Collections
 
 		public static ICollection<T> AsCollection<T>(this IEnumerable<T> source)
 		{
-			if (source == null)
+			if (source is null)
 				return null;
 			return source as ICollection<T> ?? source.ToArray();
 		}
@@ -148,13 +142,13 @@ namespace Open.Collections
 		/// </summary>
 		public static void ForEach<T>(this IEnumerable<T> target, ParallelOptions parallelOptions, Action<T> closure)
 		{
-			if (closure == null)
+			if (closure is null)
 				throw new ArgumentNullException(nameof(closure));
 			Contract.EndContractBlock();
 
 			if (target != null)
 			{
-				if (parallelOptions == null)
+				if (parallelOptions is null)
 				{
 					foreach (var t in target)
 						closure(t);
@@ -174,7 +168,7 @@ namespace Open.Collections
 		/// </summary>
 		public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, ushort parallel)
 		{
-			if (target == null)
+			if (target is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -187,7 +181,7 @@ namespace Open.Collections
 
 		public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, bool allowParallel = false)
 		{
-			if (target == null)
+			if (target is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -206,7 +200,7 @@ namespace Open.Collections
 
 		public static void ForEach<T>(this IEnumerable<T> target, CancellationToken token, Action<T> closure)
 		{
-			if (target == null)
+			if (target is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -217,7 +211,7 @@ namespace Open.Collections
 
 		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> target)
 		{
-			if (target == null)
+			if (target is null)
 				return null;
 
 			var r = new Random();
@@ -232,7 +226,7 @@ namespace Open.Collections
 
 		public static bool HasAtLeast<T>(this IEnumerable<T> source, int minimum)
 		{
-			if (source == null)
+			if (source is null)
 				throw new ArgumentNullException(nameof(source));
 
 			if (minimum < 1)
@@ -320,7 +314,7 @@ namespace Open.Collections
 		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
 		public static IEnumerable<T> PreCache<T>(this IEnumerable<T> source, int count = 1)
 		{
-			if (source == null) throw new ArgumentNullException(nameof(source));
+			if (source is null) throw new ArgumentNullException(nameof(source));
 			Contract.EndContractBlock();
 
 			if (count == 0)
@@ -362,7 +356,7 @@ namespace Open.Collections
 		/// </summary>
 		public static string ToConcatenatedString<T>(this IEnumerable<T> source, Func<T, string> selector, string separator = "")
 		{
-			if (source == null)
+			if (source is null)
 				return null;
 
 			var b = new StringBuilder();
@@ -386,7 +380,7 @@ namespace Open.Collections
 		/// </summary>
 		public static string Join(this string[] array, char separator)
 		{
-			if (array == null)
+			if (array is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -396,9 +390,9 @@ namespace Open.Collections
 
 		public static string Join(this string[] array, string separator = ",")
 		{
-			if (array == null)
+			if (array is null)
 				throw new NullReferenceException();
-			if (separator == null)
+			if (separator is null)
 				throw new ArgumentNullException(nameof(separator));
 			Contract.EndContractBlock();
 
@@ -412,7 +406,7 @@ namespace Open.Collections
 		/// </summary>
 		public static string JoinToString<T>(this IEnumerable<T> source, char separator)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -433,9 +427,9 @@ namespace Open.Collections
 		/// </summary>
 		public static string JoinToString<T>(this IEnumerable<T> source, string separator)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (separator == null)
+			if (separator is null)
 				throw new ArgumentNullException(nameof(separator));
 			Contract.EndContractBlock();
 
@@ -460,7 +454,7 @@ namespace Open.Collections
 
 		public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this ParallelQuery<KeyValuePair<TKey, TValue>> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -469,7 +463,7 @@ namespace Open.Collections
 
 		public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -478,7 +472,7 @@ namespace Open.Collections
 
 		public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -492,11 +486,11 @@ namespace Open.Collections
 		public static SortedDictionary<TKey, TValue> ToSortedDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
-			if (keySelector == null)
+			if (keySelector is null)
 				throw new ArgumentNullException(nameof(keySelector));
-			if (valueSelector == null)
+			if (valueSelector is null)
 				throw new ArgumentNullException(nameof(valueSelector));
 			Contract.EndContractBlock();
 
@@ -509,7 +503,7 @@ namespace Open.Collections
 
 		public static SortedDictionary<TKey, IEnumerable<TValue>> ToSortedDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -525,7 +519,7 @@ namespace Open.Collections
 		//public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<dynamic> source,
 		//	Func<dynamic, TKey> keySelector, Func<dynamic, TValue> valueSelector)
 		//{
-		//	if (source == null)
+		//	if (source is null)
 		//		throw new NullReferenceException();
 		//	Contract.EndContractBlock();
 
@@ -543,7 +537,7 @@ namespace Open.Collections
 		// Smilar effect can be done with .Distinct();
 		public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
 		{
-			if (source == null)
+			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
@@ -560,7 +554,7 @@ namespace Open.Collections
 			if (source == target)
 				return true;
 
-			if (source == null || target == null)
+			if (source is null || target is null)
 				return false;
 
 			var sCount = source.Length;
@@ -584,7 +578,7 @@ namespace Open.Collections
 			if (source == target)
 				return true;
 
-			if (source == null || target == null)
+			if (source is null || target is null)
 				return false;
 
 			if (source is IReadOnlyCollection<T> sC && target is IReadOnlyCollection<T> tC && sC.Count != tC.Count)
@@ -608,7 +602,7 @@ namespace Open.Collections
 		/// </summary>
 		public static string[] ToStringArray<T>(this IEnumerable<T> list)
 		{
-			if (list == null) throw new ArgumentNullException(nameof(list));
+			if (list is null) throw new ArgumentNullException(nameof(list));
 			Contract.EndContractBlock();
 
 			return list.Select(r => r.ToString()).ToArray();
@@ -620,7 +614,7 @@ namespace Open.Collections
 		/// </summary>
 		public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> target)
 		{
-			if (target == null) throw new NullReferenceException();
+			if (target is null) throw new NullReferenceException();
 			Contract.EndContractBlock();
 
 			foreach (var i in target)
@@ -633,7 +627,7 @@ namespace Open.Collections
 		/// </summary>
 		public static IEnumerable<T> OrderBy<T>(this IEnumerable<T> enumerable, string orderBy)
 		{
-			if (enumerable == null) throw new NullReferenceException();
+			if (enumerable is null) throw new NullReferenceException();
 			Contract.EndContractBlock();
 
 			return enumerable.AsQueryable().OrderBy(orderBy).AsEnumerable();
@@ -644,7 +638,7 @@ namespace Open.Collections
 		/// </summary>
 		public static IQueryable<T> OrderBy<T>(this IQueryable<T> collection, string orderBy)
 		{
-			if (collection == null) throw new NullReferenceException();
+			if (collection is null) throw new NullReferenceException();
 			Contract.EndContractBlock();
 
 			return ParseOrderBy(orderBy).Aggregate(collection, ApplyOrderBy);
@@ -653,8 +647,8 @@ namespace Open.Collections
 
 		private static IQueryable<T> ApplyOrderBy<T>(IQueryable<T> collection, OrderByInfo orderByInfo)
 		{
-			if (collection == null) throw new ArgumentNullException(nameof(collection));
-			if (orderByInfo == null) throw new ArgumentNullException(nameof(orderByInfo));
+			if (collection is null) throw new ArgumentNullException(nameof(collection));
+			if (orderByInfo is null) throw new ArgumentNullException(nameof(orderByInfo));
 			Contract.EndContractBlock();
 
 			var props = orderByInfo.PropertyName.Split('.');
@@ -667,7 +661,7 @@ namespace Open.Collections
 			{
 				// use reflection (not ComponentModel) to mirror LINQ
 				var pi = type.GetProperty(prop);
-				if (pi == null)
+				if (pi is null)
 					throw new ArgumentException("'" + prop + "' does not exist as a property of " + type);
 				expr = Expression.Property(expr, pi);
 				type = pi.PropertyType;
@@ -760,7 +754,7 @@ namespace Open.Collections
 		public static T? NullableFirstOrDefault<T>(this IEnumerable<T> source)
 			where T : struct
 		{
-			if (source == null) return null;
+			if (source is null) return null;
 
 			var result = source.Take(1).ToList();
 			if (result.Any()) return result.First();
@@ -786,7 +780,7 @@ namespace Open.Collections
 				}
 			}
 
-			if (queue == null) yield break;
+			if (queue is null) yield break;
 
 			// Start by getting the first enuerator if it exists.
 			var n = queue.First;
@@ -833,7 +827,7 @@ namespace Open.Collections
 		// from http://stackoverflow.com/questions/127704/algorithm-to-return-all-combinations-of-k-elements-from-n
 		public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k, bool uniqueOnly = false)
 		{
-			if (elements == null)
+			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
 			if (k < 0)
 				throw new ArgumentOutOfRangeException(nameof(k), k, "Cannot be less than zero.");
