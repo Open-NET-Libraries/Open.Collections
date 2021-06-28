@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized
 {
-	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	public interface ISynchronizedCollectionWrapper<T, out TCollection> : ISynchronizedCollection<T>
 		where TCollection : ICollection<T>
 	{

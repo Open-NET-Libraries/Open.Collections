@@ -22,7 +22,7 @@ namespace Open.Collections
 				var node = First;
 				if (node is null)
 				{
-					item = default;
+					item = default!;
 					return false;
 				}
 
@@ -37,7 +37,7 @@ namespace Open.Collections
 				var node = Last;
 				if (node is null)
 				{
-					item = default;
+					item = default!;
 					return false;
 				}
 

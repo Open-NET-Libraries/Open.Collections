@@ -64,13 +64,13 @@ namespace Open.Collections.Synchronized
 		public bool TryTakeFirst(out T item)
 		{
 			var success = false;
-			LinkedListNode<T> node = null;
-			T result = default;
+			LinkedListNode<T>? node = null;
+			T result = default!;
 			Sync.ReadWriteConditionalOptimized(
 				lockType => (node = InternalSource.First) != null,
 				() =>
 				{
-					result = node.Value;
+					result = node!.Value;
 					InternalSource.RemoveFirst();
 					success = true;
 				});
@@ -82,13 +82,13 @@ namespace Open.Collections.Synchronized
 		public bool TryTakeLast(out T item)
 		{
 			var success = false;
-			LinkedListNode<T> node = null;
-			T result = default;
+			LinkedListNode<T>? node = null;
+			T result = default!;
 			Sync.ReadWriteConditionalOptimized(
 				lockType => (node = InternalSource.Last) != null,
 				() =>
 				{
-					result = node.Value;
+					result = node!.Value;
 					InternalSource.RemoveLast();
 					success = true;
 				});

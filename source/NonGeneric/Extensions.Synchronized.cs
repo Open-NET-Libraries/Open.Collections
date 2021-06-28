@@ -23,7 +23,7 @@ namespace Open.Collections.NonGeneric
 			object value,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var added = false;
@@ -50,7 +50,7 @@ namespace Open.Collections.NonGeneric
 			Func<object> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var added = false;
@@ -77,7 +77,7 @@ namespace Open.Collections.NonGeneric
 			object key,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var removed = false;
@@ -98,10 +98,10 @@ namespace Open.Collections.NonGeneric
 		/// <returns>True if a value was acquired.</returns>
 		public static bool TryGetValueSynchronized<T>(this IDictionary target, object key, out T value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
-			T result = default;
+			T result = default!;
 			var success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
@@ -119,22 +119,22 @@ namespace Open.Collections.NonGeneric
 		/// </summary>
 		public static T GetValueTypeSynchronized<T>(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var value = target.GetValueSynchronized(key, throwIfNotExists);
 			try
 			{
-				return value is null ? default : (T)value;
+				return value is null ? default! : (T)value;
 			}
 			catch (InvalidCastException) { }
 
-			return default;
+			return default!;
 		}
 
-		public static object GetValueSynchronized(this IDictionary target, object key, bool throwIfNotExists = false)
+		public static object? GetValueSynchronized(this IDictionary target, object key, bool throwIfNotExists = false)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			var exists = target.TryGetValueSynchronized(key, out object value);
@@ -157,11 +157,11 @@ namespace Open.Collections.NonGeneric
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS,
 			bool throwsOnTimeout = true)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
-			T result = default;
+			T result = default!;
 			// Uses threadsafe means to acquire value.
 			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
 			void render()
@@ -187,12 +187,12 @@ namespace Open.Collections.NonGeneric
 			Func<object, T> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 
-			T result = default;
+			T result = default!;
 			bool condition(LockType lockType) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 			// Once a per value write lock is established, execute the scheduler, and syncronize adding...

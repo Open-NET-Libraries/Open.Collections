@@ -6,7 +6,6 @@ namespace Open.Collections.Synchronized
 {
 	// LinkedLists are a bit different and don't have an default interface.
 	// Overriding the .Value property of the nodes is beyond the scope of this.  All that's needed is to synchronize the collection.
-	[SuppressMessage("ReSharper", "InconsistentlySynchronizedField")]
 	public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 	{
 		public LockSynchronizedLinkedList() : base(new LinkedList<T>()) { }
@@ -90,14 +89,14 @@ namespace Open.Collections.Synchronized
 		public bool TryTakeFirst(out T item)
 		{
 			var success = false;
-			LinkedListNode<T> node = null;
-			T result = default;
+			LinkedListNode<T>? node = null;
+			T result = default!;
 			ThreadSafety.LockConditional(
 				Sync,
 				() => (node = InternalSource.First) != null,
 				() =>
 				{
-					result = node.Value;
+					result = node!.Value;
 					InternalSource.RemoveFirst();
 					success = true;
 				});
@@ -109,18 +108,18 @@ namespace Open.Collections.Synchronized
 		public bool TryTakeLast(out T item)
 		{
 			var success = false;
-			LinkedListNode<T> node = null;
-			T result = default;
+			LinkedListNode<T>? node = null;
+			T result = default!;
 			ThreadSafety.LockConditional(
 				Sync,
 				() => (node = InternalSource.Last) != null,
 				() =>
 				{
-					result = node.Value;
+					result = node!.Value;
 					InternalSource.RemoveLast();
 					success = true;
 				});
-			item = result;
+			item = result!;
 			return success;
 		}
 

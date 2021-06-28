@@ -21,7 +21,7 @@ namespace Open.Collections
 			public virtual bool TryDequeue(out T item)
 			{
 				var ok = Count != 0;
-				item = ok ? Dequeue() : default;
+				item = ok ? Dequeue() : default!;
 				return ok;
 			}
 
@@ -29,7 +29,7 @@ namespace Open.Collections
 			public virtual bool TryPeek(out T item)
 			{
 				var ok = Count != 0;
-				item = ok ? Peek() : default;
+				item = ok ? Peek() : default!;
 				return ok;
 			}
 #else

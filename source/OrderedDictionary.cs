@@ -13,7 +13,6 @@ namespace Open.Collections
 	/// <summary>
 	/// Represents a generic items of key/source pairs that are ordered independently of the key and source.
 	/// </summary>
-	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 	{
 		/// <summary>
@@ -62,7 +61,6 @@ namespace Open.Collections
 
 
 	/// <inheritdoc cref="IOrderedDictionary&lt;TKey, TValue&gt;"/>
-	[SuppressMessage("ReSharper", "UnusedMember.Local")]
 	public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionary<TKey, TValue>
 	{
 
@@ -83,7 +81,7 @@ namespace Open.Collections
 
 		public delegate void ItemChangedEventHandler(object source, ItemChangedEventArgs e);
 
-		public event ItemChangedEventHandler ItemChanged;
+		public event ItemChangedEventHandler? ItemChanged;
 
 		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue value)
 		{
@@ -102,9 +100,9 @@ namespace Open.Collections
 
 		private const int DefaultInitialCapacity = 0;
 
-		private Dictionary<TKey, TValue> _dictionary;
-		private List<TKey> _list;
-		private readonly IEqualityComparer<TKey> _comparer;
+		private Dictionary<TKey, TValue>? _dictionary;
+		private List<TKey>? _list;
+		private readonly IEqualityComparer<TKey>? _comparer;
 		private readonly int _initialCapacity;
 
 
@@ -116,17 +114,6 @@ namespace Open.Collections
 		{
 		}
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> class using the specified initial capacity.
-		/// </summary>
-		/// <param name="capacity">The initial number of elements that the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> can contain.</param>
-		/// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is less than 0</exception>
-		public OrderedDictionary(int capacity)
-			: this(capacity, null)
-		{
-			if (capacity < 0)
-				throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Cannot be less than zero.");
-		}
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> class using the specified comparer.
@@ -141,9 +128,9 @@ namespace Open.Collections
 		/// Initializes a new instance of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> class using the specified initial capacity and comparer.
 		/// </summary>
 		/// <param name="capacity">The initial number of elements that the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items can contain.</param>
-		/// <param name="comparer">The <see cref="IEqualityComparer{TKey}">IEqualityComparer&lt;TKey&gt;</see> to use when comparing keys, or <null/> to use the default <see cref="EqualityComparer{TKey}">EqualityComparer&lt;TKey&gt;</see> for the type of the key.</param>
+		/// <param name="comparer">The optional <see cref="IEqualityComparer{TKey}">IEqualityComparer&lt;TKey&gt;</see> to use when comparing keys, or <null/> to use the default <see cref="EqualityComparer{TKey}">EqualityComparer&lt;TKey&gt;</see> for the type of the key.</param>
 		/// <exception cref="ArgumentOutOfRangeException"><paramref name="capacity"/> is less than 0</exception>
-		public OrderedDictionary(int capacity, IEqualityComparer<TKey> comparer)
+		public OrderedDictionary(int capacity, IEqualityComparer<TKey>? comparer = null)
 		{
 			if (capacity < 0)
 				throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Cannot be less than zero.");
@@ -152,47 +139,23 @@ namespace Open.Collections
 			_comparer = comparer;
 		}
 
-		public OrderedDictionary(TKey[] keys, TValue[] values = null)
+		public OrderedDictionary(TKey[] keys, TValue[]? values = null)
 		{
 
 			if (keys != null)
 			{
 				var hasValues = values != null && values.Length != 0;
-				if (hasValues && values.Length > keys.Length)
+				if (hasValues && values!.Length > keys.Length)
 					throw new Exception("Invalid initialization values.  Value array is longer than key array.");
 
 				for (var i = 0; i < keys.Length; i++)
-					AddInternal(keys[i], (hasValues && i < values.Length) ? values[i] : default);
+					AddInternal(keys[i], (hasValues && i < values!.Length) ? values[i] : default!);
 			}
 			else if (values != null && values.Length != 0)
 			{
 				throw new Exception("Invalid initialization values.  Values but no keys.");
 			}
 
-		}
-
-		/// <summary>
-		/// Converts the object passed as a key to the key type of the dictionary
-		/// </summary>
-		/// <param name="keyObject">The key object to check</param>
-		/// <returns>The key object, cast as the key type of the dictionary</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="keyObject"/> is <null/>.</exception>
-		/// <exception cref="ArgumentException">The key type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="keyObject"/>.</exception>
-		private static TKey ConvertToKeyType(object keyObject) => (TKey)keyObject;
-
-		/// <summary>
-		/// Converts the object passed as a source to the source type of the dictionary
-		/// </summary>
-		/// <param name="value">The object to convert to the source type of the dictionary</param>
-		/// <returns>The source object, converted to the source type of the dictionary</returns>
-		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <null/>, and the source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is a source type.</exception>
-		/// <exception cref="ArgumentException">The source type of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> is not in the inheritance hierarchy of <paramref name="value"/>.</exception>
-		private static TValue ConvertToValueType(object value)
-		{
-			if (value is null)
-				return default;
-
-			return (TValue)value;
 		}
 
 		/// <summary>
@@ -295,7 +258,7 @@ namespace Open.Collections
 				List.RemoveAt(index);
 				Dictionary.Remove(key);
 			}
-			OnItemChanged(ItemChange.Removed, index, key, value, default);
+			OnItemChanged(ItemChange.Removed, index, key, value, default!);
 		}
 
 
@@ -331,7 +294,7 @@ namespace Open.Collections
 
 					key = List[index];
 
-					changed = !Dictionary.TryGetValue(key, out previous) || !previous.Equals(value);
+					changed = !Dictionary.TryGetValue(key, out previous) || !(previous?.Equals(value) ?? value==null);
 					if (changed)
 						Dictionary[key] = value;
 				}
@@ -397,13 +360,13 @@ namespace Open.Collections
 
 		}
 
-		public event EventHandler BeforeCleared;
+		public event EventHandler? BeforeCleared;
 		protected virtual void OnBeforeCleared(EventArgs e)
 		{
 			BeforeCleared?.Invoke(this, e);
 		}
 
-		public event EventHandler AfterCleared;
+		public event EventHandler? AfterCleared;
 		protected virtual void OnAfterCleared(EventArgs e)
 		{
 			AfterCleared?.Invoke(this, e);
@@ -470,7 +433,7 @@ namespace Open.Collections
 				else
 					return false;
 			}
-			OnItemChanged(ItemChange.Removed, index, key, value, default);
+			OnItemChanged(ItemChange.Removed, index, key, value, default!);
 			return true;
 		}
 
@@ -489,7 +452,7 @@ namespace Open.Collections
 				{
 					if (Dictionary.TryGetValue(key, out previous))
 					{
-						if (!previous.Equals(value))
+						if (!(previous?.Equals(value) ?? value==null))
 						{
 							Dictionary[key] = value;
 							change = ItemChange.Modified;

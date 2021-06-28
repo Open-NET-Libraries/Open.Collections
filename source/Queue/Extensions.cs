@@ -6,7 +6,7 @@ namespace Open.Collections
 	public partial class Extensions
 	{
 		public static Queue<T> ToQueue<T>(this IEnumerable<T> source)
-			=> new Queue<T>(source);
+			=> new(source);
 
 		public static IEnumerable<T> AsDequeueingEnumerable<T>(this ConcurrentQueue<T> source)
 		{

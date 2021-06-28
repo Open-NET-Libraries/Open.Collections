@@ -133,14 +133,14 @@ namespace Open.Collections
 		public static ICollection<T> AsCollection<T>(this IEnumerable<T> source)
 		{
 			if (source is null)
-				return null;
+				return null!;
 			return source as ICollection<T> ?? source.ToArray();
 		}
 
 		/// <summary>
 		/// Selective single or multiple threaded exectution.
 		/// </summary>
-		public static void ForEach<T>(this IEnumerable<T> target, ParallelOptions parallelOptions, Action<T> closure)
+		public static void ForEach<T>(this IEnumerable<T> target, ParallelOptions? parallelOptions, Action<T> closure)
 		{
 			if (closure is null)
 				throw new ArgumentNullException(nameof(closure));
@@ -212,7 +212,7 @@ namespace Open.Collections
 		public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> target)
 		{
 			if (target is null)
-				return null;
+				throw new ArgumentNullException(nameof(target));
 
 			var r = new Random();
 			return target.OrderBy(x => (r.Next()));
@@ -263,11 +263,11 @@ namespace Open.Collections
 					return true;
 				}
 			}
-			item = default;
+			item = default!;
 			return false;
 		}
 
-		public static bool ConcurrentMoveNext<T>(this IEnumerator<T> source, Action<T> trueHandler, Action falseHandler = null)
+		public static bool ConcurrentMoveNext<T>(this IEnumerator<T> source, Action<T> trueHandler, Action? falseHandler = null)
 		{
 			// Always lock on next to prevent concurrency issues.
 			lock (source) // a standard enumerable can't handle concurrency.
@@ -311,7 +311,6 @@ namespace Open.Collections
 		/// <summary>
 		/// Similar to a buffer but is loaded by another thread and attempts keep the buffer full while contents are being pulled.
 		/// </summary>
-		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
 		public static IEnumerable<T> PreCache<T>(this IEnumerable<T> source, int count = 1)
 		{
 			if (source is null) throw new ArgumentNullException(nameof(source));
@@ -357,7 +356,7 @@ namespace Open.Collections
 		public static string ToConcatenatedString<T>(this IEnumerable<T> source, Func<T, string> selector, string separator = "")
 		{
 			if (source is null)
-				return null;
+				throw new ArgumentNullException(nameof(source));
 
 			var b = new StringBuilder();
 			var hasSeparator = !string.IsNullOrEmpty(separator);
@@ -605,7 +604,7 @@ namespace Open.Collections
 			if (list is null) throw new ArgumentNullException(nameof(list));
 			Contract.EndContractBlock();
 
-			return list.Select(r => r.ToString()).ToArray();
+			return list.Select(r => r!.ToString()).ToArray();
 		}
 
 
@@ -614,7 +613,7 @@ namespace Open.Collections
 		/// </summary>
 		public static IEnumerable<T> Merge<T>(this IEnumerable<IEnumerable<T>> target)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			Contract.EndContractBlock();
 
 			foreach (var i in target)
@@ -651,7 +650,7 @@ namespace Open.Collections
 			if (orderByInfo is null) throw new ArgumentNullException(nameof(orderByInfo));
 			Contract.EndContractBlock();
 
-			var props = orderByInfo.PropertyName.Split('.');
+			var props = orderByInfo.PropertyName!.Split('.');
 			var typeT = typeof(T);
 			var type = typeT;
 
@@ -740,7 +739,7 @@ namespace Open.Collections
 		#region Nested type: OrderByInfo
 		private class OrderByInfo
 		{
-			public string PropertyName { get; set; }
+			public string? PropertyName { get; set; }
 			public SortDirection Direction { get; set; }
 			public bool Initial { get; set; }
 		}
@@ -764,15 +763,14 @@ namespace Open.Collections
 
 		public static IEnumerable<T> Weave<T>(this IEnumerable<IEnumerable<T>> source)
 		{
-			LinkedList<IEnumerator<T>> queue = null;
+			LinkedList<IEnumerator<T>>? queue = null;
 			foreach (var s in source)
 			{
 				var e1 = s.GetEnumerator();
 				if (e1.MoveNext())
 				{
 					yield return e1.Current;
-					LazyInitializer.EnsureInitialized(ref queue);
-					queue.AddLast(e1);
+					LazyInitializer.EnsureInitialized(ref queue)!.AddLast(e1);
 				}
 				else
 				{
@@ -810,16 +808,19 @@ namespace Open.Collections
 		}
 
 		public static LazyList<T> Memoize<T>(this IEnumerable<T> list, bool isEndless = false)
-			=> new LazyList<T>(list, isEndless);
+			=> new(list, isEndless);
 
 		/// <summary>
 		/// .IndexOf extension optimized for an array.
 		/// </summary>
 		public static int IndexOf<T>(this T[] source, T value)
 		{
+			if (source is null)
+				throw new ArgumentNullException(nameof(source));
+
 			var len = source.Length;
 			for (var i = 0; i < len; i++)
-				if (source[i].Equals(value))
+				if (source[i]?.Equals(value) ?? value==null)
 					return i;
 			return -1;
 		}

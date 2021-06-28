@@ -19,7 +19,7 @@ namespace Open.Collections
 	{
 		public readonly ItemChange Change;
 		public readonly TIValue Value;
-		public readonly TIValue PreviousValue;
+		public readonly TIValue? PreviousValue;
 
 		public ItemChangedEventArgs(ItemChange action, TIValue value)
 		{

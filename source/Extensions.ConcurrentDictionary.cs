@@ -10,7 +10,7 @@ namespace Open.Collections
 		/// </summary>
 		public static bool TryRemove<TKey, T>(this ConcurrentDictionary<TKey, T> target, TKey key)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 
 			return target.TryRemove(key, out _);
 		}

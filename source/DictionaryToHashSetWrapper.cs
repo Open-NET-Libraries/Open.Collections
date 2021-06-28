@@ -50,7 +50,7 @@ namespace Open.Collections
 			=> InternalSource.Keys.CopyTo(array, arrayIndex);
 
 		public HashSet<T> ToHashSet()
-			=> new HashSet<T>(InternalSource.Keys);
+			=> new(InternalSource.Keys);
 
 		public IEnumerator<T> GetEnumerator()
 			=> InternalSource.Keys.GetEnumerator();

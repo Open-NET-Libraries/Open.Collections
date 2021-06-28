@@ -9,9 +9,9 @@ namespace Open.Collections.Synchronized
 {
 	public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
 	{
-		protected List<T> _source = new List<T>();
+		protected List<T> _source = new();
 
-		public TrackedList(ModificationSynchronizer sync = null) : base(sync)
+		public TrackedList(ModificationSynchronizer? sync = null) : base(sync)
 		{
 		}
 
@@ -20,7 +20,7 @@ namespace Open.Collections.Synchronized
 		{
 		}
 
-		protected override ModificationSynchronizer InitSync(object sync = null)
+		protected override ModificationSynchronizer InitSync(object? sync = null)
 		{
 			_syncOwned = true;
 			return new ReadWriteModificationSynchronizer(sync as ReaderWriterLockSlim);
@@ -35,7 +35,7 @@ namespace Open.Collections.Synchronized
 		/// <inheritdoc />
 		public T this[int index]
 		{
-			get => Sync.Reading(() =>
+			get => Sync!.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source[index];
@@ -45,11 +45,11 @@ namespace Open.Collections.Synchronized
 		}
 
 		public bool SetValue(int index, T value)
-			=> Sync.Modifying(() => AssertIsAlive(), () => SetValueInternal(index, value));
+			=> Sync!.Modifying(() => AssertIsAlive(), () => SetValueInternal(index, value));
 
 		private bool SetValueInternal(int index, T value)
 		{
-			var changing = index >= _source.Count || !_source[index].Equals(value);
+			var changing = index >= _source.Count || !(_source[index]?.Equals(value) ?? value == null);
 			if (changing)
 				_source[index] = value;
 			return changing;
@@ -57,7 +57,7 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public int Count
-			=> Sync.Reading(() =>
+			=> Sync!.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source.Count;
@@ -65,7 +65,7 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public virtual void Add(T item)
-			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			=> Sync!.Modifying(() => AssertIsAlive(), () =>
 			{
 				_source.Add(item);
 				return true;
@@ -79,7 +79,7 @@ namespace Open.Collections.Synchronized
 			var enumerable = items as T[] ?? items?.ToArray();
 			if (enumerable != null && enumerable.Length != 0)
 			{
-				Sync.Modifying(() => AssertIsAlive(), () =>
+				Sync!.Modifying(() => AssertIsAlive(), () =>
 				{
 					foreach (var item in enumerable)
 						Add(item); // Yes, we could just _source.Add() but this allows for overrideing Add();
@@ -90,7 +90,7 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public void Clear()
-			=> Sync.Modifying(
+			=> Sync!.Modifying(
 				() => AssertIsAlive() && _source.Count != 0,
 				() =>
 				{
@@ -105,12 +105,12 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public bool Contains(T item)
-			=> Sync.Reading(() =>
+			=> Sync!.Reading(() =>
 				AssertIsAlive() && _source.Contains(item));
 
 		/// <inheritdoc />
 		public void CopyTo(T[] array, int arrayIndex)
-			=> Sync.Reading(() =>
+			=> Sync!.Reading(() =>
 			{
 				AssertIsAlive();
 				_source.CopyTo(array, arrayIndex);
@@ -118,7 +118,7 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
-			=> Sync.Reading(() =>
+			=> Sync!.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source.GetEnumerator();
@@ -126,13 +126,13 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public int IndexOf(T item)
-			=> Sync.Reading(() => AssertIsAlive()
+			=> Sync!.Reading(() => AssertIsAlive()
 				? _source.IndexOf(item)
 				: -1);
 
 		/// <inheritdoc />
 		public void Insert(int index, T item)
-			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			=> Sync!.Modifying(() => AssertIsAlive(), () =>
 			{
 				_source.Insert(index, item);
 				return true;
@@ -140,19 +140,19 @@ namespace Open.Collections.Synchronized
 
 		/// <inheritdoc />
 		public bool Remove(T item)
-			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			=> Sync!.Modifying(() => AssertIsAlive(), () =>
 				_source.Remove(item));
 
 		/// <inheritdoc />
 		public void RemoveAt(int index)
-			=> Sync.Modifying(() => AssertIsAlive(), () =>
+			=> Sync!.Modifying(() => AssertIsAlive(), () =>
 			{
 				_source.RemoveAt(index);
 				return true;
 			});
 
 		IEnumerator IEnumerable.GetEnumerator()
-			=> Sync.Reading(() =>
+			=> Sync!.Reading(() =>
 			{
 				AssertIsAlive();
 				return _source.GetEnumerator();
@@ -163,7 +163,7 @@ namespace Open.Collections.Synchronized
 		{
 			AssertIsAlive();
 			var index = -1;
-			return !target.Equals(replacement) && Sync.Modifying(
+			return !(target?.Equals(replacement) ?? replacement == null) && Sync!.Modifying(
 				() =>
 				{
 					AssertIsAlive();

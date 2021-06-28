@@ -9,7 +9,7 @@ namespace Open.Collections.Synchronized
 	public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 	{
-		protected ReaderWriterLockSlim Sync = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
+		protected ReaderWriterLockSlim Sync = new(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
 
 		protected ReadWriteSynchronizedCollectionWrapper(TCollection source) : base(source)
 		{

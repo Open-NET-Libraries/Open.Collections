@@ -23,7 +23,7 @@ namespace Open.Collections.NonGeneric
 			object key,
 			Func<object, T> valueFactory)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
@@ -41,7 +41,7 @@ namespace Open.Collections.NonGeneric
 			object key,
 			T value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (!target.TryGetValue(key, out T v))
@@ -57,17 +57,17 @@ namespace Open.Collections.NonGeneric
 		/// <returns>True if a value was acquired.</returns>
 		public static bool TryGetValue<T>(this IDictionary target, object key, out T value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			if (target.Contains(key))
 			{
 				var result = target[key];
-				value = result is null ? default : (T)result;
+				value = result is null ? default! : (T)result;
 				return true;
 			}
 
-			value = default;
+			value = default!;
 			return false;
 		}
 
@@ -79,7 +79,7 @@ namespace Open.Collections.NonGeneric
 			object key,
 			Func<object, T> valueFactory)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 
@@ -94,7 +94,7 @@ namespace Open.Collections.NonGeneric
 			object key,
 			T defaultValue)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 
 			return target.TryGetValue(key, out T value) ? value : defaultValue;

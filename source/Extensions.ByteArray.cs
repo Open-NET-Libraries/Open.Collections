@@ -10,7 +10,7 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="value">The string value.</param>
 		/// <param name="encoding">Default is UTF8.</param>
-		public static byte[] ToByteArray(this string value, Encoding encoding = null)
+		public static byte[] ToByteArray(this string value, Encoding? encoding = null)
 		{
 			if (value is null)
 				throw new NullReferenceException();
@@ -23,7 +23,7 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="value">The string value.</param>
 		/// <param name="encoding">Default is UTF8.</param>
-		public static sbyte[] ToSbyteArray(this string value, Encoding encoding = null)
+		public static sbyte[] ToSbyteArray(this string value, Encoding? encoding = null)
 		{
 			if (value is null)
 				throw new NullReferenceException();

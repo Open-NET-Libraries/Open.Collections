@@ -26,11 +26,11 @@ namespace Open.Collections
 			this IDictionary<TKey, TValue> target,
 			TKey key, out TValue value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			TValue result = default;
+			TValue result = default!;
 			var success = ThreadSafety.SynchronizeRead(target, key, () =>
 				ThreadSafety.SynchronizeRead(target, () =>
 					target.TryGetValue(key, out result)
@@ -47,7 +47,7 @@ namespace Open.Collections
 		/// </summary>
 		public static TValue GetValueSynchronized<TKey, TValue>(this IDictionary<TKey, TValue> target, TKey key, bool throwIfNotExists = true)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
@@ -56,7 +56,7 @@ namespace Open.Collections
 			if (!exists && throwIfNotExists)
 				throw new KeyNotFoundException(key.ToString());
 
-			return exists ? value : default;
+			return exists ? value : default!;
 		}
 
 
@@ -65,7 +65,8 @@ namespace Open.Collections
 		/// </summary>
 		public static void RegisterSynchronized<T>(this ICollection<T> target, T value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
+			if (value is null) throw new ArgumentNullException(nameof(value));
 			Contract.EndContractBlock();
 
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(target, value,
@@ -82,12 +83,12 @@ namespace Open.Collections
 		public static T AddOrUpdateSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key, T value,
 			Func<TKey, T, T> updateValueFactory)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 			Contract.EndContractBlock();
 
-			T valueUsed = default;
+			T valueUsed = default!;
 
 			// First we get a lock on the key action which should prevent the individual action from changing..
 			ThreadSafety.SynchronizeWrite(target, key, () =>
@@ -120,13 +121,13 @@ namespace Open.Collections
 			Func<TKey, T> newValueFactory,
 			Func<TKey, T, T> updateValueFactory)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (newValueFactory is null) throw new ArgumentNullException(nameof(newValueFactory));
 			if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 			Contract.EndContractBlock();
 
-			T valueUsed = default;
+			T valueUsed = default!;
 
 			// First we get a lock on the key action which should prevent the individual action from changing..
 			ThreadSafety.SynchronizeWrite(target, key, () =>
@@ -141,7 +142,7 @@ namespace Open.Collections
 					() =>
 						valueUsed = target.AddOrUpdate(key,
 							newValueFactory,
-							(k, o) => o.Equals(old) && k.Equals(key) ? updateValue : updateValueFactory(k, o)
+							(k, o) => k!.Equals(key) && (o?.Equals(old) ?? old==null) ? updateValue : updateValueFactory(k, o)
 				));
 				}
 				else
@@ -152,7 +153,7 @@ namespace Open.Collections
 					ThreadSafety.SynchronizeWrite(target,
 					() =>
 						valueUsed = target.AddOrUpdate(key,
-							k => k.Equals(key) ? value : newValueFactory(k),
+							k => k!.Equals(key) ? value : newValueFactory(k),
 							updateValueFactory
 				));
 				}
@@ -163,7 +164,7 @@ namespace Open.Collections
 
 		public static void AddSynchronized<T>(this ICollection<T> target, T value)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			ThreadSafety.SynchronizeWrite(target, () => target.Add(value));
 		}
 
@@ -185,7 +186,7 @@ namespace Open.Collections
 		/// </summary>
 		public static void EnsureDefaultSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key, T defaultValue)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
@@ -200,7 +201,7 @@ namespace Open.Collections
 		public static void EnsureDefaultSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 			Func<TKey, T> defaultValueFactory)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (defaultValueFactory is null) throw new ArgumentNullException(nameof(defaultValueFactory));
 			Contract.EndContractBlock();
@@ -223,12 +224,12 @@ namespace Open.Collections
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS,
 			bool throwsOnTimeout = true)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 			Contract.EndContractBlock();
 
-			T result = default;
+			T result = default!;
 			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
 			void render()
 			{
@@ -252,13 +253,13 @@ namespace Open.Collections
 			Func<TKey, T> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 			ValidateMillisecondsTimeout(millisecondsTimeout);
 			Contract.EndContractBlock();
 
-			T result = default;
+			T result = default!;
 			// Note, the following sync read is on the TARGET and not the key. See below.
 			bool condition(LockType lockType) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
@@ -294,7 +295,7 @@ namespace Open.Collections
 			T value,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
@@ -323,7 +324,7 @@ namespace Open.Collections
 			Func<T> valueFactory,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
@@ -351,7 +352,7 @@ namespace Open.Collections
 			TKey key,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
@@ -376,14 +377,14 @@ namespace Open.Collections
 			out T value,
 			int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
 		{
-			if (target is null) throw new NullReferenceException();
+			if (target is null) throw new ArgumentNullException(nameof(target));
 			if (key is null) throw new ArgumentNullException(nameof(key));
 			Contract.EndContractBlock();
 
-			value = default;
+			value = default!;
 			var removed = false;
 			ThreadSafety.SynchronizeReadWriteKeyAndObject(
-				target, key, ref value,
+				target, key, ref value!,
 				lockType => target.ContainsKey(key),
 				() =>
 				{
