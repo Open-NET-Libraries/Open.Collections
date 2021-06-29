@@ -118,14 +118,15 @@ namespace Open.Collections
 			}
 		}
 
-		public static T[] AsCopy<T>(this T[] source)
+		public static T[] AsCopy<T>(this T[] source, int? length = null)
 		{
 			if (source is null)
 				throw new NullReferenceException();
 			Contract.EndContractBlock();
 
-			var newArray = new T[source.Length];
-			for (var i = 0; i < source.Length; i++)
+			var newArray = new T[length ?? source.Length];
+			var len = Math.Min(newArray.Length, source.Length);
+			for (var i = 0; i < len; i++)
 				newArray[i] = source[i];
 			return newArray;
 		}

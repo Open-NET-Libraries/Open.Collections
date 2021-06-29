@@ -90,9 +90,7 @@ namespace Open.Collections
 		{
 			foreach (var s in SubsetsBuffered(source, count))
 			{
-				var a = new T[count];
-				s.CopyTo(a, 0);
-				yield return a;
+				yield return s.AsCopy(count);
 			}
 		}
 
