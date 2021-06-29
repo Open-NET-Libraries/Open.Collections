@@ -6,26 +6,26 @@ namespace Open.Collections
 {
 	public static partial class Extensions
 	{
+
 		/// <summary>
-		/// Iteratively updates the buffer with the possible subsets.
+		/// Enumerates the possible (ordered) subsets.
+		/// If a buffer is supplied, the buffer is filled with the values and returned as the yielded value.
+		/// If no buffer is supplised, a new array is created for each subset.
 		/// </summary>
-		/// <returns>An enumerable that yields the buffer.</returns>
-		public static IEnumerable<T[]> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count, T[] buffer)
+		public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count, T[]? buffer = null)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count), count, "Must greater than zero.");
 			if (count > source.Count)
 				throw new ArgumentOutOfRangeException(nameof(count), count, "Must be less than or equal to the length of the source set.");
-			if (buffer is null)
-				throw new ArgumentNullException(nameof(buffer));
-
 
 			if (count == 1)
 			{
+				var result = buffer ?? new T[count];
 				foreach (var e in source)
 				{
-					buffer[0] = e;
-					yield return buffer;
+					result[0] = e;
+					yield return result;
 				}
 				yield break;
 			}
@@ -35,12 +35,13 @@ namespace Open.Collections
 			{
 				for (int pos = 0, index = 0; ;)
 				{
+					var result = buffer ?? new T[count];
 					for (; pos < count; pos++, index++)
 					{
 						indices[pos] = index;
-						buffer[pos] = source[index];
+						result[pos] = source[index];
 					}
-					yield return buffer;
+					yield return result;
 					do
 					{
 						if (pos == 0) yield break;
@@ -66,33 +67,12 @@ namespace Open.Collections
 
 			try
 			{
-				return SubsetsBuffered(source, count, buffer);
+				return Subsets(source, count, buffer);
 			}
 			finally
 			{
-				pool.Return(buffer);
+				pool.Return(buffer, true);
 			}
 		}
-
-		/// <summary>
-		/// Iteratively updates the provided buffer with the possible subsets of the length of the buffer.
-		/// </summary>
-		/// <returns>An enumerable that yields a buffer that is at least the length of the count provided.</returns>
-		public static IEnumerable<T[]> SubsetsBuffered<T>(this IReadOnlyList<T> source, T[] buffer)
-			=> SubsetsBuffered(source, buffer.Length, buffer);
-
-
-		/// <summary>
-		/// Iteratively returns the possible subsets of the source.
-		/// </summary>
-		/// <returns>An enumerable that yields each subset.</returns>
-		public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count)
-		{
-			foreach (var s in SubsetsBuffered(source, count))
-			{
-				yield return s.AsCopy(count);
-			}
-		}
-
 	}
 }
