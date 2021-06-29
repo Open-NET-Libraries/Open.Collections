@@ -7,10 +7,10 @@ namespace Open.Collections.Tests
 {
 	public class SubsetTests
 	{
-		static ImmutableArray<int> Subset1 = ImmutableArray.Create(1, 2, 3);
-		static ImmutableArray<char> Subset2 = ImmutableArray.Create('A', 'C', 'E');
-		static ImmutableArray<char> Subset3 = ImmutableArray.Create('A', 'B', 'C', 'D');
-		static ImmutableArray<int> Subset4 = Enumerable.Range(1, 5).ToImmutableArray();
+		static ImmutableArray<int> Set1 = ImmutableArray.Create(1, 2, 3);
+		static ImmutableArray<char> Set2 = ImmutableArray.Create('A', 'C', 'E');
+		static ImmutableArray<char> Set3 = ImmutableArray.Create('A', 'B', 'C', 'D');
+		static ImmutableArray<int> Set4 = Enumerable.Range(1, 5).ToImmutableArray();
 
 		[Fact]
 		public void TestSubset1_2()
@@ -20,7 +20,7 @@ namespace Open.Collections.Tests
 				new int[] { 1, 3 },
 				new int[] { 2, 3 },
 			};
-			var actual = Subset1.Subsets(2).ToArray();
+			var actual = Set1.Subsets(2).ToArray();
 			Assert.Equal(expected, actual);
 		}
 
@@ -32,7 +32,7 @@ namespace Open.Collections.Tests
 				new char[] { 'A', 'E' },
 				new char[] { 'C', 'E' },
 			};
-			var actual = Subset2.Subsets(2).ToArray();
+			var actual = Set2.Subsets(2).ToArray();
 			Assert.Equal(expected, actual);
 		}
 
@@ -47,7 +47,7 @@ namespace Open.Collections.Tests
 				new char[] { 'B', 'D' },
 				new char[] { 'C', 'D' },
 			};
-			var actual = Subset3.Subsets(2).ToArray();
+			var actual = Set3.Subsets(2).ToArray();
 			Assert.Equal(expected, actual);
 		}
 
@@ -60,7 +60,7 @@ namespace Open.Collections.Tests
 				new char[] { 'A', 'C', 'D' },
 				new char[] { 'B', 'C', 'D' },
 			};
-			var actual = Subset3.Subsets(3).ToArray();
+			var actual = Set3.Subsets(3).ToArray();
 			Assert.Equal(expected, actual);
 		}
 
@@ -74,7 +74,7 @@ namespace Open.Collections.Tests
 				new int[] { 1, 3, 4, 5 },
 				new int[] { 2, 3, 4, 5 },
 			};
-			var actual = Subset4.Subsets(4).ToArray();
+			var actual = Set4.Subsets(4).ToArray();
 			Assert.Equal(expected, actual);
 		}
 	}

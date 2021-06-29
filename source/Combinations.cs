@@ -57,7 +57,8 @@ namespace Open.Collections
 			var result = pool.Rent(length);
 			try
 			{
-				return CopyTo(result, length, bounds);
+				foreach (var e in CopyTo(result, length, bounds))
+					yield return e;
 			}
 			finally
 			{

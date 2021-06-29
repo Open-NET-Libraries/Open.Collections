@@ -76,11 +76,13 @@ namespace Open.Collections
 		/// <summary>
 		/// Enumerates all possible combinations of values.
 		/// Results can be different permutations of another set.
-		/// Examples:
+		/// 
+		/// Example:
 		/// [0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.
 		/// </summary>
 		/// <param name="elements">The elements to draw from.</param>
 		/// <param name="length">The length of each result.</param>
+		/// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
 		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, T[]? buffer = null)
 		{
 			if (elements is null)
@@ -97,12 +99,13 @@ namespace Open.Collections
 		/// <summary>
 		/// Enumerates all possible distinct set combinations.
 		/// A set that has its items reordered is not distinct from the original.
-		/// Examples:
+		/// 
+		/// Example:
 		/// [0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].
-		///
 		/// </summary>
 		/// <param name="elements">The elements to draw from.</param>
 		/// <param name="length">The length of each result.</param>
+		/// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
 		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[]? buffer = null)
 		{
 			if (elements is null)
@@ -138,7 +141,6 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="elements">The elements to draw from.</param>
 		/// <param name="length">The length of each result.</param>
-		/// <param name="uniqueOnly">Finds all possible subsets instead of all possible combinations of values.</param>
 		public static IEnumerable<T[]> CombinationsBuffered<T>(this IEnumerable<T> elements, int length)
 		{
 			if (elements is null)
@@ -149,20 +151,54 @@ namespace Open.Collections
 
 			if (length == 0)
 			{
-				return Enumerable.Empty<T[]>();
+				yield break;
 			}
 
-			var arrayPool = ArrayPool<T>.Shared;
-			var buffer = arrayPool.Rent(length);
+			var pool = ArrayPool<T>.Shared;
+			var buffer = pool.Rent(length);
 			try
 			{
-				return Combinations(elements, length, buffer);
+				foreach(var c in  Combinations(elements, length, buffer))
+					yield return c;
 			}
 			finally
 			{
-				arrayPool.Return(buffer, true);
+				pool.Return(buffer, true);
 			}
 		}
 
+
+		/// <summary>
+		/// Enumerates all possible combinations of values.
+		/// Results can be different permutations of another set.
+		/// Examples:
+		/// [0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.
+		/// </summary>
+		/// <param name="elements">The elements to draw from.</param>\
+		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
+		{
+			if (elements is null)
+				throw new ArgumentNullException(nameof(elements));
+			Contract.EndContractBlock();
+			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+			return source.Count == 0 ? Enumerable.Empty<T[]>() : Combinations(source, source.Count);
+		}
+
+		/// <summary>
+		/// Enumerates all possible distinct set combinations.
+		/// A set that has its items reordered is not distinct from the original.
+		/// Examples:
+		/// [0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].
+		///
+		/// </summary>
+		/// <param name="elements">The elements to draw from.</param>
+		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements)
+		{
+			if (elements is null)
+				throw new ArgumentNullException(nameof(elements));
+			Contract.EndContractBlock();
+			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+			return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsDistinct(source, source.Count);
+		}
 	}
 }
