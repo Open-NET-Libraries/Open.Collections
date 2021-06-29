@@ -1,4 +1,5 @@
-﻿using Open.Collections;
+﻿using BenchmarkDotNet.Running;
+using Open.Collections;
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
@@ -10,13 +11,32 @@ internal class Program
 {
 	static void Main()
 	{
-		TestEntry.Test1();
-		TestEntry.Test2();
-		CollectionTests();
+		Console.Clear();
+		var perms = new char[] { 'A', 'B', 'C' }.Permutations(new char[3]);
+		foreach(var p in perms)
+		{
+			Console.WriteLine(new string(p));
+		}
+
+		//var combs = new Open.Collections.Benchmarking.Combinations();
+		//OutputList(combs.AllPossible());
+		//OutputList(combs.Subsets());
+
+		//BenchmarkRunner.Run<Open.Collections.Benchmarking.Combinations>();
+
+		//TestEntry.Test1();
+		//TestEntry.Test2();
+		//CollectionTests();
 
 		Console.Beep();
-		Console.WriteLine("(press any key when finished)");
-		Console.ReadKey();
+	}
+
+	static void OutputList(int[][] list)
+	{
+		foreach (var e in list)
+			Console.WriteLine(string.Join(' ', e));
+		Console.WriteLine("Total: {0}", list.Length);
+		Console.ReadLine();
 	}
 
 	class TestEntry

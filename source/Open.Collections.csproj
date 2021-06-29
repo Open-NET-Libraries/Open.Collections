@@ -44,6 +44,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Open.Threading" Version="1.6.0" />
+		<PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">

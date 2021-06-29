@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -644,6 +645,14 @@ namespace Open.Collections
 			return ParseOrderBy(orderBy).Aggregate(collection, ApplyOrderBy);
 		}
 
+		/// <summary>
+		/// Returns an enumerable with the values from the source in the order provided.
+		/// </summary>
+		public static IEnumerable<T> Arrange<T>(this IReadOnlyList<T> source, IEnumerable<int> order)
+		{
+			foreach (var i in order)
+				yield return source[i];
+		}
 
 		private static IQueryable<T> ApplyOrderBy<T>(IQueryable<T> collection, OrderByInfo orderByInfo)
 		{
@@ -821,35 +830,189 @@ namespace Open.Collections
 
 			var len = source.Length;
 			for (var i = 0; i < len; i++)
-				if (source[i]?.Equals(value) ?? value==null)
+				if (source[i]?.Equals(value) ?? value == null)
 					return i;
 			return -1;
 		}
 
-		// from http://stackoverflow.com/questions/127704/algorithm-to-return-all-combinations-of-k-elements-from-n
-		public static IEnumerable<IEnumerable<T>> Combinations<T>(this IEnumerable<T> elements, int k, bool uniqueOnly = false)
+
+		/// <summary>
+		/// Enumerates all possible (order retained) combinations of the source elements up to the length.
+		/// </summary>
+		/// <param name="elements">The elements to draw from.</param>
+		/// <param name="length">The length of each result.</param>
+		/// <param name="uniqueOnly">Finds all possible subsets instead of all possible combinations of values.</param>
+		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, T[]? buffer = null, bool uniqueOnly = false)
 		{
 			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
-			if (k < 0)
-				throw new ArgumentOutOfRangeException(nameof(k), k, "Cannot be less than zero.");
+			if (length < 0)
+				throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
 			Contract.EndContractBlock();
 
-			if (k == 0)
+			if (length == 0) return Enumerable.Empty<T[]>();
+			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+			var count = source.Count;
+			if (count == 0) return Enumerable.Empty<T[]>();
+
+			if (uniqueOnly)
 			{
-				yield return Enumerable.Empty<T>();
+				return source.Subsets(length, buffer);
 			}
 			else
 			{
-				using var el = elements.Memoize();
-				foreach (var combination in el.SelectMany((e, i) => el
-.Skip(i + (uniqueOnly ? 1 : 0))
-.Combinations(k - 1, uniqueOnly)
-.Select(c => (new[] { e }).Concat(c))))
-					yield return combination;
+				return CombinationsCore();
 			}
 
+			IEnumerable<T[]> CombinationsCore()
+			{
+				{
+					var value = source[0];
+					var result = buffer ?? new T[length];
+					for (var i = 0; i < length; i++) result[i] = value;
+					yield return result;
+					if (count == 1) yield break;
+				}
+
+				var pool = ArrayPool<int>.Shared;
+				var indexes = pool.Rent(length);
+				for (var i = 0; i < length; i++) indexes[i] = 0;
+
+				var lastIndex = length - 1;
+				bool GetNext()
+				{
+					int i;
+					for (i = lastIndex; i >= 0; --i)
+					{
+						var e = ++indexes[i];
+						if (count == e)
+						{
+							if (i == 0) return false;
+						}
+						else
+						{
+							if (i == lastIndex) return true;
+							else break;
+						}
+					}
+
+					for (++i; i < length; ++i)
+					{
+						if (indexes[i] == count)
+							indexes[i] = indexes[i - 1];
+					}
+
+					return true;
+				}
+
+				while (GetNext())
+				{
+					var result = buffer ?? new T[length];
+					for (var i = 0; i < length; i++)
+					{
+						result[i] = source[indexes[i]];
+					}
+					yield return result;
+				}
+			}
 		}
 
+		/// <summary>
+		/// Enumerates all possible (order retained) combinations of the source elements up to the length.
+		/// </summary>
+		/// <param name="elements">The elements to draw from.</param>
+		/// <param name="length">The length of each result.</param>
+		/// <param name="uniqueOnly">Finds all possible subsets instead of all possible combinations of values.</param>
+		public static IEnumerable<T[]> CombinationsBuffered<T>(this IEnumerable<T> elements, int length, bool uniqueOnly = false)
+		{
+			if (elements is null)
+				throw new ArgumentNullException(nameof(elements));
+			if (length < 0)
+				throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+			Contract.EndContractBlock();
+
+			if (length == 0)
+			{
+				return Enumerable.Empty<T[]>();
+			}
+
+			var arrayPool = ArrayPool<T>.Shared;
+			var buffer = arrayPool.Rent(length);
+			try
+			{
+				return Combinations(elements, length, buffer, uniqueOnly);
+			}
+			finally
+			{
+				arrayPool.Return(buffer, true);
+			}
+		}
+
+		public static IEnumerable<T[]> Permutations<T>(this IEnumerable<T> elements, T[]? buffer = null)
+		{
+			// based on: https://stackoverflow.com/questions/1145703/permutation-of-string-without-recursion
+
+			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+			var count = source.Count;
+			if (count == 0) yield break;
+			if (buffer != null && count > buffer.Length)
+				throw new ArgumentOutOfRangeException(nameof(buffer), buffer, "Length is less than the number of elements.");
+
+			var max = 1;
+			for (var i = 2; i <= count; i++) max *= i;
+
+			var a = new int[count];
+			var pos = new List<T>(count);
+
+			for (int j = 0; j < max; ++j)
+			{
+				pos.AddRange(source);
+
+				int i;
+				var n = j;
+				var c = 0;
+
+				for (i = count; i > 0; --i)
+				{
+					var m = n; n /= i;
+					a[c++] = m % i;
+				}
+
+				// Avoid copy if not needed.
+				var result = buffer ?? new T[count];
+				for (i = 0; i < count; i++)
+				{
+					var index = a[i];
+					result[i] = pos[index];
+					pos.RemoveAt(index);
+				}
+
+				yield return result;
+			}
+		}
+
+		public static IEnumerable<T[]> PermutationsBuffered<T>(this IReadOnlyList<T> elements)
+		{
+			if (elements is null)
+				throw new ArgumentNullException(nameof(elements));
+			Contract.EndContractBlock();
+
+			var count = elements.Count;
+			if (count == 0)
+			{
+				return Enumerable.Empty<T[]>();
+			}
+
+			var arrayPool = ArrayPool<T>.Shared;
+			var buffer = arrayPool.Rent(count);
+			try
+			{
+				return Permutations(elements, buffer);
+			}
+			finally
+			{
+				arrayPool.Return(buffer, true);
+			}
+		}
 	}
 }

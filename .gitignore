@@ -271,3 +271,5 @@ __pycache__/
 .history
 
 # End of https://www.gitignore.io/api/visualstudiocode
+benchmarking/.vscode/launch.json
+benchmarking/.vscode/tasks.json
