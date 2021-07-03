@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 // ReSharper disable UnusedMethodReturnValue.Global
 
@@ -242,15 +241,14 @@ namespace Open.Collections
 		/// index is equal to or greater than <see cref="Count"/>.</exception>
 		public void RemoveAt(int index)
 		{
-			if (index < 0) throw new ArgumentOutOfRangeException();
+			if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be at least zero.");
 
 			TKey key;
 			TValue value;
 
 			lock (SyncRoot)
 			{
-				if (index > Count)
-					throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
+				if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be less than the count.");
 
 				key = List[index];
 				value = Dictionary[key];
@@ -274,7 +272,8 @@ namespace Open.Collections
 		{
 			get
 			{
-				if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException();
+				if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be at least zero.");
+				if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be less than the count.");
 
 				// Could still explode here when not synchronized, but just allow for it.
 				return Dictionary[List[index]];
@@ -282,19 +281,19 @@ namespace Open.Collections
 
 			set
 			{
-				if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException();
+				if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be at least zero.");
+				if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be less than the count.");
 
 				TKey key;
 				bool changed;
 				TValue previous;
 				lock (SyncRoot)
 				{
-					if (index > Count)
-						throw new ArgumentOutOfRangeException(nameof(index), index, "Cannot be greater than the count.");
+					if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index), index, "Must be less than the count.");
 
 					key = List[index];
 
-					changed = !Dictionary.TryGetValue(key, out previous) || !(previous?.Equals(value) ?? value==null);
+					changed = !Dictionary.TryGetValue(key, out previous) || !(previous?.Equals(value) ?? value == null);
 					if (changed)
 						Dictionary[key] = value;
 				}
@@ -452,7 +451,7 @@ namespace Open.Collections
 				{
 					if (Dictionary.TryGetValue(key, out previous))
 					{
-						if (!(previous?.Equals(value) ?? value==null))
+						if (!(previous?.Equals(value) ?? value == null))
 						{
 							Dictionary[key] = value;
 							change = ItemChange.Modified;

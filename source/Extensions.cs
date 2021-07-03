@@ -2,7 +2,6 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
@@ -217,7 +216,7 @@ namespace Open.Collections
 				throw new ArgumentNullException(nameof(target));
 
 			var r = new Random();
-			return target.OrderBy(x => (r.Next()));
+			return target.OrderBy(x => r.Next());
 		}
 
 		// Ensures an optimized means of acquiring Any();
@@ -342,7 +341,7 @@ namespace Open.Collections
 				while (queue.Reader.TryRead(out var item))
 					yield return item;
 			}
-			while (queue.Reader.WaitToReadAsync().Result);
+			while (queue.Reader.WaitToReadAsync().AsTask().Result);
 
 			var complete = queue.Reader.Completion;
 			if (complete.IsFaulted)

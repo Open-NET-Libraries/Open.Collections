@@ -158,7 +158,7 @@ namespace Open.Collections
 			var buffer = pool.Rent(length);
 			try
 			{
-				foreach(var c in  Combinations(elements, length, buffer))
+				foreach (var c in Combinations(elements, length, buffer))
 					yield return c;
 			}
 			finally

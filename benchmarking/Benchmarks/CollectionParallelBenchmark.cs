@@ -1,13 +1,11 @@
 ﻿using Open.Diagnostics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Open.Collections
 {
-	[SuppressMessage("ReSharper", "ReturnValueOfPureMethodIsNotUsed")]
 	public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 	{
 		public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory, itemFactory)

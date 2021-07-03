@@ -10,7 +10,7 @@ namespace Open.Collections.Tests
 		[Fact]
 		public void NoAddendsLessThan2()
 		{
-			for(int i = 0;i<2;i++)
+			for (int i = 0; i < 2; i++)
 				Assert.Equal(0, SC.UniqueAddendsFor(7, i).Count);
 		}
 
@@ -60,7 +60,7 @@ namespace Open.Collections.Tests
 		public void AddendsFor3()
 		{
 			{
-				for(int i = 0;i<6;i++)
+				for (int i = 0; i < 6; i++)
 				{
 					var result = SC.UniqueAddendsFor(i, 3);
 					Assert.Equal(0, result.Count);

@@ -1,5 +1,4 @@
-﻿using BenchmarkDotNet.Running;
-using Open.Collections;
+﻿using Open.Collections;
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
@@ -13,7 +12,7 @@ internal class Program
 	{
 		Console.Clear();
 		var perms = new char[] { 'A', 'B', 'C' }.Permutations(new char[3]);
-		foreach(var p in perms)
+		foreach (var p in perms)
 		{
 			Console.WriteLine(new string(p));
 		}

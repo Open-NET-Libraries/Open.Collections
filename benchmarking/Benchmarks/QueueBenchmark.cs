@@ -10,7 +10,7 @@ namespace Open.Collections
 		{
 		}
 
-		protected readonly object _item = new object();
+		protected readonly object _item = new();
 
 		protected override IEnumerable<TimedResult> TestOnceInternal()
 		{

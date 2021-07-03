@@ -171,7 +171,7 @@ namespace Open.Collections.Synchronized
 					if (index != -1) return true;
 
 					if (throwIfNotFound)
-						throw new ArgumentException("Not found.", "target");
+						throw new ArgumentException("Not found.", nameof(target));
 					return false;
 				},
 				() =>
