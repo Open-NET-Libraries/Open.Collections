@@ -505,19 +505,15 @@ namespace Open.Collections
 		/// <inheritdoc />
 		public ICollection<TValue> Values => Dictionary.Values;
 
-		/// <inheritdoc />
 		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
 			=> Add(item.Key, item.Value);
 
-		/// <inheritdoc />
 		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
 			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).Contains(item);
 
-		/// <inheritdoc />
 		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).CopyTo(array, arrayIndex);
 
-		/// <inheritdoc />
 		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
 			=> Remove(item.Key);
 

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Open.Collections
@@ -13,12 +14,15 @@ namespace Open.Collections
 			InternalSource = source;
 		}
 
+		/// <inheritdoc />
 		public int Count
 			=> InternalSource.Count;
 
+		/// <inheritdoc />
 		public bool IsReadOnly
 			=> InternalSource.IsReadOnly;
 
+		/// <inheritdoc />
 		public virtual bool Add(T item)
 		{
 			if (InternalSource.ContainsKey(item))
@@ -35,31 +39,45 @@ namespace Open.Collections
 			return true;
 		}
 
+		/// <inheritdoc />
 		public bool Remove(T item)
 			// ReSharper disable once AssignNullToNotNullAttribute
 			=> InternalSource.Remove(item);
 
+		/// <inheritdoc />
 		public void Clear()
 			=> InternalSource.Clear();
 
+		/// <inheritdoc />
 		public bool Contains(T item)
 			// ReSharper disable once AssignNullToNotNullAttribute
 			=> InternalSource.ContainsKey(item);
 
+		/// <inheritdoc />
 		public void CopyTo(T[] array, int arrayIndex)
 			=> InternalSource.Keys.CopyTo(array, arrayIndex);
 
+		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+		public virtual Span<T> CopyTo(Span<T> span)
+			=> InternalSource.Keys.CopyToSpan(span);
+
+		/// <summary>
+		/// Returns a copy of the underlying keys.
+		/// </summary>
 		public HashSet<T> ToHashSet()
 			=> new(InternalSource.Keys);
 
+		/// <inheritdoc />
 		public IEnumerator<T> GetEnumerator()
 			=> InternalSource.Keys.GetEnumerator();
 
+		/// <inheritdoc />
 		public void ExceptWith(IEnumerable<T> other)
 		{
 			foreach (var e in other) Remove(e);
 		}
 
+		/// <inheritdoc />
 		public void IntersectWith(IEnumerable<T> other)
 		{
 			foreach (var e in other)
@@ -69,24 +87,31 @@ namespace Open.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		public bool IsProperSubsetOf(IEnumerable<T> other)
 			=> ToHashSet().IsProperSubsetOf(other);
 
+		/// <inheritdoc />
 		public bool IsProperSupersetOf(IEnumerable<T> other)
 			=> ToHashSet().IsProperSupersetOf(other);
 
+		/// <inheritdoc />
 		public bool IsSubsetOf(IEnumerable<T> other)
 			=> ToHashSet().IsSubsetOf(other);
 
+		/// <inheritdoc />
 		public bool IsSupersetOf(IEnumerable<T> other)
 			=> ToHashSet().IsSupersetOf(other);
 
+		/// <inheritdoc />
 		public bool Overlaps(IEnumerable<T> other)
 			=> ToHashSet().Overlaps(other);
 
+		/// <inheritdoc />
 		public bool SetEquals(IEnumerable<T> other)
 			=> ToHashSet().SetEquals(other);
 
+		/// <inheritdoc />
 		public void SymmetricExceptWith(IEnumerable<T> other)
 		{
 			foreach (var e in other)
@@ -98,6 +123,7 @@ namespace Open.Collections
 			}
 		}
 
+		/// <inheritdoc />
 		public void UnionWith(IEnumerable<T> other)
 		{
 			foreach (var e in other) Add(e);

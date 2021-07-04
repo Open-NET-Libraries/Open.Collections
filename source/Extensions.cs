@@ -816,8 +816,29 @@ namespace Open.Collections
 			}
 		}
 
+		/// <summary>
+		/// Caches the results up to the last index requested.
+		/// </summary>
+		/// <param name="list">The source enumerable to cache.</param>
+		/// <param name="isEndless">When true, will throw an InvalidOperationException if anything causes the list to evaluate to completion.</param>
+		/// <returns>A LazyList<typeparamref name="T"/> for accessing the cached results.</returns>
 		public static LazyList<T> Memoize<T>(this IEnumerable<T> list, bool isEndless = false)
 			=> new(list, isEndless);
+
+		/// <summary>
+		/// Caches the results up to the last index requested.
+		/// 
+		/// WARNING:
+		/// - Is not thread safe.
+		/// - There is a risk of recursion.
+		/// - An endless enumerable may result in a stack overflow.
+		/// 
+		/// If any of the above are of concern, then use .Memoize() instead.
+		/// </summary>
+		/// <param name="list">The source enumerable to cache.</param>
+		/// <returns>A LazyList<typeparamref name="T"/> for accessing the cached results.</returns>
+		public static LazyListUnsafe<T> MemoizeUnsafe<T>(this IEnumerable<T> list)
+			=> new(list);
 
 		/// <summary>
 		/// .IndexOf extension optimized for an array.
@@ -832,6 +853,30 @@ namespace Open.Collections
 				if (source[i]?.Equals(value) ?? value == null)
 					return i;
 			return -1;
+		}
+
+		/// <summary>
+		/// Copies the results to the provided span up to its length or until the end of the results.
+		/// </summary>
+		/// <param name="target">The span to copy to.</param>
+		/// <returns>
+		/// A span representing the results.
+		/// If the count was less than the target length, a new span representing the results.
+		/// Otherwise the target is returned.
+		/// </returns>
+		public static Span<T> CopyToSpan<T>(this IEnumerable<T> source, Span<T> target)
+		{
+			var len = target.Length;
+			if (len == 0) return target;
+
+			var count = 0;
+			foreach (var e in source)
+			{
+				target[count] = e;
+				if (len == ++count) return target;
+			}
+
+			return target.Slice(0, count);
 		}
 
 	}

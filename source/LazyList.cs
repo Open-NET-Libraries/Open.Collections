@@ -11,125 +11,46 @@ using System.Threading;
 
 namespace Open.Collections
 {
-	public class LazyList<T> : DisposableBase, IReadOnlyList<T>
+	/// <summary>
+	/// A a thread-safe list for caching the results of an enumerable.
+	/// Note: should be disposed manually whenever possible as the locking mechanism is a ReaderWriterLockSlim.
+	/// </summary>
+	public class LazyList<T> : LazyListUnsafe<T>
 	{
-		List<T> _cached;
-		IEnumerator<T> _enumerator;
-
 		ReaderWriterLockSlim Sync;
+		int _safeCount;
 
+		/// <summary>
+		/// A value indicating whether the results are known or expected to be finite.
+		/// A list that was constructed as endless but has reached the end of the results will return false.
+		/// </summary>
 		public bool IsEndless { get; private set; }
-		public LazyList(IEnumerable<T> source, bool isEndless = false)
+
+		public LazyList(IEnumerable<T> source, bool isEndless = false) : base(source)
 		{
-			_enumerator = source.GetEnumerator();
-			_cached = new List<T>();
 			Sync = new ReaderWriterLockSlim(LockRecursionPolicy.NoRecursion); // This is important as it's possible to recurse infinitely to generate a result. :(
 			IsEndless = isEndless; // To indicate if a source is not allowed to fully enumerate.
 		}
 
 		protected override void OnDispose()
 		{
-			using (Sync.WriteLock())
-			{
-				DisposeOf(ref _enumerator);
-				Nullify(ref _cached)?.Clear();
-			}
+			using (Sync.WriteLock()) base.OnDispose();
 
 			DisposeOf(ref Sync);
 		}
 
-		public T this[int index]
+		private const string MARKED_ENDLESS = "This list is marked as endless and may never complete.";
+
+		/// <inheritdoc/>
+		public override int IndexOf(T item)
 		{
-			get
-			{
-				AssertIsAlive();
+			const string MESSAGE = MARKED_ENDLESS+" Use an enumerator, then Take(x).IndexOf().";
+			if (IsEndless) throw new InvalidOperationException(MESSAGE);
 
-				if (index < 0)
-					throw new ArgumentOutOfRangeException(nameof(index), "Cannot be less than zero.");
-				if (!EnsureIndex(index))
-					throw new ArgumentOutOfRangeException(nameof(index), "Greater than total count.");
-
-				return _cached[index];
-			}
+			return base.IndexOf(item);
 		}
 
-		private int _safeCount;
-		public int Count
-		{
-			get
-			{
-				AssertIsAlive();
-				Finish();
-				return _cached.Count;
-			}
-		}
-
-		public bool TryGetValueAt(int index, out T value)
-		{
-			if (EnsureIndex(index))
-			{
-				value = _cached[index];
-				return true;
-			}
-
-			value = default!;
-			return false;
-		}
-
-		public IEnumerator<T> GetEnumerator()
-		{
-			AssertIsAlive();
-
-			var index = -1;
-			// Interlocked allows for multi-threaded access to this enumerator.
-			while (TryGetValueAt(Interlocked.Increment(ref index), out var value))
-				yield return value;
-		}
-
-		public int IndexOf(T item)
-		{
-			AssertIsAlive();
-			if (IsEndless)
-				throw new InvalidOperationException("This list is marked as endless and may never complete. Use an enumerator, then Take(x).IndexOf().");
-
-			var index = 0;
-			while (EnsureIndex(index))
-			{
-				var value = _cached[index];
-				if (value is null)
-				{
-					if (item is null) return index;
-				}
-				else if (value.Equals(item))
-					return index;
-
-				index++;
-			}
-
-			return -1;
-
-		}
-
-		public bool Contains(T item)
-		{
-			AssertIsAlive();
-			return IndexOf(item) != -1;
-		}
-
-		public void CopyTo(T[] array, int arrayIndex = 0)
-		{
-			AssertIsAlive();
-			var len = Math.Min(IsEndless ? int.MaxValue : Count, array.Length - arrayIndex);
-			for (var i = 0; i < len; i++)
-				array[i + arrayIndex] = this[i];
-		}
-
-		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-		{
-			return GetEnumerator();
-		}
-
-		private bool EnsureIndex(int maxIndex)
+		protected override bool EnsureIndex(int maxIndex)
 		{
 			if (maxIndex < _safeCount)
 				return true;
@@ -186,11 +107,11 @@ namespace Open.Collections
 			return false;
 		}
 
-		private void Finish()
+		protected override void Finish()
 		{
 			if (IsEndless)
-				throw new InvalidOperationException("This list is marked as endless and may never complete.");
-			while (EnsureIndex(int.MaxValue)) { }
+				throw new InvalidOperationException(MARKED_ENDLESS);
+			base.Finish();
 		}
 
 	}

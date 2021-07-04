@@ -111,6 +111,19 @@ namespace Open.Collections.Synchronized
 			lock (Sync) InternalSource.CopyTo(array, arrayIndex);
 		}
 
+		/// <summary>
+		/// Copies the results to the provided span up to its length or until the end of the results.
+		/// </summary>
+		/// <returns>
+		/// A span representing the results.
+		/// If the count was less than the target length, a new span representing the results.
+		/// Otherwise the target is returned.
+		/// </returns>
+		public Span<T> CopyTo(Span<T> span)
+		{
+			lock (Sync) return InternalSource.CopyToSpan(span);
+		}
+
 		/// <inheritdoc />
 		public void Modify(Action<TCollection> action)
 		{

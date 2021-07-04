@@ -48,13 +48,9 @@ namespace Open.Collections
 		public virtual bool Remove(T item)
 			=> InternalSource.Remove(item);
 
-		/// <inheritdoc cref="ReadOnlyCollectionWrapper&lt;T, TCollection&gt;" />
+		/// <inheritdoc />
 		public override bool IsReadOnly
 			=> InternalSource.IsReadOnly;
-
-		/// <inheritdoc cref="ReadOnlyCollectionWrapper&lt;T, TCollection&gt;" />
-		public override void CopyTo(T[] array, int arrayIndex)
-			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 	}
 }

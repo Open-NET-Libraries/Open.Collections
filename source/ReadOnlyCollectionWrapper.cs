@@ -44,6 +44,10 @@ namespace Open.Collections
 			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 
+		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+		public virtual Span<T> CopyTo(Span<T> span)
+			=> InternalSource.CopyToSpan(span);
+
 		/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;" />
 		public virtual void Export(ICollection<T> to)
 			=> to.Add(InternalSource);
