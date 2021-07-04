@@ -78,6 +78,13 @@ namespace Open.Collections.Synchronized
 		public override void CopyTo(T[] array, int arrayIndex)
 			=> Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
 
+		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+		public override Span<T> CopyTo(Span<T> span)
+		{
+			using var read = Sync.ReadLock();
+			return InternalSource.CopyToSpan(span);
+		}
+			
 		#endregion
 
 		#region Dispose

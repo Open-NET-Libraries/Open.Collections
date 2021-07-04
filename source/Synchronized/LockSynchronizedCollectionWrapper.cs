@@ -119,7 +119,7 @@ namespace Open.Collections.Synchronized
 		/// If the count was less than the target length, a new span representing the results.
 		/// Otherwise the target is returned.
 		/// </returns>
-		public Span<T> CopyTo(Span<T> span)
+		public override Span<T> CopyTo(Span<T> span)
 		{
 			lock (Sync) return InternalSource.CopyToSpan(span);
 		}
