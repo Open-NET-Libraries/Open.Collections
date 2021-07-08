@@ -6,17 +6,11 @@ namespace Open.Collections
 {
 	public static partial class Extensions
 	{
-		/// <summary>
-		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// The buffer is filled with the values and returned as the yielded value.
-		/// </summary>
-		/// <param name="source">The source list to derive from.</param>
-		/// <param name="count">The maximum number of items in the result sets.</param>
+		/// <inheritdoc cref="Subsets{T}(IReadOnlyList{T}, int)"/>
 		/// <param name="buffer">
 		/// A buffer to use instead of returning new arrays for each iteration.
 		/// It must be at least the length of the count.
 		/// </param>
-		/// <returns>An enumerable containing the resultant subsets.</returns>
 		public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count, T[] buffer)
 		{
 			if (count < 1)
@@ -73,14 +67,9 @@ namespace Open.Collections
 			}
 		}
 
-		/// <summary>
-		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// The yielded results are a buffer (array) that is at least the length of the provided count.
-		/// NOTE: Do not retain the result array as it is returned to an array pool when complete.
-		/// </summary>
-		/// <param name="source">The source list to derive from.</param>
-		/// <param name="count">The maximum number of items in the result sets.</param>
-		/// <returns>An enumerable containing the resultant subsets as an buffer array.</returns>
+		/// <inheritdoc cref="Subsets{T}(IReadOnlyList{T}, int)"/>
+		/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+		/// <returns>An enumerable containing the resultant subsets as a memory buffer.</returns>
 		public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count)
 		{
 			var pool = ArrayPool<T>.Shared;
@@ -100,7 +89,6 @@ namespace Open.Collections
 
 		/// <summary>
 		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// A new array is created for each subset.
 		/// </summary>
 		/// <param name="source">The source list to derive from.</param>
 		/// <param name="count">The maximum number of items in the result sets.</param>

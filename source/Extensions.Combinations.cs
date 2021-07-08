@@ -9,7 +9,7 @@ namespace Open.Collections
 {
 	public static partial class Extensions
 	{
-		static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet, T[]? buffer = null)
+		static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet, T[] buffer)
 		{
 			Debug.Assert(length != 0);
 			var count = source.Count;
@@ -59,12 +59,11 @@ namespace Open.Collections
 
 				while (GetNext())
 				{
-					var result = buffer ?? new T[length];
 					for (var i = 0; i < length; i++)
 					{
-						result[i] = source[indexes[i]];
+						buffer![i] = source[indexes[i]];
 					}
-					yield return result;
+					yield return buffer!;
 				}
 			}
 			finally
@@ -73,17 +72,25 @@ namespace Open.Collections
 			}
 		}
 
-		/// <summary>
-		/// Enumerates all possible combinations of values.
-		/// Results can be different permutations of another set.
-		/// 
-		/// Example:
-		/// [0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.
-		/// </summary>
-		/// <param name="elements">The elements to draw from.</param>
-		/// <param name="length">The length of each result.</param>
-		/// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
-		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, T[]? buffer = null)
+		static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet)
+		{
+			var pool = ArrayPool<T>.Shared;
+			var buffer = pool.Rent(length);
+			try
+			{
+				foreach (var b in CombinationsCore(source, length,distinctSet, buffer))
+					yield return b;
+			}
+			finally
+			{
+				pool.Return(buffer, true);
+			}
+		}
+	
+
+		/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
+		/// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
+		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, T[] buffer)
 		{
 			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
@@ -96,17 +103,10 @@ namespace Open.Collections
 			return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsCore(source, length, false, buffer);
 		}
 
-		/// <summary>
-		/// Enumerates all possible distinct set combinations.
-		/// A set that has its items reordered is not distinct from the original.
-		/// 
-		/// Example:
-		/// [0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].
-		/// </summary>
-		/// <param name="elements">The elements to draw from.</param>
-		/// <param name="length">The length of each result.</param>
+
+		/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
 		/// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
-		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[]? buffer = null)
+		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[] buffer)
 		{
 			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
@@ -133,15 +133,14 @@ namespace Open.Collections
 			var count = source.Count;
 			if (count == 0) return Enumerable.Empty<T[]>();
 
-			return uniqueOnly ? source.Subsets(length) : CombinationsCore(source, length, true);
+			if (uniqueOnly) return source.Subsets(length);
+			return uniqueOnly ? source.Subsets(length) : CombinationsCore(source, length, true).Select(e=>e.AsCopy(length));
 		}
 
-		/// <summary>
-		/// Enumerates all possible (order retained) combinations of the source elements up to the length.
-		/// </summary>
-		/// <param name="elements">The elements to draw from.</param>
-		/// <param name="length">The length of each result.</param>
-		public static IEnumerable<T[]> CombinationsBuffered<T>(this IEnumerable<T> elements, int length)
+		/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
+		/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+		/// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
+		public static IEnumerable<ReadOnlyMemory<T>> CombinationsBuffered<T>(this IEnumerable<T> elements, int length)
 		{
 			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
@@ -149,17 +148,15 @@ namespace Open.Collections
 				throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
 			Contract.EndContractBlock();
 
-			if (length == 0)
-			{
-				yield break;
-			}
+			if (length == 0) yield break;
 
 			var pool = ArrayPool<T>.Shared;
 			var buffer = pool.Rent(length);
+			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
 			try
 			{
-				foreach (var c in Combinations(elements, length, buffer))
-					yield return c;
+				foreach (var _ in Combinations(elements, length, buffer))
+					yield return readBuffer;
 			}
 			finally
 			{
@@ -168,17 +165,59 @@ namespace Open.Collections
 		}
 
 
-		/// <summary>
-		/// Enumerates all possible combinations of values.
-		/// Results can be different permutations of another set.
-		/// Examples:
-		/// [0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.
-		/// </summary>
-		/// <param name="elements">The elements to draw from.</param>\
-		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
+		/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+		/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+		/// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
+		public static IEnumerable<ReadOnlyMemory<T>> CombinationsDistinctBuffered<T>(this IEnumerable<T> elements, int length)
 		{
 			if (elements is null)
 				throw new ArgumentNullException(nameof(elements));
+			if (length < 0)
+				throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+			Contract.EndContractBlock();
+
+			if (length == 0) yield break;
+
+			var pool = ArrayPool<T>.Shared;
+			var buffer = pool.Rent(length);
+			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
+			try
+			{
+				foreach (var _ in CombinationsDistinct(elements, length, buffer))
+					yield return readBuffer;
+			}
+			finally
+			{
+				pool.Return(buffer, true);
+			}
+		}
+
+		/// <inheritdoc cref="Combinations{T}(IEnumerable{T})"/>
+		/// <param name="length">The length of each result.</param>
+		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length)
+		{
+			foreach (var c in CombinationsBuffered(elements, length))
+				yield return c.ToArray();
+		}
+
+		/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T})"/>
+		/// <param name="length">The length of each result.</param>
+		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length)
+		{
+			foreach (var c in CombinationsDistinctBuffered(elements, length))
+				yield return c.ToArray();
+		}
+
+
+		/// <summary>
+		/// Enumerates all possible combinations of values.
+		/// Results can be different permutations of another set.
+		/// </summary>
+		/// <example>[0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.</example>
+		/// <param name="elements">The elements to draw from.</param>
+		public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
+		{
+			if (elements is null) throw new ArgumentNullException(nameof(elements));
 			Contract.EndContractBlock();
 			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
 			return source.Count == 0 ? Enumerable.Empty<T[]>() : Combinations(source, source.Count);
@@ -186,16 +225,13 @@ namespace Open.Collections
 
 		/// <summary>
 		/// Enumerates all possible distinct set combinations.
-		/// A set that has its items reordered is not distinct from the original.
-		/// Examples:
-		/// [0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].
-		///
+		/// In contrast a set that has its items reordered is not distinct from the original.
 		/// </summary>
+		/// <example>[0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].</example>
 		/// <param name="elements">The elements to draw from.</param>
 		public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements)
 		{
-			if (elements is null)
-				throw new ArgumentNullException(nameof(elements));
+			if (elements is null) throw new ArgumentNullException(nameof(elements));
 			Contract.EndContractBlock();
 			var source = elements as IReadOnlyList<T> ?? elements.ToArray();
 			return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsDistinct(source, source.Count);

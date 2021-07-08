@@ -6,18 +6,11 @@ namespace Open.Collections
 {
 	public static partial class Extensions
 	{
-		/// <summary>
-		/// Progressively enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// The buffer is filled with the values and returned as the yielded value.
-		/// Note: Works especially well when the source is a LazyList.
-		/// </summary>
-		/// <param name="source">The source list to derive from.</param>
-		/// <param name="count">The maximum number of items in the result sets.</param>
+		/// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)"/>
 		/// <param name="buffer">
 		/// A buffer to use instead of returning new arrays for each iteration.
 		/// It must be at least the length of the count.
 		/// </param>
-		/// <returns>An enumerable containing the resultant subsets.</returns>
 		public static IEnumerable<T[]> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, T[] buffer)
 		{
 			if (count < 1)
@@ -37,79 +30,38 @@ namespace Open.Collections
 				yield break;
 			}
 
+			var lastSlot = count - 1;
 			var pool = ArrayPool<int>.Shared;
-			var indices = pool.Rent(count);
+			var indices = pool.Rent(lastSlot);
 			try
 			{
 				using var e = source.GetEnumerator();
 
 				// Setup the first result and make sure there's enough for the count.
 				var n = 0;
+				var lowerSubset = new List<int>(count);
 				for (; n < count; ++n)
 				{
 					if (!e.MoveNext()) throw new ArgumentOutOfRangeException(nameof(count), count, "Is greater than the length of the source.");
 					buffer[n] = e.Current;
-					indices[n] = n;
+					lowerSubset.Add(n);
 				}
 
 				// First result.
 				yield return buffer;
 
-				if (!e.MoveNext()) yield break; // Only one set.
-
-				var lastSlot = count - 1;
-
-				// Second result.
-				buffer[lastSlot] = e.Current;
-				yield return buffer;
-				indices[lastSlot] = n;
-
-				var nextToLastSlot = lastSlot - 1;
-
-			loop:
-				var prevIndex = n;
-				var pos = nextToLastSlot;
-
-				while (pos >= 0)
+				while (e.MoveNext())
 				{
-					var firstRun = true;
-					var index = indices[pos];
-					while (index + 1 < prevIndex)
+					buffer[lastSlot] = e.Current;
+					foreach (var _ in lowerSubset.Subsets(lastSlot, indices))
 					{
-						// Subsequent results.
-						buffer[pos] = source[++index];
-						indices[pos] = index;
-						if (firstRun)
-						{
-							while (pos < nextToLastSlot && index + 1 < prevIndex)
-							{
-								buffer[++pos] = source[++index];
-								indices[pos] = index;
-							}
-							prevIndex = indices[pos + 1];
-							firstRun = false;
-						}
+						for(var i = 0; i<lastSlot; i++)
+							buffer[i] = source[indices[i]];
+
 						yield return buffer;
 					}
-					--pos;
-					prevIndex = index;
-
-
+					lowerSubset.Add(n++);
 				}
-
-				if (!e.MoveNext()) yield break;
-
-				// Update the last one.
-				buffer[lastSlot] = e.Current;
-				for (var i = 0; i < lastSlot; ++i)
-				{
-					buffer[i] = source[i];
-					indices[i] = i;
-				}
-				yield return buffer;
-				indices[lastSlot] = ++n;
-
-				goto loop;
 			}
 			finally
 			{
@@ -117,14 +69,9 @@ namespace Open.Collections
 			}
 		}
 
-		/// <summary>
-		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// The yielded results are a buffer (array) that is at least the length of the provided count.
-		/// NOTE: Do not retain the result array as it is returned to an array pool when complete.
-		/// </summary>
-		/// <param name="source">The source list to derive from.</param>
-		/// <param name="count">The maximum number of items in the result sets.</param>
-		/// <returns>An enumerable containing the resultant subsets as an buffer array.</returns>
+		/// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)"/>
+		/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+		/// <returns>An enumerable containing the resultant subsets as a memory buffer.</returns>
 		public static IEnumerable<ReadOnlyMemory<T>> SubsetsProgressiveBuffered<T>(this IReadOnlyList<T> source, int count)
 		{
 			var pool = ArrayPool<T>.Shared;
@@ -143,8 +90,9 @@ namespace Open.Collections
 
 
 		/// <summary>
-		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// A new array is created for each subset.
+		/// Progressively enumerates the possible (ordered) subsets of the list, limited by the provided count.
+		/// In contrast to the .Subsets(count) extension, this will produce consistent results regardless of source set size.
+		/// Favorable for larger source sets that enumeration may cause evaluation.
 		/// </summary>
 		/// <param name="source">The source list to derive from.</param>
 		/// <param name="count">The maximum number of items in the result sets.</param>

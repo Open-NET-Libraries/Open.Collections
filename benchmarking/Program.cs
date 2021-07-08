@@ -1,27 +1,19 @@
-﻿using Open.Collections;
+﻿using BenchmarkDotNet.Running;
+using Open.Collections;
+using Open.Collections.Benchmarks;
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 internal class Program
 {
 	static void Main()
 	{
-		Console.Clear();
-		var perms = new char[] { 'A', 'B', 'C' }.Permutations(new char[3]);
-		foreach (var p in perms)
-		{
-			Console.WriteLine(new string(p));
-		}
-
-		//var combs = new Open.Collections.Benchmarking.Combinations();
-		//OutputList(combs.AllPossible());
-		//OutputList(combs.Subsets());
-
-		//BenchmarkRunner.Run<Open.Collections.Benchmarking.Combinations>();
+		BenchmarkRunner.Run<SubsetBenchmarks>();
 
 		//TestEntry.Test1();
 		//TestEntry.Test2();

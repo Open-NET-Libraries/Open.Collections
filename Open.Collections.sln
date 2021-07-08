@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections", "source\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections.Tests", "testing\Open.Collections.Tests\Open.Collections.Tests.csproj", "{44063AEE-8909-4A26-80BE-8623F5EBBA1F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections.Benchmarking", "benchmarking\Open.Collections.Benchmarking.csproj", "{A3EA31B7-6E9B-4780-808A-BBDF116521EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{44063AEE-8909-4A26-80BE-8623F5EBBA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44063AEE-8909-4A26-80BE-8623F5EBBA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44063AEE-8909-4A26-80BE-8623F5EBBA1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3EA31B7-6E9B-4780-808A-BBDF116521EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3EA31B7-6E9B-4780-808A-BBDF116521EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3EA31B7-6E9B-4780-808A-BBDF116521EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3EA31B7-6E9B-4780-808A-BBDF116521EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

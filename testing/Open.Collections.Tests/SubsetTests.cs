@@ -116,6 +116,28 @@ namespace Open.Collections.Tests
 
 
 			Assert.Equal(Set5.Subsets(3).Count(), a2.Count());
+			var a3 = Set5.Subsets(3);
+			// Checksum.
+			Assert.Equal(a3.SelectMany(e => e).Sum(), a2.SelectMany(e => e).Sum());
+
+		}
+
+		[Theory]
+		[InlineData(8, 5)]
+		[InlineData(10, 7)]
+		[InlineData(12, 3)]
+		[InlineData(16, 4)]
+		public void LargerProgressiveCheck(int size, int count)
+		{
+			
+			var FullSet = Enumerable.Range(1, size).ToImmutableArray();
+			var buffer = new int[count];
+			var s1 = FullSet.Subsets(count, buffer).ToImmutableArray();
+			var s2 = FullSet.SubsetsProgressive(count, buffer).ToImmutableArray();
+			var s1s = s1.SelectMany(e => e).Sum();
+			var s2s = s2.SelectMany(e => e).Sum();
+			Assert.Equal(s1.Length, s2.Length);
+			Assert.Equal(s1s, s2s);
 		}
 	}
 }
