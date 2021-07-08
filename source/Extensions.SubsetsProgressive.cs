@@ -7,8 +7,9 @@ namespace Open.Collections
 	public static partial class Extensions
 	{
 		/// <summary>
-		/// Enumerates the possible (ordered) subsets of the list, limited by the provided count.
+		/// Progressively enumerates the possible (ordered) subsets of the list, limited by the provided count.
 		/// The buffer is filled with the values and returned as the yielded value.
+		/// Note: Works especially well when the source is a LazyList.
 		/// </summary>
 		/// <param name="source">The source list to derive from.</param>
 		/// <param name="count">The maximum number of items in the result sets.</param>
@@ -17,17 +18,14 @@ namespace Open.Collections
 		/// It must be at least the length of the count.
 		/// </param>
 		/// <returns>An enumerable containing the resultant subsets.</returns>
-		public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count, T[] buffer)
+		public static IEnumerable<T[]> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, T[] buffer)
 		{
 			if (count < 1)
 				throw new ArgumentOutOfRangeException(nameof(count), count, "Must greater than zero.");
-			if (count > source.Count)
-				throw new ArgumentOutOfRangeException(nameof(count), count, "Must be less than or equal to the length of the source set.");
 			if (buffer is null)
 				throw new ArgumentNullException(nameof(buffer));
 			if (buffer.Length < count)
 				throw new ArgumentOutOfRangeException(nameof(buffer), buffer, "Length must be greater than or equal to the provided count.");
-
 
 			if (count == 1)
 			{
@@ -39,31 +37,77 @@ namespace Open.Collections
 				yield break;
 			}
 
-			var diff = source.Count - count;
 			var pool = ArrayPool<int>.Shared;
 			var indices = pool.Rent(count);
 			try
 			{
-				var pos = 0;
-				var index = 0;
+				using var e = source.GetEnumerator();
 
-			loop:
-				while (pos < count)
+				// Setup the first result and make sure there's enough for the count.
+				var n = 0;
+				for (; n < count; ++n)
 				{
-					indices[pos] = index;
-					buffer[pos] = source[index];
-					++pos;
-					++index;
+					if (!e.MoveNext()) throw new ArgumentOutOfRangeException(nameof(count), count, "Is greater than the length of the source.");
+					buffer[n] = e.Current;
+					indices[n] = n;
 				}
 
+				// First result.
 				yield return buffer;
 
-				do
+				if (!e.MoveNext()) yield break; // Only one set.
+
+				var lastSlot = count - 1;
+
+				// Second result.
+				buffer[lastSlot] = e.Current;
+				yield return buffer;
+				indices[lastSlot] = n;
+
+				var nextToLastSlot = lastSlot - 1;
+
+			loop:
+				var prevIndex = n;
+				var pos = nextToLastSlot;
+
+				while (pos >= 0)
 				{
-					if (pos == 0) yield break;
-					index = indices[--pos] + 1;
+					var firstRun = true;
+					var index = indices[pos];
+					while (index + 1 < prevIndex)
+					{
+						// Subsequent results.
+						buffer[pos] = source[++index];
+						indices[pos] = index;
+						if (firstRun)
+						{
+							while (pos < nextToLastSlot && index + 1 < prevIndex)
+							{
+								buffer[++pos] = source[++index];
+								indices[pos] = index;
+							}
+							prevIndex = indices[pos + 1];
+							firstRun = false;
+						}
+						yield return buffer;
+					}
+					--pos;
+					prevIndex = index;
+
+
 				}
-				while (index > diff + pos);
+
+				if (!e.MoveNext()) yield break;
+
+				// Update the last one.
+				buffer[lastSlot] = e.Current;
+				for (var i = 0; i < lastSlot; ++i)
+				{
+					buffer[i] = source[i];
+					indices[i] = i;
+				}
+				yield return buffer;
+				indices[lastSlot] = ++n;
 
 				goto loop;
 			}
@@ -81,14 +125,14 @@ namespace Open.Collections
 		/// <param name="source">The source list to derive from.</param>
 		/// <param name="count">The maximum number of items in the result sets.</param>
 		/// <returns>An enumerable containing the resultant subsets as an buffer array.</returns>
-		public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count)
+		public static IEnumerable<ReadOnlyMemory<T>> SubsetsProgressiveBuffered<T>(this IReadOnlyList<T> source, int count)
 		{
 			var pool = ArrayPool<T>.Shared;
 			var buffer = pool.Rent(count);
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 			try
 			{
-				foreach (var _ in Subsets(source, count, buffer))
+				foreach (var _ in SubsetsProgressive(source, count, buffer))
 					yield return readBuffer;
 			}
 			finally
@@ -105,9 +149,9 @@ namespace Open.Collections
 		/// <param name="source">The source list to derive from.</param>
 		/// <param name="count">The maximum number of items in the result sets.</param>
 		/// <returns>An enumerable containing the resultant subsets.</returns>
-		public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count)
+		public static IEnumerable<T[]> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count)
 		{
-			foreach (var subset in SubsetsBuffered(source, count))
+			foreach (var subset in SubsetsProgressiveBuffered(source, count))
 				yield return subset.ToArray();
 		}
 
