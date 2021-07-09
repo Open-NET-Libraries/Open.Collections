@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
@@ -878,6 +879,36 @@ namespace Open.Collections
 
 			return target.Slice(0, count);
 		}
+
+		/// <summary>
+		/// Builds an immutable array using the contents of the span.
+		/// </summary>
+		public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
+		{
+			var builder = ImmutableArray.CreateBuilder<T>(span.Length);
+			foreach (var e in span)
+				builder.Add(e);
+			return builder.MoveToImmutable();
+		}
+
+		/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
+		public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
+		{
+			var builder = ImmutableArray.CreateBuilder<T>(span.Length);
+			foreach (var e in span)
+				builder.Add(e);
+			return builder.MoveToImmutable();
+		}
+
+		/// <summary>
+		/// Builds an immutable array using the contents of the memory.
+		/// </summary>
+		public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlyMemory<T> memory)
+			=> memory.Span.ToImmutableArray();
+
+		/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlyMemory{T})"/>
+		public static ImmutableArray<T> ToImmutableArray<T>(this Memory<T> memory)
+			=> memory.Span.ToImmutableArray();
 
 	}
 }

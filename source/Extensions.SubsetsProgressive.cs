@@ -39,12 +39,10 @@ namespace Open.Collections
 
 				// Setup the first result and make sure there's enough for the count.
 				var n = 0;
-				var lowerSubset = new List<int>(count);
 				for (; n < count; ++n)
 				{
 					if (!e.MoveNext()) throw new ArgumentOutOfRangeException(nameof(count), count, "Is greater than the length of the source.");
 					buffer[n] = e.Current;
-					lowerSubset.Add(n);
 				}
 
 				// First result.
@@ -53,14 +51,14 @@ namespace Open.Collections
 				while (e.MoveNext())
 				{
 					buffer[lastSlot] = e.Current;
-					foreach (var _ in lowerSubset.Subsets(lastSlot, indices))
+					foreach (var _ in Collections.Subsets.IndexesInternal(n, lastSlot, indices))
 					{
 						for(var i = 0; i<lastSlot; i++)
 							buffer[i] = source[indices[i]];
 
 						yield return buffer;
 					}
-					lowerSubset.Add(n++);
+					++n;
 				}
 			}
 			finally
@@ -91,7 +89,7 @@ namespace Open.Collections
 
 		/// <summary>
 		/// Progressively enumerates the possible (ordered) subsets of the list, limited by the provided count.
-		/// In contrast to the .Subsets(count) extension, this will produce consistent results regardless of source set size.
+		/// In contrast to the .Subsets(count) extension, this will produce consistent results regardless of source set size but is not as fast.
 		/// Favorable for larger source sets that enumeration may cause evaluation.
 		/// </summary>
 		/// <param name="source">The source list to derive from.</param>

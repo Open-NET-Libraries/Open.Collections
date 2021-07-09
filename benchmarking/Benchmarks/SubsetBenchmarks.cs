@@ -6,13 +6,13 @@ namespace Open.Collections.Benchmarks
 {
 	public class SubsetBenchmarks
 	{
-		readonly IEnumerable<int> FullSet = Enumerable.Range(0, 10);
+		readonly IEnumerable<int> FullSet = Enumerable.Range(0, 32);
 
 		[Benchmark]
 		public int Subset()
 		{
 			var buffer = new int[7];
-			var sum = FullSet.MemoizeUnsafe().Subsets(7, buffer).SelectMany(e => e).Sum();
+			var sum = FullSet.MemoizeUnsafe().Subsets(7, buffer).Count();
 			return sum;
 		}
 
@@ -20,7 +20,7 @@ namespace Open.Collections.Benchmarks
 		public int SubsetProgressive()
 		{
 			var buffer = new int[7];
-			var sum = FullSet.MemoizeUnsafe().SubsetsProgressive(7, buffer).SelectMany(e => e).Sum();
+			var sum = FullSet.MemoizeUnsafe().SubsetsProgressive(7, buffer).Count();
 			return sum;
 		}
 	}
