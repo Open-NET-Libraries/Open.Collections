@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Open.Collections.Benchmarks
 {
+	[MemoryDiagnoser]
 	public class SubsetBenchmarks
 	{
 		readonly IEnumerable<int> FullSet = Enumerable.Range(0, 32);
