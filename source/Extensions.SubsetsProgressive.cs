@@ -31,8 +31,8 @@ namespace Open.Collections
 			}
 
 			var lastSlot = count - 1;
-			var pool = ArrayPool<int>.Shared;
-			var indices = pool.Rent(lastSlot);
+			var pool = lastSlot > 128 ? ArrayPool<int>.Shared : null;
+			var indices = pool?.Rent(lastSlot) ?? new int[lastSlot];
 			try
 			{
 				using var e = source.GetEnumerator();
@@ -53,7 +53,7 @@ namespace Open.Collections
 					buffer[lastSlot] = e.Current;
 					foreach (var _ in Collections.Subsets.IndexesInternal(n, lastSlot, indices))
 					{
-						for(var i = 0; i<lastSlot; i++)
+						for (var i = 0; i < lastSlot; i++)
 							buffer[i] = source[indices[i]];
 
 						yield return buffer;
@@ -63,7 +63,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(indices);
+				pool?.Return(indices);
 			}
 		}
 
@@ -72,8 +72,8 @@ namespace Open.Collections
 		/// <returns>An enumerable containing the resultant subsets as a memory buffer.</returns>
 		public static IEnumerable<ReadOnlyMemory<T>> SubsetsProgressiveBuffered<T>(this IReadOnlyList<T> source, int count)
 		{
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(count);
+			var pool = count > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(count) ?? new T[count];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 			try
 			{
@@ -82,7 +82,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 

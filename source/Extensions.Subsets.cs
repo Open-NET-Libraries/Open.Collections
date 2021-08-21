@@ -34,8 +34,8 @@ namespace Open.Collections
 			}
 
 			var diff = source.Count - count;
-			var pool = ArrayPool<int>.Shared;
-			var indices = pool.Rent(count);
+			var pool = count>128 ? ArrayPool<int>.Shared : null;
+			var indices = pool?.Rent(count) ?? new int[count];
 			try
 			{
 				var pos = 0;
@@ -63,7 +63,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(indices);
+				pool?.Return(indices);
 			}
 		}
 
@@ -72,8 +72,8 @@ namespace Open.Collections
 		/// <returns>An enumerable containing the resultant subsets as a memory buffer.</returns>
 		public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count)
 		{
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(count);
+			var pool = count > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(count) ?? new T[count];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 			try
 			{
@@ -82,7 +82,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 
