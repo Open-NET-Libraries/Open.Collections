@@ -34,7 +34,7 @@ namespace Open.Collections
 			}
 
 			var diff = source.Count - count;
-			var pool = count>128 ? ArrayPool<int>.Shared : null;
+			var pool = count > 128 ? ArrayPool<int>.Shared : null;
 			var indices = pool?.Rent(count) ?? new int[count];
 			try
 			{

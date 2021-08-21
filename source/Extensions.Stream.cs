@@ -16,9 +16,8 @@ namespace Open.Collections
 			if (target is null)
 				throw new ArgumentNullException(nameof(target));
 
-			var pool = ArrayPool<byte>.Shared;
-			var bytes = pool.Rent(bufferSize);
-
+			var pool = bufferSize > 128 ? ArrayPool<byte>.Shared : null;
+			var bytes = pool?.Rent(bufferSize) ?? new byte[bufferSize];
 			try
 			{
 				int cnt;
@@ -27,7 +26,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(bytes, clearBufferAfter);
+				pool?.Return(bytes, clearBufferAfter);
 			}
 		}
 	}

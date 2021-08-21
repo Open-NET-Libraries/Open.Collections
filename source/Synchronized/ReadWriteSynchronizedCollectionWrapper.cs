@@ -84,7 +84,7 @@ namespace Open.Collections.Synchronized
 			using var read = Sync.ReadLock();
 			return InternalSource.CopyToSpan(span);
 		}
-			
+
 		#endregion
 
 		#region Dispose

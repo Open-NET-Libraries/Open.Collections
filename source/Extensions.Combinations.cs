@@ -23,11 +23,10 @@ namespace Open.Collections
 				if (count == 1) yield break;
 			}
 
-			var pool = ArrayPool<int>.Shared;
-			var indexes = pool.Rent(length);
+			var pool = count > 128 ? ArrayPool<int>.Shared : null;
+			var indexes = pool?.Rent(count) ?? new int[count];
 			try
 			{
-
 				for (var i = 0; i < length; i++) indexes[i] = 0;
 
 				var lastIndex = length - 1;
@@ -68,25 +67,25 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(indexes);
+				pool?.Return(indexes);
 			}
 		}
 
 		static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet)
 		{
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(length);
+			var pool = length > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(length) ?? new T[length];
 			try
 			{
-				foreach (var b in CombinationsCore(source, length,distinctSet, buffer))
+				foreach (var b in CombinationsCore(source, length, distinctSet, buffer))
 					yield return b;
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
-	
+
 
 		/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
 		/// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
@@ -134,7 +133,7 @@ namespace Open.Collections
 			if (count == 0) return Enumerable.Empty<T[]>();
 
 			if (uniqueOnly) return source.Subsets(length);
-			return uniqueOnly ? source.Subsets(length) : CombinationsCore(source, length, true).Select(e=>e.AsCopy(length));
+			return uniqueOnly ? source.Subsets(length) : CombinationsCore(source, length, true).Select(e => e.AsCopy(length));
 		}
 
 		/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
@@ -150,8 +149,8 @@ namespace Open.Collections
 
 			if (length == 0) yield break;
 
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(length);
+			var pool = length > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(length) ?? new T[length];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
 			try
 			{
@@ -160,7 +159,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 
@@ -178,8 +177,8 @@ namespace Open.Collections
 
 			if (length == 0) yield break;
 
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(length);
+			var pool = length > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(length) ?? new T[length];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
 			try
 			{
@@ -188,7 +187,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 

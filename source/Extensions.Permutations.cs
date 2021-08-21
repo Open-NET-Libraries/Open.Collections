@@ -77,8 +77,8 @@ namespace Open.Collections
 			var count = elements.Count;
 			if (count == 0) yield break;
 
-			var pool = ArrayPool<T>.Shared;
-			var buffer = pool.Rent(count);
+			var pool = count > 128 ? ArrayPool<T>.Shared : null;
+			var buffer = pool?.Rent(count) ?? new T[count];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 			try
 			{
@@ -87,7 +87,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 

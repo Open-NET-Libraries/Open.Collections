@@ -3,7 +3,6 @@
  * Partly based on: http://www.fallingcanbedeadly.com/posts/crazy-extention-methods-tolazylist/
  */
 
-using Open.Disposable;
 using Open.Threading;
 using System;
 using System.Collections.Generic;
@@ -44,7 +43,7 @@ namespace Open.Collections
 		/// <inheritdoc/>
 		public override int IndexOf(T item)
 		{
-			const string MESSAGE = MARKED_ENDLESS+" Use an enumerator, then Take(x).IndexOf().";
+			const string MESSAGE = MARKED_ENDLESS + " Use an enumerator, then Take(x).IndexOf().";
 			if (IsEndless) throw new InvalidOperationException(MESSAGE);
 
 			return base.IndexOf(item);

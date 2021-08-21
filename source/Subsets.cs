@@ -68,8 +68,8 @@ namespace Open.Collections
 		/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
 		public static IEnumerable<ReadOnlyMemory<int>> IndexesBuffered(int sourceLength, int subsetLength)
 		{
-			var pool = ArrayPool<int>.Shared;
-			var buffer = pool.Rent(subsetLength);
+			var pool = subsetLength > 128 ? ArrayPool<int>.Shared : null;
+			var buffer = pool?.Rent(subsetLength) ?? new int[subsetLength];
 			var readBuffer = new ReadOnlyMemory<int>(buffer, 0, subsetLength);
 			try
 			{
@@ -78,7 +78,7 @@ namespace Open.Collections
 			}
 			finally
 			{
-				pool.Return(buffer, true);
+				pool?.Return(buffer, true);
 			}
 		}
 

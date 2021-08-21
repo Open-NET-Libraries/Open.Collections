@@ -129,7 +129,7 @@ namespace Open.Collections.Tests
 		[InlineData(16, 4)]
 		public void LargerProgressiveCheck(int size, int count)
 		{
-			
+
 			var FullSet = Enumerable.Range(1, size).ToImmutableArray();
 			var buffer = new int[count];
 			var s1 = FullSet.Subsets(count, buffer).ToImmutableArray();
