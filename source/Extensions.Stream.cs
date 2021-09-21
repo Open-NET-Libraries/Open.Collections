@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Open.Collections
@@ -10,7 +11,12 @@ namespace Open.Collections
 		/// <summary>
 		/// Copies the source stream to the target.
 		/// </summary>
-		public static async ValueTask DualBufferCopyToAsync(this Stream source, Stream target, int bufferSize = 4096, bool clearBufferAfter = false)
+		public static async ValueTask DualBufferCopyToAsync(
+			this Stream source,
+			Stream target,
+			int bufferSize = 4096,
+			bool clearBufferAfter = false,
+			CancellationToken? cancellationToken = null)
 		{
 			if (source is null)
 				throw new NullReferenceException();
@@ -21,17 +27,18 @@ namespace Open.Collections
 			var cNext = pool.Rent(bufferSize);
 			var cCurrent = pool.Rent(bufferSize);
 
+			var token = cancellationToken ?? CancellationToken.None;
 			try
 			{
-				var next = source.ReadAsync(cNext, 0, bufferSize);
+				var next = source.ReadAsync(cNext, 0, bufferSize, token);
 				while (true)
 				{
 					var n = await next.ConfigureAwait(false);
 					if (n == 0) break;
 
 					// Preemptive request before yielding.
-					var current = source.ReadAsync(cCurrent, 0, bufferSize);
-					await target.WriteAsync(cNext, 0, n);
+					var current = source.ReadAsync(cCurrent, 0, bufferSize, token);
+					await target.WriteAsync(cNext, 0, n, token);
 
 					var swap = cNext;
 					cNext = cCurrent;
