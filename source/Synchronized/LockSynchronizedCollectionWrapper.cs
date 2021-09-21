@@ -56,7 +56,7 @@ namespace Open.Collections.Synchronized
 			lock (Sync) InternalSource.Clear();
 		}
 
-		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+		/// <inheritdoc  />
 		public override bool Contains(T item)
 		{
 			lock (Sync) return InternalSource.Contains(item);

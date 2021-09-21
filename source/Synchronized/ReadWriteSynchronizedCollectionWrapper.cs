@@ -47,7 +47,7 @@ namespace Open.Collections.Synchronized
 		public override void Clear()
 			=> Sync.Write(() => InternalSource.Clear());
 
-		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+		/// <inheritdoc />
 		public override bool Contains(T item)
 			=> Sync.ReadValue(() => InternalSource.Contains(item));
 
@@ -61,7 +61,7 @@ namespace Open.Collections.Synchronized
 			return result;
 		}
 
-		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+		/// <inheritdoc />
 		public override int Count
 			=> Sync.ReadValue(() => InternalSource.Count);
 
@@ -70,7 +70,7 @@ namespace Open.Collections.Synchronized
 		public T[] Snapshot()
 			=> Sync.ReadValue(() => InternalSource.ToArray());
 
-		/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+		/// <inheritdoc />
 		public override void Export(ICollection<T> to)
 			=> Sync.Read(() => to.Add(InternalSource));
 
@@ -78,7 +78,7 @@ namespace Open.Collections.Synchronized
 		public override void CopyTo(T[] array, int arrayIndex)
 			=> Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
 
-		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+		/// <inheritdoc />
 		public override Span<T> CopyTo(Span<T> span)
 		{
 			using var read = Sync.ReadLock();

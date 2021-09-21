@@ -44,11 +44,11 @@ namespace Open.Collections
 			goto loop;
 		}
 
-		/// <inheritdoc cref="Indexes(int, int)"/>
 		/// <param name="buffer">
 		/// A buffer to use instead of returning new arrays for each iteration.
 		/// It must be at least the length of the count.
 		/// </param>
+		/// <inheritdoc cref="Indexes(int, int)"/>
 		public static IEnumerable<int[]> Indexes(int sourceLength, int subsetLength, int[] buffer)
 		{
 

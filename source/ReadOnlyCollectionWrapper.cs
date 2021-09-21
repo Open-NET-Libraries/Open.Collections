@@ -16,7 +16,7 @@ namespace Open.Collections
 		}
 
 		#region Implementation of IReadOnlyCollection<T>
-		/// <inheritdoc cref="ICollection&lt;T&gt;" />
+		/// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
 		public virtual bool Contains(T item)
 			=> InternalSource.Contains(item);
 
@@ -24,7 +24,7 @@ namespace Open.Collections
 		public virtual int Count
 			=> InternalSource.Count;
 
-		/// <inheritdoc cref="ICollection&lt;T&gt;" />
+		/// <inheritdoc cref="ICollection&lt;T&gt;.IsReadOnly" />
 		public virtual bool IsReadOnly
 			=> true;
 
@@ -39,16 +39,16 @@ namespace Open.Collections
 		IEnumerator IEnumerable.GetEnumerator()
 			=> GetEnumerator();
 
-		/// <inheritdoc cref="ICollection&lt;T&gt;" />
+		/// <inheritdoc cref="ICollection&lt;T&gt;.CopyTo(T[], int)" />
 		public virtual void CopyTo(T[] array, int arrayIndex)
 			=> InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 
-		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+		/// <inheritdoc cref="Extensions.CopyToSpan{T}(IEnumerable{T}, Span{T})"/>
 		public virtual Span<T> CopyTo(Span<T> span)
 			=> InternalSource.CopyToSpan(span);
 
-		/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;" />
+		/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
 		public virtual void Export(ICollection<T> to)
 			=> to.Add(InternalSource);
 

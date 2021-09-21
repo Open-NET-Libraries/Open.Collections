@@ -2,24 +2,19 @@
 {
 	public interface IQueue<T>
 	{
-		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;"/>
+		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Enqueue(T)"/>
 		void Enqueue(T item);
 
-		/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;"/>
-		/// <returns>True if an element was removed and returned from the beginning of the queue successfully; otherwise, false.</returns>
+		/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;.TryDequeue(out T)"/>
 		bool TryDequeue(out T item);
 
-		/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;"/>
-		/// <summary>
-		/// Tries to return an object from the beginning of the queue without removing it.
-		/// </summary>
-		/// <param name="item">When this method returns, result contains an object from the beginning of the queue or an unspecified value if the operation failed.</param>
+		/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;.TryPeek(out T)"/>
 		bool TryPeek(out T item);
 
-		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;"/>
+		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Count"/>
 		int Count { get; }
 
-		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;"/>
+		/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Clear()"/>
 		void Clear();
 	}
 }
