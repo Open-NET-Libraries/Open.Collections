@@ -34,12 +34,10 @@ namespace Open.Collections
 			}
 #else
 			/// <inheritdoc />
-			public new virtual bool TryDequeue(out T item)
-				=> base.TryDequeue(out item);
+			public new virtual bool TryDequeue(out T item) => base.TryDequeue(out item);
 
 			/// <inheritdoc />
-			public new virtual bool TryPeek(out T item)
-				=> base.TryPeek(out item);
+			public new virtual bool TryPeek(out T item) => base.TryPeek(out item);
 #endif
 
 

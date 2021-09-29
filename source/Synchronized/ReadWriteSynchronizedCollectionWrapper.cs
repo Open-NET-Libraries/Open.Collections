@@ -18,38 +18,29 @@ namespace Open.Collections.Synchronized
 		#region Implementation of ICollection<T>
 
 		/// <inheritdoc />
-		public override void Add(T item)
-			=> Sync.Write(() => InternalSource.Add(item));
+		public override void Add(T item) => Sync.Write(() => InternalSource.Add(item));
 
 		/// <inheritdoc />
-		public override void Add(T item1, T item2, params T[] items)
-		{
-			Sync.Write(() =>
-			{
-				InternalSource.Add(item1);
-				InternalSource.Add(item2);
-				foreach (var i in items)
-					InternalSource.Add(i);
-			});
-		}
+		public override void Add(T item1, T item2, params T[] items) => Sync.Write(() =>
+																		{
+																			InternalSource.Add(item1);
+																			InternalSource.Add(item2);
+																			foreach (var i in items)
+																				InternalSource.Add(i);
+																		});
 
 		/// <inheritdoc />
-		public override void Add(T[] items)
-		{
-			Sync.Write(() =>
-			{
-				foreach (var i in items)
-					InternalSource.Add(i);
-			});
-		}
+		public override void Add(T[] items) => Sync.Write(() =>
+											   {
+												   foreach (var i in items)
+													   InternalSource.Add(i);
+											   });
 
 		/// <inheritdoc />
-		public override void Clear()
-			=> Sync.Write(() => InternalSource.Clear());
+		public override void Clear() => Sync.Write(() => InternalSource.Clear());
 
 		/// <inheritdoc />
-		public override bool Contains(T item)
-			=> Sync.ReadValue(() => InternalSource.Contains(item));
+		public override bool Contains(T item) => Sync.ReadValue(() => InternalSource.Contains(item));
 
 		/// <inheritdoc />
 		public override bool Remove(T item)
@@ -67,16 +58,13 @@ namespace Open.Collections.Synchronized
 
 
 		/// <inheritdoc />
-		public T[] Snapshot()
-			=> Sync.ReadValue(() => InternalSource.ToArray());
+		public T[] Snapshot() => Sync.ReadValue(() => InternalSource.ToArray());
 
 		/// <inheritdoc />
-		public override void Export(ICollection<T> to)
-			=> Sync.Read(() => to.Add(InternalSource));
+		public override void Export(ICollection<T> to) => Sync.Read(() => to.Add(InternalSource));
 
 		/// <inheritdoc />
-		public override void CopyTo(T[] array, int arrayIndex)
-			=> Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
+		public override void CopyTo(T[] array, int arrayIndex) => Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
 
 		/// <inheritdoc />
 		public override Span<T> CopyTo(Span<T> span)
@@ -120,24 +108,20 @@ namespace Open.Collections.Synchronized
 		}
 
 		/// <inheritdoc />
-		public void Modify(Func<bool> condition, Action<TCollection> action)
-			=> Sync.ReadWriteConditionalOptimized(lockType => condition(), () => action(InternalSource));
+		public void Modify(Func<bool> condition, Action<TCollection> action) => Sync.ReadWriteConditionalOptimized(lockType => condition(), () => action(InternalSource));
 
 		/// <summary>
 		/// Allows for multiple modifications at once.
 		/// </summary>
 		/// <param name="condition">Only executes the action if the condition is true.  The condition may be invoked more than once.</param>
 		/// <param name="action">The action to execute safely on the underlying collection safely.</param>
-		public void Modify(Func<LockType, bool> condition, Action<TCollection> action)
-			=> Sync.ReadWriteConditionalOptimized(condition, () => action(InternalSource));
+		public void Modify(Func<LockType, bool> condition, Action<TCollection> action) => Sync.ReadWriteConditionalOptimized(condition, () => action(InternalSource));
 
 		/// <inheritdoc />
-		public void Modify(Action<TCollection> action)
-			=> Sync.Write(() => action(InternalSource));
+		public void Modify(Action<TCollection> action) => Sync.Write(() => action(InternalSource));
 
 		/// <inheritdoc />
-		public TResult Modify<TResult>(Func<TCollection, TResult> action)
-			=> Sync.WriteValue(() => action(InternalSource));
+		public TResult Modify<TResult>(Func<TCollection, TResult> action) => Sync.WriteValue(() => action(InternalSource));
 
 		/// <inheritdoc />
 		public virtual bool IfContains(T item, Action<TCollection> action)

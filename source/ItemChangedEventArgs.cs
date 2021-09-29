@@ -27,10 +27,7 @@ namespace Open.Collections
 			Value = value;
 		}
 
-		public ItemChangedEventArgs(ItemChange action, TIValue previous, TIValue value) : this(action, value)
-		{
-			PreviousValue = previous;
-		}
+		public ItemChangedEventArgs(ItemChange action, TIValue previous, TIValue value) : this(action, value) => PreviousValue = previous;
 	}
 
 	public delegate void ItemChangedEventHandler<TIValue>(object source, ItemChangedEventArgs<TIValue> e);
@@ -39,15 +36,9 @@ namespace Open.Collections
 	{
 		public readonly TIKey Key;
 
-		public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue value) : base(action, value)
-		{
-			Key = key;
-		}
+		public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue value) : base(action, value) => Key = key;
 
-		public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue previous, TIValue value) : base(action, previous, value)
-		{
-			Key = key;
-		}
+		public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue previous, TIValue value) : base(action, previous, value) => Key = key;
 	}
 
 	public delegate void KeyValueChangedEventHandler<TIKey, TIValue>(object source, KeyValueChangedEventArgs<TIKey, TIValue> e);

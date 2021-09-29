@@ -164,6 +164,7 @@ namespace Open.Collections.NonGeneric
 			T result = default!;
 			// Uses threadsafe means to acquire value.
 			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
+
 			void render()
 			{
 				result = value;

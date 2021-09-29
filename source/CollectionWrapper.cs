@@ -12,8 +12,7 @@ namespace Open.Collections
 		#region Implementation of ICollection<T>
 
 		/// <inheritdoc />
-		public virtual void Add(T item)
-			=> InternalSource.Add(item);
+		public virtual void Add(T item) => InternalSource.Add(item);
 
 		/// <inheritdoc cref="ICollection&lt;T&gt;" />
 		/// <param name="item1">First item to add.</param>
@@ -41,12 +40,10 @@ namespace Open.Collections
 		}
 
 		/// <inheritdoc />
-		public virtual void Clear()
-			=> InternalSource.Clear();
+		public virtual void Clear() => InternalSource.Clear();
 
 		/// <inheritdoc />
-		public virtual bool Remove(T item)
-			=> InternalSource.Remove(item);
+		public virtual bool Remove(T item) => InternalSource.Remove(item);
 
 		/// <inheritdoc />
 		public override bool IsReadOnly

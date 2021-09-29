@@ -9,10 +9,7 @@ namespace Open.Collections
 		protected readonly IDictionary<T, bool> InternalSource;
 
 		// ReSharper disable once MemberCanBeProtected.Global
-		public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
-		{
-			InternalSource = source;
-		}
+		public DictionaryToHashSetWrapper(IDictionary<T, bool> source) => InternalSource = source;
 
 		/// <inheritdoc />
 		public int Count
@@ -40,36 +37,27 @@ namespace Open.Collections
 		}
 
 		/// <inheritdoc />
-		public bool Remove(T item)
-			// ReSharper disable once AssignNullToNotNullAttribute
-			=> InternalSource.Remove(item);
+		public bool Remove(T item) => InternalSource.Remove(item);
 
 		/// <inheritdoc />
-		public void Clear()
-			=> InternalSource.Clear();
+		public void Clear() => InternalSource.Clear();
 
 		/// <inheritdoc />
-		public bool Contains(T item)
-			// ReSharper disable once AssignNullToNotNullAttribute
-			=> InternalSource.ContainsKey(item);
+		public bool Contains(T item) => InternalSource.ContainsKey(item);
 
 		/// <inheritdoc />
-		public void CopyTo(T[] array, int arrayIndex)
-			=> InternalSource.Keys.CopyTo(array, arrayIndex);
+		public void CopyTo(T[] array, int arrayIndex) => InternalSource.Keys.CopyTo(array, arrayIndex);
 
 		/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
-		public virtual Span<T> CopyTo(Span<T> span)
-			=> InternalSource.Keys.CopyToSpan(span);
+		public virtual Span<T> CopyTo(Span<T> span) => InternalSource.Keys.CopyToSpan(span);
 
 		/// <summary>
 		/// Returns a copy of the underlying keys.
 		/// </summary>
-		public HashSet<T> ToHashSet()
-			=> new(InternalSource.Keys);
+		public HashSet<T> ToHashSet() => new(InternalSource.Keys);
 
 		/// <inheritdoc />
-		public IEnumerator<T> GetEnumerator()
-			=> InternalSource.Keys.GetEnumerator();
+		public IEnumerator<T> GetEnumerator() => InternalSource.Keys.GetEnumerator();
 
 		/// <inheritdoc />
 		public void ExceptWith(IEnumerable<T> other)
@@ -88,28 +76,22 @@ namespace Open.Collections
 		}
 
 		/// <inheritdoc />
-		public bool IsProperSubsetOf(IEnumerable<T> other)
-			=> ToHashSet().IsProperSubsetOf(other);
+		public bool IsProperSubsetOf(IEnumerable<T> other) => ToHashSet().IsProperSubsetOf(other);
 
 		/// <inheritdoc />
-		public bool IsProperSupersetOf(IEnumerable<T> other)
-			=> ToHashSet().IsProperSupersetOf(other);
+		public bool IsProperSupersetOf(IEnumerable<T> other) => ToHashSet().IsProperSupersetOf(other);
 
 		/// <inheritdoc />
-		public bool IsSubsetOf(IEnumerable<T> other)
-			=> ToHashSet().IsSubsetOf(other);
+		public bool IsSubsetOf(IEnumerable<T> other) => ToHashSet().IsSubsetOf(other);
 
 		/// <inheritdoc />
-		public bool IsSupersetOf(IEnumerable<T> other)
-			=> ToHashSet().IsSupersetOf(other);
+		public bool IsSupersetOf(IEnumerable<T> other) => ToHashSet().IsSupersetOf(other);
 
 		/// <inheritdoc />
-		public bool Overlaps(IEnumerable<T> other)
-			=> ToHashSet().Overlaps(other);
+		public bool Overlaps(IEnumerable<T> other) => ToHashSet().Overlaps(other);
 
 		/// <inheritdoc />
-		public bool SetEquals(IEnumerable<T> other)
-			=> ToHashSet().SetEquals(other);
+		public bool SetEquals(IEnumerable<T> other) => ToHashSet().SetEquals(other);
 
 		/// <inheritdoc />
 		public void SymmetricExceptWith(IEnumerable<T> other)
@@ -129,11 +111,8 @@ namespace Open.Collections
 			foreach (var e in other) Add(e);
 		}
 
-		void ICollection<T>.Add(T item)
-			// ReSharper disable once AssignNullToNotNullAttribute
-			=> Add(item);
+		void ICollection<T>.Add(T item) => Add(item);
 
-		IEnumerator IEnumerable.GetEnumerator()
-			=> GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 }

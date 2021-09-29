@@ -23,7 +23,7 @@ namespace Open.Collections
 			var a = new int[count];
 			var pos = new List<T>(count);
 
-			for (int j = 0; j < max; ++j)
+			for (var j = 0; j < max; ++j)
 			{
 				pos.AddRange(elements);
 

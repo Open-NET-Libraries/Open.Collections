@@ -8,7 +8,7 @@ namespace Open.Collections
 		public ConcurrentHashSet(IEnumerable<T>? intialValues = null)
 			: base(new ConcurrentDictionary<T, bool>())
 		{
-			if (intialValues != null)
+			if (intialValues is not null)
 				UnionWith(intialValues);
 		}
 	}

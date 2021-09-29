@@ -29,10 +29,7 @@ namespace Open.Collections
 
 		}
 
-		public static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> queueFactory)
-		{
-			return (new QueueBenchmark(size, repeat, queueFactory)).Result;
-		}
+		public static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> queueFactory) => (new QueueBenchmark(size, repeat, queueFactory)).Result;
 
 	}
 }

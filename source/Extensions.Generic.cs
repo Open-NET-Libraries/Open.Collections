@@ -42,7 +42,7 @@ namespace Open.Collections
 			if (target is null)
 				throw new NullReferenceException();
 
-			if (values != null)
+			if (values is not null)
 				foreach (var value in values)
 					target.Add(value);
 		}
@@ -59,7 +59,7 @@ namespace Open.Collections
 		{
 			if (target is null) throw new ArgumentNullException(nameof(target));
 			var count = 0;
-			if (values != null)
+			if (values is not null)
 			{
 				foreach (var value in values)
 				{

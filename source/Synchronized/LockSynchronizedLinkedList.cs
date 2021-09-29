@@ -92,7 +92,7 @@ namespace Open.Collections.Synchronized
 			T result = default!;
 			ThreadSafety.LockConditional(
 				Sync,
-				() => (node = InternalSource.First) != null,
+				() => (node = InternalSource.First) is not null,
 				() =>
 				{
 					result = node!.Value;
@@ -111,7 +111,7 @@ namespace Open.Collections.Synchronized
 			T result = default!;
 			ThreadSafety.LockConditional(
 				Sync,
-				() => (node = InternalSource.Last) != null,
+				() => (node = InternalSource.Last) is not null,
 				() =>
 				{
 					result = node!.Value;

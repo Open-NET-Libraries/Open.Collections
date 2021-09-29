@@ -10,15 +10,11 @@ namespace Open.Collections
 	{
 		protected TCollection InternalSource;
 
-		protected ReadOnlyCollectionWrapper(TCollection source)
-		{
-			InternalSource = source ?? throw new ArgumentNullException(nameof(source));
-		}
+		protected ReadOnlyCollectionWrapper(TCollection source) => InternalSource = source ?? throw new ArgumentNullException(nameof(source));
 
 		#region Implementation of IReadOnlyCollection<T>
 		/// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
-		public virtual bool Contains(T item)
-			=> InternalSource.Contains(item);
+		public virtual bool Contains(T item) => InternalSource.Contains(item);
 
 		/// <inheritdoc />
 		public virtual int Count
@@ -33,30 +29,22 @@ namespace Open.Collections
 		/// </summary>
 		/// <returns>An enumerator from the underlying collection.</returns>
 		// ReSharper disable once InheritdocConsiderUsage
-		public IEnumerator<T> GetEnumerator()
-			=> InternalSource.GetEnumerator();
+		public IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
 
-		IEnumerator IEnumerable.GetEnumerator()
-			=> GetEnumerator();
+		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 		/// <inheritdoc cref="ICollection&lt;T&gt;.CopyTo(T[], int)" />
-		public virtual void CopyTo(T[] array, int arrayIndex)
-			=> InternalSource.CopyTo(array, arrayIndex);
+		public virtual void CopyTo(T[] array, int arrayIndex) => InternalSource.CopyTo(array, arrayIndex);
 		#endregion
 
 		/// <inheritdoc cref="Extensions.CopyToSpan{T}(IEnumerable{T}, Span{T})"/>
-		public virtual Span<T> CopyTo(Span<T> span)
-			=> InternalSource.CopyToSpan(span);
+		public virtual Span<T> CopyTo(Span<T> span) => InternalSource.CopyToSpan(span);
 
 		/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
-		public virtual void Export(ICollection<T> to)
-			=> to.Add(InternalSource);
+		public virtual void Export(ICollection<T> to) => to.Add(InternalSource);
 
 		#region Dispose
-		protected override void OnDispose()
-		{
-			Nullify(ref InternalSource)?.Dispose();
-		}
+		protected override void OnDispose() => Nullify(ref InternalSource)?.Dispose();
 
 		/// <summary>
 		/// Extracts the underlying collection and returns it before disposing of this synchronized wrapper.

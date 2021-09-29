@@ -14,17 +14,13 @@ namespace Open.Collections.Synchronized
 		// But any potentially iterative operation will be locked.
 
 		/// <inheritdoc />
-		public override bool Contains(T item)
-			// ReSharper disable once InconsistentlySynchronizedField
-			=> InternalSource.Contains(item);
+		public override bool Contains(T item) => InternalSource.Contains(item);
 
 		/// <inheritdoc />
-		public new bool Add(T item)
-			=> IfNotContains(item, c => c.Add(item));
+		public new bool Add(T item) => IfNotContains(item, c => c.Add(item));
 
 		/// <inheritdoc />
-		public override bool Remove(T item)
-			=> Contains(item) && base.Remove(item);
+		public override bool Remove(T item) => Contains(item) && base.Remove(item);
 
 		/// <inheritdoc />
 		public void ExceptWith(IEnumerable<T> other)
@@ -87,13 +83,9 @@ namespace Open.Collections.Synchronized
 		}
 
 		/// <inheritdoc />
-		public override bool IfContains(T item, Action<HashSet<T>> action)
-			// ReSharper disable once InconsistentlySynchronizedField
-			=> InternalSource.Contains(item) && base.IfContains(item, action);
+		public override bool IfContains(T item, Action<HashSet<T>> action) => InternalSource.Contains(item) && base.IfContains(item, action);
 
 		/// <inheritdoc />
-		public override bool IfNotContains(T item, Action<HashSet<T>> action)
-			// ReSharper disable once InconsistentlySynchronizedField
-			=> !InternalSource.Contains(item) && base.IfNotContains(item, action);
+		public override bool IfNotContains(T item, Action<HashSet<T>> action) => !InternalSource.Contains(item) && base.IfNotContains(item, action);
 	}
 }

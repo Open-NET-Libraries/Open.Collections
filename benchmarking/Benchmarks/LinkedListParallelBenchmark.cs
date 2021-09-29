@@ -53,10 +53,7 @@ namespace Open.Collections
 
 		}
 
-		public new static TimedResult[] Results(uint size, uint repeat, Func<ILinkedList<object>> factory)
-		{
-			return (new LinkedListParallelBenchmark(size, repeat, factory)).Result;
-		}
+		public new static TimedResult[] Results(uint size, uint repeat, Func<ILinkedList<object>> factory) => (new LinkedListParallelBenchmark(size, repeat, factory)).Result;
 
 	}
 }

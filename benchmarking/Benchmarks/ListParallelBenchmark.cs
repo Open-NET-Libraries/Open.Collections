@@ -43,9 +43,6 @@ namespace Open.Collections
 		//	});
 		//}
 
-		public static TimedResult[] Results(uint size, uint repeat, Func<IList<object>> factory)
-		{
-			return (new ListParallelBenchmark(size, repeat, factory)).Result;
-		}
+		public static TimedResult[] Results(uint size, uint repeat, Func<IList<object>> factory) => (new ListParallelBenchmark(size, repeat, factory)).Result;
 	}
 }

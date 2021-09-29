@@ -47,9 +47,6 @@ namespace Open.Collections
 			);
 		}
 
-		public static Task ClearAsync<T>(this ConcurrentBag<T> target, Action<T> handler)
-		{
-			return TrimAsync(target, 0, handler);
-		}
+		public static Task ClearAsync<T>(this ConcurrentBag<T> target, Action<T> handler) => TrimAsync(target, 0, handler);
 	}
 }

@@ -40,10 +40,7 @@ namespace Open.Collections
 
 		}
 
-		public new static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> factory)
-		{
-			return (new QueueParallelBenchmark(size, repeat, factory)).Result;
-		}
+		public new static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> factory) => (new QueueParallelBenchmark(size, repeat, factory)).Result;
 
 	}
 }

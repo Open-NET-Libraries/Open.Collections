@@ -7,10 +7,7 @@ namespace Open.Collections
 {
 	public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
 	{
-		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory)
-		{
-			_items = Enumerable.Range(0, (int)TestSize * 2).Select(itemFactory).ToArray();
-		}
+		public CollectionBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory) => _items = Enumerable.Range(0, (int)TestSize * 2).Select(itemFactory).ToArray();
 
 		protected readonly T[] _items;
 
@@ -85,17 +82,11 @@ namespace Open.Collections
 
 		}
 
-		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
-		{
-			return (new CollectionBenchmark<T>(size, repeat, factory, itemFactory)).Result;
-		}
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) => (new CollectionBenchmark<T>(size, repeat, factory, itemFactory)).Result;
 
 
 		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory)
-			where T : new()
-		{
-			return (new CollectionBenchmark<T>(size, repeat, factory, i => new T())).Result;
-		}
+			where T : new() => (new CollectionBenchmark<T>(size, repeat, factory, i => new T())).Result;
 
 	}
 }

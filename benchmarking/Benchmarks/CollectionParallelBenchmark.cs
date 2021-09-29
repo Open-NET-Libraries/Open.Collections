@@ -145,17 +145,11 @@ namespace Open.Collections
 
 		}
 
-		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
-		{
-			return (new CollectionParallelBenchmark<T>(size, repeat, factory, itemFactory)).Result;
-		}
+		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) => (new CollectionParallelBenchmark<T>(size, repeat, factory, itemFactory)).Result;
 
 
 		public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory)
-			where T : new()
-		{
-			return (new CollectionParallelBenchmark<T>(size, repeat, factory, i => new T())).Result;
-		}
+			where T : new() => (new CollectionParallelBenchmark<T>(size, repeat, factory, i => new T())).Result;
 
 	}
 

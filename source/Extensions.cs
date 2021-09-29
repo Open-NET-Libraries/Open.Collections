@@ -148,7 +148,7 @@ namespace Open.Collections
 				throw new ArgumentNullException(nameof(closure));
 			Contract.EndContractBlock();
 
-			if (target != null)
+			if (target is not null)
 			{
 				if (parallelOptions is null)
 				{
@@ -221,10 +221,7 @@ namespace Open.Collections
 		}
 
 		// Ensures an optimized means of acquiring Any();
-		public static bool HasAny<T>(this IEnumerable<T> source)
-		{
-			return source.HasAtLeast(1);
-		}
+		public static bool HasAny<T>(this IEnumerable<T> source) => source.HasAtLeast(1);
 
 		public static bool HasAtLeast<T>(this IEnumerable<T> source, int minimum)
 		{
@@ -449,7 +446,7 @@ namespace Open.Collections
 		/*public static T ValidateNotNull<T>(this T target)
 		{
 
-			Contract.Assume(target != null);
+			Contract.Assume(target is not null);
 			return target;
 		}*/
 
@@ -792,9 +789,9 @@ namespace Open.Collections
 
 			// Start by getting the first enuerator if it exists.
 			var n = queue.First;
-			while (n != null)
+			while (n is not null)
 			{
-				while (n != null)
+				while (n is not null)
 				{
 					// Loop through all the enumerators..
 					var e2 = n.Value;
@@ -823,8 +820,7 @@ namespace Open.Collections
 		/// <param name="list">The source enumerable to cache.</param>
 		/// <param name="isEndless">When true, will throw an InvalidOperationException if anything causes the list to evaluate to completion.</param>
 		/// <returns>A LazyList<typeparamref name="T"/> for accessing the cached results.</returns>
-		public static LazyList<T> Memoize<T>(this IEnumerable<T> list, bool isEndless = false)
-			=> new(list, isEndless);
+		public static LazyList<T> Memoize<T>(this IEnumerable<T> list, bool isEndless = false) => new(list, isEndless);
 
 		/// <summary>
 		/// Caches the results up to the last index requested.
@@ -838,8 +834,7 @@ namespace Open.Collections
 		/// </summary>
 		/// <param name="list">The source enumerable to cache.</param>
 		/// <returns>A LazyList<typeparamref name="T"/> for accessing the cached results.</returns>
-		public static LazyListUnsafe<T> MemoizeUnsafe<T>(this IEnumerable<T> list)
-			=> new(list);
+		public static LazyListUnsafe<T> MemoizeUnsafe<T>(this IEnumerable<T> list) => new(list);
 
 		/// <summary>
 		/// .IndexOf extension optimized for an array.
@@ -851,7 +846,7 @@ namespace Open.Collections
 
 			var len = source.Length;
 			for (var i = 0; i < len; i++)
-				if (source[i]?.Equals(value) ?? value == null)
+				if (source[i]?.Equals(value) ?? value is null)
 					return i;
 			return -1;
 		}
@@ -903,12 +898,9 @@ namespace Open.Collections
 		/// <summary>
 		/// Builds an immutable array using the contents of the memory.
 		/// </summary>
-		public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlyMemory<T> memory)
-			=> memory.Span.ToImmutableArray();
+		public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlyMemory<T> memory) => memory.Span.ToImmutableArray();
 
 		/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlyMemory{T})"/>
-		public static ImmutableArray<T> ToImmutableArray<T>(this Memory<T> memory)
-			=> memory.Span.ToImmutableArray();
-
+		public static ImmutableArray<T> ToImmutableArray<T>(this Memory<T> memory) => memory.Span.ToImmutableArray();
 	}
 }

@@ -142,7 +142,7 @@ namespace Open.Collections
 					() =>
 						valueUsed = target.AddOrUpdate(key,
 							newValueFactory,
-							(k, o) => k!.Equals(key) && (o?.Equals(old) ?? old == null) ? updateValue : updateValueFactory(k, o)
+							(k, o) => k!.Equals(key) && (o?.Equals(old) ?? old is null) ? updateValue : updateValueFactory(k, o)
 				));
 				}
 				else
@@ -231,6 +231,7 @@ namespace Open.Collections
 
 			T result = default!;
 			bool condition(LockType lockType) => !target.TryGetValue(key, out result);
+
 			void render()
 			{
 				result = value;

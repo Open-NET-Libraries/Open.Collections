@@ -17,48 +17,37 @@ namespace Open.Collections.Synchronized
 			=> InternalSource.Last;
 
 		/// <inheritdoc />
-		public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
-			=> Sync.WriteValue(() => InternalSource.AddAfter(node, item));
+		public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item) => Sync.WriteValue(() => InternalSource.AddAfter(node, item));
 
 		/// <inheritdoc />
-		public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
-			=> Sync.Write(() => InternalSource.AddAfter(node, newNode));
+		public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode) => Sync.Write(() => InternalSource.AddAfter(node, newNode));
 
 		/// <inheritdoc />
-		public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
-			=> Sync.WriteValue(() => InternalSource.AddBefore(node, item));
+		public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item) => Sync.WriteValue(() => InternalSource.AddBefore(node, item));
 
 		/// <inheritdoc />
-		public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
-			=> Sync.Write(() => InternalSource.AddBefore(node, newNode));
+		public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode) => Sync.Write(() => InternalSource.AddBefore(node, newNode));
 
 		/// <inheritdoc />
-		public LinkedListNode<T> AddFirst(T item)
-			=> Sync.WriteValue(() => InternalSource.AddFirst(item));
+		public LinkedListNode<T> AddFirst(T item) => Sync.WriteValue(() => InternalSource.AddFirst(item));
 
 		/// <inheritdoc />
-		public void AddFirst(LinkedListNode<T> newNode)
-			=> Sync.Write(() => InternalSource.AddFirst(newNode));
+		public void AddFirst(LinkedListNode<T> newNode) => Sync.Write(() => InternalSource.AddFirst(newNode));
 
 		/// <inheritdoc />
-		public LinkedListNode<T> AddLast(T item)
-			=> Sync.WriteValue(() => InternalSource.AddLast(item));
+		public LinkedListNode<T> AddLast(T item) => Sync.WriteValue(() => InternalSource.AddLast(item));
 
 		/// <inheritdoc />
-		public void AddLast(LinkedListNode<T> newNode)
-			=> Sync.Write(() => InternalSource.AddLast(newNode));
+		public void AddLast(LinkedListNode<T> newNode) => Sync.Write(() => InternalSource.AddLast(newNode));
 
 		/// <inheritdoc />
-		public void Remove(LinkedListNode<T> node)
-			=> Sync.Write(() => InternalSource.Remove(node));
+		public void Remove(LinkedListNode<T> node) => Sync.Write(() => InternalSource.Remove(node));
 
 		/// <inheritdoc />
-		public void RemoveFirst()
-			=> Sync.Write(() => InternalSource.RemoveFirst());
+		public void RemoveFirst() => Sync.Write(() => InternalSource.RemoveFirst());
 
 		/// <inheritdoc />
-		public void RemoveLast()
-			=> Sync.Write(() => InternalSource.RemoveLast());
+		public void RemoveLast() => Sync.Write(() => InternalSource.RemoveLast());
 
 		/// <inheritdoc />
 		public bool TryTakeFirst(out T item)
@@ -67,7 +56,7 @@ namespace Open.Collections.Synchronized
 			LinkedListNode<T>? node = null;
 			T result = default!;
 			Sync.ReadWriteConditionalOptimized(
-				lockType => (node = InternalSource.First) != null,
+				lockType => (node = InternalSource.First) is not null,
 				() =>
 				{
 					result = node!.Value;
@@ -85,7 +74,7 @@ namespace Open.Collections.Synchronized
 			LinkedListNode<T>? node = null;
 			T result = default!;
 			Sync.ReadWriteConditionalOptimized(
-				lockType => (node = InternalSource.Last) != null,
+				lockType => (node = InternalSource.Last) is not null,
 				() =>
 				{
 					result = node!.Value;

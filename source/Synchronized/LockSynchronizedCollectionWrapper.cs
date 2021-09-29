@@ -7,10 +7,7 @@ namespace Open.Collections.Synchronized
 	public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 	{
-		protected LockSynchronizedCollectionWrapper(TCollection source) : base(source)
-		{
-			Sync = source;
-		}
+		protected LockSynchronizedCollectionWrapper(TCollection source) : base(source) => Sync = source;
 
 		protected readonly object Sync; // Could possibly override..
 

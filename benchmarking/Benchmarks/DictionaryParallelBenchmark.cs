@@ -46,9 +46,6 @@ namespace Open.Collections
 			});
 		}
 
-		public static TimedResult[] Results(uint size, uint repeat, Func<IDictionary<int, object>> factory)
-		{
-			return (new DictionaryParallelBenchmark(size, repeat, factory)).Result;
-		}
+		public static TimedResult[] Results(uint size, uint repeat, Func<IDictionary<int, object>> factory) => (new DictionaryParallelBenchmark(size, repeat, factory)).Result;
 	}
 }

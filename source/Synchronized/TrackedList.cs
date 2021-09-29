@@ -44,12 +44,11 @@ namespace Open.Collections.Synchronized
 			set => SetValue(index, value);
 		}
 
-		public bool SetValue(int index, T value)
-			=> Sync!.Modifying(() => AssertIsAlive(), () => SetValueInternal(index, value));
+		public bool SetValue(int index, T value) => Sync!.Modifying(() => AssertIsAlive(), () => SetValueInternal(index, value));
 
 		private bool SetValueInternal(int index, T value)
 		{
-			var changing = index >= _source.Count || !(_source[index]?.Equals(value) ?? value == null);
+			var changing = index >= _source.Count || !(_source[index]?.Equals(value) ?? value is null);
 			if (changing)
 				_source[index] = value;
 			return changing;
@@ -64,20 +63,18 @@ namespace Open.Collections.Synchronized
 			});
 
 		/// <inheritdoc />
-		public virtual void Add(T item)
-			=> Sync!.Modifying(() => AssertIsAlive(), () =>
-			{
-				_source.Add(item);
-				return true;
-			});
+		public virtual void Add(T item) => Sync!.Modifying(() => AssertIsAlive(), () =>
+													  {
+														  _source.Add(item);
+														  return true;
+													  });
 
-		public void Add(T item, T item2, params T[] items)
-			=> AddThese(new[] { item, item2 }.Concat(items));
+		public void Add(T item, T item2, params T[] items) => AddThese(new[] { item, item2 }.Concat(items));
 
 		public void AddThese(IEnumerable<T> items)
 		{
 			var enumerable = items as T[] ?? items?.ToArray();
-			if (enumerable != null && enumerable.Length != 0)
+			if (enumerable is not null && enumerable.Length != 0)
 			{
 				Sync!.Modifying(() => AssertIsAlive(), () =>
 				{
@@ -89,81 +86,71 @@ namespace Open.Collections.Synchronized
 		}
 
 		/// <inheritdoc />
-		public void Clear()
-			=> Sync!.Modifying(
-				() => AssertIsAlive() && _source.Count != 0,
-				() =>
-				{
-					var count = Count;
-					var hasItems = count != 0;
-					if (hasItems)
-					{
-						_source.Clear();
-					}
-					return hasItems;
-				});
+		public void Clear() => Sync!.Modifying(
+						   () => AssertIsAlive() && _source.Count != 0,
+						   () =>
+						   {
+							   var count = Count;
+							   var hasItems = count != 0;
+							   if (hasItems)
+							   {
+								   _source.Clear();
+							   }
+							   return hasItems;
+						   });
 
 		/// <inheritdoc />
-		public bool Contains(T item)
-			=> Sync!.Reading(() =>
-				AssertIsAlive() && _source.Contains(item));
+		public bool Contains(T item) => Sync!.Reading(() =>
+																  AssertIsAlive() && _source.Contains(item));
 
 		/// <inheritdoc />
-		public void CopyTo(T[] array, int arrayIndex)
-			=> Sync!.Reading(() =>
-			{
-				AssertIsAlive();
-				_source.CopyTo(array, arrayIndex);
-			});
+		public void CopyTo(T[] array, int arrayIndex) => Sync!.Reading(() =>
+																	{
+																		AssertIsAlive();
+																		_source.CopyTo(array, arrayIndex);
+																	});
 
 		/// <inheritdoc />
-		public IEnumerator<T> GetEnumerator()
-			=> Sync!.Reading(() =>
-			{
-				AssertIsAlive();
-				return _source.GetEnumerator();
-			});
+		public IEnumerator<T> GetEnumerator() => Sync!.Reading(() =>
+																	   {
+																		   AssertIsAlive();
+																		   return _source.GetEnumerator();
+																	   });
 
 		/// <inheritdoc />
-		public int IndexOf(T item)
-			=> Sync!.Reading(() => AssertIsAlive()
-				? _source.IndexOf(item)
-				: -1);
+		public int IndexOf(T item) => Sync!.Reading(() => AssertIsAlive()
+																? _source.IndexOf(item)
+																: -1);
 
 		/// <inheritdoc />
-		public void Insert(int index, T item)
-			=> Sync!.Modifying(() => AssertIsAlive(), () =>
-			{
-				_source.Insert(index, item);
-				return true;
-			});
+		public void Insert(int index, T item) => Sync!.Modifying(() => AssertIsAlive(), () =>
+															{
+																_source.Insert(index, item);
+																return true;
+															});
 
 		/// <inheritdoc />
-		public bool Remove(T item)
-			=> Sync!.Modifying(() => AssertIsAlive(), () =>
-				_source.Remove(item));
+		public bool Remove(T item) => Sync!.Modifying(() => AssertIsAlive(), () =>
+																_source.Remove(item));
 
 		/// <inheritdoc />
-		public void RemoveAt(int index)
-			=> Sync!.Modifying(() => AssertIsAlive(), () =>
-			{
-				_source.RemoveAt(index);
-				return true;
-			});
+		public void RemoveAt(int index) => Sync!.Modifying(() => AssertIsAlive(), () =>
+													  {
+														  _source.RemoveAt(index);
+														  return true;
+													  });
 
-		IEnumerator IEnumerable.GetEnumerator()
-			=> Sync!.Reading(() =>
-			{
-				AssertIsAlive();
-				return _source.GetEnumerator();
-			});
-
+		IEnumerator IEnumerable.GetEnumerator() => Sync!.Reading(() =>
+																		 {
+																			 AssertIsAlive();
+																			 return _source.GetEnumerator();
+																		 });
 
 		public bool Replace(T target, T replacement, bool throwIfNotFound = false)
 		{
 			AssertIsAlive();
 			var index = -1;
-			return !(target?.Equals(replacement) ?? replacement == null) && Sync!.Modifying(
+			return !(target?.Equals(replacement) ?? replacement is null) && Sync!.Modifying(
 				() =>
 				{
 					AssertIsAlive();

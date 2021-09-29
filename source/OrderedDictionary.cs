@@ -68,34 +68,19 @@ namespace Open.Collections
 			// ReSharper disable once NotAccessedField.Global
 			public readonly int Index;
 
-			public ItemChangedEventArgs(ItemChange action, int index, TKey key, TValue value) : base(action, key, value)
-			{
-				Index = index;
-			}
-			public ItemChangedEventArgs(ItemChange action, int index, TKey key, TValue previous, TValue value) : base(action, key, previous, value)
-			{
-				Index = index;
-			}
+			public ItemChangedEventArgs(ItemChange action, int index, TKey key, TValue value) : base(action, key, value) => Index = index;
+			public ItemChangedEventArgs(ItemChange action, int index, TKey key, TValue previous, TValue value) : base(action, key, previous, value) => Index = index;
 		}
 
 		public delegate void ItemChangedEventHandler(object source, ItemChangedEventArgs e);
 
 		public event ItemChangedEventHandler? ItemChanged;
 
-		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue value)
-		{
-			OnItemChanged(new ItemChangedEventArgs(action, index, key, value));
-		}
+		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue value) => OnItemChanged(new ItemChangedEventArgs(action, index, key, value));
 
-		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue previous, TValue value)
-		{
-			OnItemChanged(new ItemChangedEventArgs(action, index, key, previous, value));
-		}
+		protected void OnItemChanged(ItemChange action, int index, TKey key, TValue previous, TValue value) => OnItemChanged(new ItemChangedEventArgs(action, index, key, previous, value));
 
-		protected virtual void OnItemChanged(ItemChangedEventArgs e)
-		{
-			ItemChanged?.Invoke(this, e);
-		}
+		protected virtual void OnItemChanged(ItemChangedEventArgs e) => ItemChanged?.Invoke(this, e);
 
 		private const int DefaultInitialCapacity = 0;
 
@@ -141,16 +126,16 @@ namespace Open.Collections
 		public OrderedDictionary(TKey[] keys, TValue[]? values = null)
 		{
 
-			if (keys != null)
+			if (keys is not null)
 			{
-				var hasValues = values != null && values.Length != 0;
+				var hasValues = values is not null && values.Length != 0;
 				if (hasValues && values!.Length > keys.Length)
 					throw new Exception("Invalid initialization values.  Value array is longer than key array.");
 
 				for (var i = 0; i < keys.Length; i++)
 					AddInternal(keys[i], (hasValues && i < values!.Length) ? values[i] : default!);
 			}
-			else if (values != null && values.Length != 0)
+			else if (values is not null && values.Length != 0)
 			{
 				throw new Exception("Invalid initialization values.  Values but no keys.");
 			}
@@ -162,30 +147,16 @@ namespace Open.Collections
 		/// </summary>
 		/// <source>The dictionary object that stores the keys and values for the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></source>
 		/// <remarks>Accessing this property will create the dictionary object if necessary</remarks>
-		private Dictionary<TKey, TValue> Dictionary
-		{
-			get
-			{
-
-				return LazyInitializer.EnsureInitialized(ref _dictionary, () => new Dictionary<TKey, TValue>(_initialCapacity, _comparer))
+		private Dictionary<TKey, TValue> Dictionary => LazyInitializer.EnsureInitialized(ref _dictionary, () => new Dictionary<TKey, TValue>(_initialCapacity, _comparer))
 					?? new Dictionary<TKey, TValue>(_initialCapacity, _comparer); // Satisifes code contracts...
-			}
-		}
 
 		/// <summary>
 		/// Gets the list object that stores the key/source pairs.
 		/// </summary>
 		/// <source>The list object that stores the key/source pairs for the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></source>
 		/// <remarks>Accessing this property will create the list object if necessary.</remarks>
-		private List<TKey> List
-		{
-			get
-			{
-
-				return LazyInitializer.EnsureInitialized(ref _list, () => new List<TKey>(_initialCapacity))
+		private List<TKey> List => LazyInitializer.EnsureInitialized(ref _list, () => new List<TKey>(_initialCapacity))
 					?? new List<TKey>(_initialCapacity); // Satisifes code contracts...
-			}
-		}
 
 		private IEnumerable<KeyValuePair<TKey, TValue>> AsEnumerable()
 		{
@@ -194,15 +165,9 @@ namespace Open.Collections
 				yield return KeyValuePair.Create(key, Dictionary[key]);
 		}
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			return AsEnumerable().GetEnumerator();
-		}
+		IEnumerator IEnumerable.GetEnumerator() => AsEnumerable().GetEnumerator();
 
-		IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
-		{
-			return AsEnumerable().GetEnumerator();
-		}
+		IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() => AsEnumerable().GetEnumerator();
 
 		/// <summary>
 		/// Inserts a new entry into the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items with the specified key and source at the specified index.
@@ -293,7 +258,7 @@ namespace Open.Collections
 
 					key = List[index];
 
-					changed = !Dictionary.TryGetValue(key, out previous) || !(previous?.Equals(value) ?? value == null);
+					changed = !Dictionary.TryGetValue(key, out previous) || !(previous?.Equals(value) ?? value is null);
 					if (changed)
 						Dictionary[key] = value;
 				}
@@ -312,10 +277,7 @@ namespace Open.Collections
 		/// <para>You can also use the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the source of a key that does not exist in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items; however, if the specified key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property overwrites the old source. In contrast, the <see cref="M:AddSynchronized"/> method does not modify existing elements.</para></remarks>
 		/// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
 		/// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></exception>
-		void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
-		{
-			Add(key, value);
-		}
+		void IDictionary<TKey, TValue>.Add(TKey key, TValue value) => Add(key, value);
 
 		/// <summary>
 		/// Adds an entry with the specified key and source into the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items with the lowest available index.
@@ -360,16 +322,10 @@ namespace Open.Collections
 		}
 
 		public event EventHandler? BeforeCleared;
-		protected virtual void OnBeforeCleared(EventArgs e)
-		{
-			BeforeCleared?.Invoke(this, e);
-		}
+		protected virtual void OnBeforeCleared(EventArgs e) => BeforeCleared?.Invoke(this, e);
 
 		public event EventHandler? AfterCleared;
-		protected virtual void OnAfterCleared(EventArgs e)
-		{
-			AfterCleared?.Invoke(this, e);
-		}
+		protected virtual void OnAfterCleared(EventArgs e) => AfterCleared?.Invoke(this, e);
 
 		/// <summary>
 		/// Determines whether the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains a specific key.
@@ -377,10 +333,7 @@ namespace Open.Collections
 		/// <param name="key">The key to locate in the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
 		/// <returns><see langword="true" /> if the <see cref="T:Open.Collections.OrderedDictionary`2">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains an element with the specified key otherwise, <see langword="false" />.</returns>
 		/// <exception cref="T:System.ArgumentNullException"><paramref name="key" /> is <null /></exception>
-		public bool ContainsKey(TKey key)
-		{
-			return Dictionary.ContainsKey(key);
-		}
+		public bool ContainsKey(TKey key) => Dictionary.ContainsKey(key);
 
 		/// <summary>
 		/// Determines whether the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains a specific value.
@@ -388,13 +341,11 @@ namespace Open.Collections
 		/// <param name="value">The value to locate in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items.</param>
 		/// <returns><see langword="true"/> if the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> items contains an element with the specified value otherwise, <see langword="false"/>.</returns>
 		/// <exception cref="ArgumentNullException"><paramref name="value"/> is <null/></exception>
-		public bool ContainsValue(TValue value)
-		{
+		public bool ContainsValue(TValue value) =>
 			// Following contract is risky due to syncronization.
 			// Contract.Ensures(!Contract.Result<bool>() || this.Count > 0);
 
-			return Dictionary.ContainsValue(value);
-		}
+			Dictionary.ContainsValue(value);
 
 
 		/// <inheritdoc />
@@ -451,7 +402,7 @@ namespace Open.Collections
 				{
 					if (Dictionary.TryGetValue(key, out previous))
 					{
-						if (!(previous?.Equals(value) ?? value == null))
+						if (!(previous?.Equals(value) ?? value is null))
 						{
 							Dictionary[key] = value;
 							change = ItemChange.Modified;
@@ -505,17 +456,13 @@ namespace Open.Collections
 		/// <inheritdoc />
 		public ICollection<TValue> Values => Dictionary.Values;
 
-		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item)
-			=> Add(item.Key, item.Value);
+		void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
 
-		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
-			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).Contains(item);
+		bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item) => ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).Contains(item);
 
-		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
-			=> ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).CopyTo(array, arrayIndex);
+		void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) => ((ICollection<KeyValuePair<TKey, TValue>>)Dictionary).CopyTo(array, arrayIndex);
 
-		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
-			=> Remove(item.Key);
+		bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item) => Remove(item.Key);
 
 		// Making OrderDictionary Disposable ensures that events get cleaned up.
 		protected override void OnDispose()

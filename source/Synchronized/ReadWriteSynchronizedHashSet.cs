@@ -14,64 +14,49 @@ namespace Open.Collections.Synchronized
 		// But any potentially iterative operation will be locked.
 
 		/// <inheritdoc />
-		public override bool Contains(T item)
-			=> InternalSource.Contains(item);
+		public override bool Contains(T item) => InternalSource.Contains(item);
 
 		/// <inheritdoc />
-		public new bool Add(T item)
-			=> IfNotContains(item, c => c.Add(item));
+		public new bool Add(T item) => IfNotContains(item, c => c.Add(item));
 
 		/// <inheritdoc />
-		public override bool Remove(T item)
-			=> Contains(item) && base.Remove(item);
+		public override bool Remove(T item) => Contains(item) && base.Remove(item);
 
 		/// <inheritdoc />
-		public void ExceptWith(IEnumerable<T> other)
-			=> Sync.Write(() => InternalSource.ExceptWith(other));
+		public void ExceptWith(IEnumerable<T> other) => Sync.Write(() => InternalSource.ExceptWith(other));
 
 		/// <inheritdoc />
-		public void IntersectWith(IEnumerable<T> other)
-			=> Sync.Write(() => InternalSource.IntersectWith(other));
+		public void IntersectWith(IEnumerable<T> other) => Sync.Write(() => InternalSource.IntersectWith(other));
 
 		/// <inheritdoc />
-		public bool IsProperSubsetOf(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.IsProperSubsetOf(other));
+		public bool IsProperSubsetOf(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.IsProperSubsetOf(other));
 
 		/// <inheritdoc />
-		public bool IsProperSupersetOf(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.IsProperSupersetOf(other));
+		public bool IsProperSupersetOf(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.IsProperSupersetOf(other));
 
 		/// <inheritdoc />
-		public bool IsSubsetOf(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.IsSubsetOf(other));
+		public bool IsSubsetOf(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.IsSubsetOf(other));
 
 		/// <inheritdoc />
-		public bool IsSupersetOf(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.IsSupersetOf(other));
+		public bool IsSupersetOf(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.IsSupersetOf(other));
 
 		/// <inheritdoc />
-		public bool Overlaps(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.Overlaps(other));
+		public bool Overlaps(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.Overlaps(other));
 
 		/// <inheritdoc />
-		public bool SetEquals(IEnumerable<T> other)
-			=> Sync.ReadValue(() => InternalSource.SetEquals(other));
+		public bool SetEquals(IEnumerable<T> other) => Sync.ReadValue(() => InternalSource.SetEquals(other));
 
 		/// <inheritdoc />
-		public void SymmetricExceptWith(IEnumerable<T> other)
-			=> Sync.Write(() => InternalSource.SymmetricExceptWith(other));
+		public void SymmetricExceptWith(IEnumerable<T> other) => Sync.Write(() => InternalSource.SymmetricExceptWith(other));
 
 		/// <inheritdoc />
-		public void UnionWith(IEnumerable<T> other)
-			=> Sync.Write(() => InternalSource.UnionWith(other));
+		public void UnionWith(IEnumerable<T> other) => Sync.Write(() => InternalSource.UnionWith(other));
 
 		/// <inheritdoc />
-		public override bool IfContains(T item, Action<HashSet<T>> action)
-			=> InternalSource.Contains(item) && base.IfContains(item, action);
+		public override bool IfContains(T item, Action<HashSet<T>> action) => InternalSource.Contains(item) && base.IfContains(item, action);
 
 		/// <inheritdoc />
-		public override bool IfNotContains(T item, Action<HashSet<T>> action)
-			=> !InternalSource.Contains(item) && base.IfNotContains(item, action);
+		public override bool IfNotContains(T item, Action<HashSet<T>> action) => !InternalSource.Contains(item) && base.IfNotContains(item, action);
 	}
 
 }
