@@ -8,6 +8,7 @@ namespace Open.Collections.Tests
 	{
 		static ImmutableArray<int> Set1 = ImmutableArray.Create(1, 2);
 		static ImmutableArray<char> Set2 = ImmutableArray.Create('A', 'C', 'E');
+		static ImmutableArray<int> Set3 = ImmutableArray.Create(0, 1);
 
 		[Fact]
 		public void TestCombination1()
@@ -67,5 +68,30 @@ namespace Open.Collections.Tests
 			Assert.Equal(expected, actual);
 		}
 
+
+		[Fact]
+		public void TestCombination3()
+		{
+			var expected = new int[][] {
+				new int[] { 0, 0, 0, 0 },
+				new int[] { 0, 0, 0, 1 },
+				new int[] { 0, 0, 1, 0 },
+				new int[] { 0, 0, 1, 1 },
+				new int[] { 0, 1, 0, 0 },
+				new int[] { 0, 1, 0, 1 },
+				new int[] { 0, 1, 1, 0 },
+				new int[] { 0, 1, 1, 1 },
+				new int[] { 1, 0, 0, 0 },
+				new int[] { 1, 0, 0, 1 },
+				new int[] { 1, 0, 1, 0 },
+				new int[] { 1, 0, 1, 1 },
+				new int[] { 1, 1, 0, 0 },
+				new int[] { 1, 1, 0, 1 },
+				new int[] { 1, 1, 1, 0 },
+				new int[] { 1, 1, 1, 1 },
+			};
+			var actual = Set3.Combinations(4).ToArray();
+			Assert.Equal(expected, actual);
+		}
 	}
 }

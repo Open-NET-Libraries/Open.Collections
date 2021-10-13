@@ -23,8 +23,8 @@ namespace Open.Collections
 				if (count == 1) yield break;
 			}
 
-			var pool = count > 128 ? ArrayPool<int>.Shared : null;
-			var indexes = pool?.Rent(count) ?? new int[count];
+			var pool = length > 128 ? ArrayPool<int>.Shared : null;
+			var indexes = pool?.Rent(length) ?? new int[length];
 			try
 			{
 				for (var i = 0; i < length; i++) indexes[i] = 0;
