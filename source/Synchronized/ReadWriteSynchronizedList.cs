@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 
-namespace Open.Collections.Synchronized
+namespace Open.Collections.Synchronized;
+
+public sealed class ReadWriteSynchronizedList<T> : ReadWriteSynchronizedListWrapper<T>
 {
-	public sealed class ReadWriteSynchronizedList<T> : ReadWriteSynchronizedListWrapper<T>
-	{
-		public ReadWriteSynchronizedList() : base(new List<T>()) { }
-		public ReadWriteSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
-	}
+	public ReadWriteSynchronizedList() : base(new List<T>()) { }
+	public ReadWriteSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
 }

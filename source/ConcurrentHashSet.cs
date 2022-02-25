@@ -1,15 +1,14 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Open.Collections
+namespace Open.Collections;
+
+public class ConcurrentHashSet<T> : DictionaryToHashSetWrapper<T>
 {
-	public class ConcurrentHashSet<T> : DictionaryToHashSetWrapper<T>
+	public ConcurrentHashSet(IEnumerable<T>? intialValues = null)
+		: base(new ConcurrentDictionary<T, bool>())
 	{
-		public ConcurrentHashSet(IEnumerable<T>? intialValues = null)
-			: base(new ConcurrentDictionary<T, bool>())
-		{
-			if (intialValues is not null)
-				UnionWith(intialValues);
-		}
+		if (intialValues is not null)
+			UnionWith(intialValues);
 	}
 }
