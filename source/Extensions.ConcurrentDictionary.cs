@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 
 namespace Open.Collections;
 
@@ -17,6 +18,11 @@ public static partial class Extensions
 		return target.TryRemove(key, out _);
 	}
 
+	/// <remarks>
+	/// <paramref name="updated"/> is true if this thread executed the value factory.
+	/// But because of the optimistic nature of <see cref="ConcurrentDictionary{TKey, TValue}"/> it does not mean that the value produce is the one used.
+	/// </remarks>
+	/// <inheritdoc cref="ConcurrentDictionary{TKey, TValue}.GetOrAdd(TKey, Func{TKey, TValue})"/>
 	public static TValue GetOrAdd<TKey, TValue>(
 		this ConcurrentDictionary<TKey, TValue> source,
 		out bool updated,
@@ -27,6 +33,8 @@ public static partial class Extensions
 			throw new ArgumentNullException(nameof(source));
 		if (key is null)
 			throw new ArgumentNullException(nameof(key));
+		if (valueFactory is null)
+			throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
 		var u = false;
@@ -41,6 +49,11 @@ public static partial class Extensions
 		return value;
 	}
 
+	/// <remarks>
+	/// <paramref name="updated"/> is true if the entry required an update.
+	/// But because of the optimistic nature of <see cref="ConcurrentDictionary{TKey, TValue}"/> it does not mean that the value is the one used.
+	/// </remarks>
+	/// <inheritdoc cref="ConcurrentDictionary{TKey, TValue}.GetOrAdd(TKey, TValue)"/>
 	public static TValue GetOrAdd<TKey, TValue>(
 		this ConcurrentDictionary<TKey, TValue> source,
 		out bool updated,
@@ -65,6 +78,9 @@ public static partial class Extensions
 		return result;
 	}
 
+	/// <summary>
+	/// Will return true if the existing <see cref="DateTime"/> value is past due.
+	/// </summary>
 	public static bool UpdateRequired<TKey>(this ConcurrentDictionary<TKey, DateTime> source, TKey key, TimeSpan timeBeforeExpires)
 	{
 		if (source is null)
@@ -89,5 +105,60 @@ public static partial class Extensions
 		}
 
 		return updating;
+	}
+
+	/// <remarks>Handles evicting an entry if the result of the <see cref="Lazy{T}"/> was erroneous.</remarks>
+	/// <inheritdoc cref="ConcurrentDictionary{TKey, TValue}.GetOrAdd(TKey, Func{TKey, TValue})"/>
+	public static Lazy<TValue> GetOrAddSafely<TKey, TValue>(
+		this ConcurrentDictionary<TKey, Lazy<TValue>> source,
+		TKey key,
+		Func<TKey, TValue> valueFactory)
+	{
+		if (source is null)
+			throw new ArgumentNullException(nameof(source));
+		if (key is null)
+			throw new ArgumentNullException(nameof(key));
+		if (valueFactory is null)
+			throw new ArgumentNullException(nameof(valueFactory));
+		Contract.EndContractBlock();
+
+		return source.GetOrAdd(key,
+		k => new Lazy<TValue>(() =>
+		{
+			try
+			{
+				return valueFactory(k);
+			}
+			catch
+			{
+				// Assumes that this is the current entry and no other would be possible until it completes.
+				source.TryRemove(k, out _);
+				throw;
+			}
+		}));
+	}
+
+	/// <remarks>Handles evicting an entry if the result of the <see cref="Lazy{T}"/> was erroneous or its <see cref="Task{T}"/> did not complete successfully.</remarks>
+	/// <inheritdoc cref="ConcurrentDictionary{TKey, TValue}.GetOrAdd(TKey, Func{TKey, TValue})"/>
+	public static Lazy<Task<TValue>> GetOrAddSafely<TKey, TValue>(
+		this ConcurrentDictionary<TKey, Lazy<Task<TValue>>> source,
+		TKey key,
+		Func<TKey, Task<TValue>> valueFactory)
+	{
+		if (source is null)
+			throw new ArgumentNullException(nameof(source));
+		if (key is null)
+			throw new ArgumentNullException(nameof(key));
+		if (valueFactory is null)
+			throw new ArgumentNullException(nameof(valueFactory));
+		Contract.EndContractBlock();
+
+		return source.GetOrAddSafely(key,
+		k => valueFactory(k).ContinueWith(t =>
+		{
+			if (t.IsFaulted || t.IsCanceled)
+				source.TryRemove(k, out _);
+			return t;
+		}, TaskContinuationOptions.ExecuteSynchronously).Unwrap());
 	}
 }

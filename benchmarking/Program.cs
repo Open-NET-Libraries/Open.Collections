@@ -1,6 +1,4 @@
 ﻿using BenchmarkDotNet.Running;
-using Open.Collections;
-using Open.Collections.Benchmarks;
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
@@ -8,7 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-internal class Program
+namespace Open.Collections.Benchmarks;
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.", Justification = "<Pending>")]
+internal static class Program
 {
 	static void Main()
 	{
@@ -56,7 +58,6 @@ internal class Program
 			});
 			Console.WriteLine(sw.Elapsed);
 			Debug.Assert(list.IndexOf(list[10000]) == 10000);
-
 		}
 
 		public static void Test2()
@@ -70,15 +71,12 @@ internal class Program
 			});
 			Console.WriteLine(sw.Elapsed);
 			Debug.Assert(list.IndexOf(list[10000]) == 10000);
-
 		}
-
 	}
 
 	// ReSharper disable once UnusedMember.Local
 	static void QueueTests()
 	{
-
 		/* The obvious facts (and rank):
 		 * 
 		 * Non-synchronized:
@@ -90,13 +88,12 @@ internal class Program
 		 * ConcurrentQueue beats a LockSynchronizedQueue almost every time.
 		 */
 
-
 		var report = new BenchmarkConsoleReport<Func<IQueue<object>>>(500000, QueueParallelBenchmark.Results);
 
 		report.AddBenchmark("LockSynchronizedQueue",
-			count => () => new LockSynchronizedQueue<object>());
+			_ => () => new LockSynchronizedQueue<object>());
 		report.AddBenchmark("ConcurrentQueue",
-			count => () => new Queue.Concurrent<object>());
+			_ => () => new Queue.Concurrent<object>());
 		report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 
 		report.Test(50, 4);
@@ -105,8 +102,6 @@ internal class Program
 		report.Test(1000, 24);
 		report.Test(2000, 32);
 		report.Test(4000, 48);
-
-
 	}
 
 	// ReSharper disable once UnusedMember.Local
@@ -125,7 +120,6 @@ internal class Program
 		 * This is expected as most of the operations are write/modify.
 		 */
 	}
-
 
 	static void CollectionTests()
 	{
@@ -150,12 +144,11 @@ internal class Program
 			var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, ListParallelBenchmark.Results);
 
 			report.AddBenchmark("LockSynchronizedList",
-				count => () => new LockSynchronizedList<object>());
+				_ => () => new LockSynchronizedList<object>());
 			report.AddBenchmark("ReadWriteSynchronizedList",
-				count => () => new ReadWriteSynchronizedList<object>());
+				_ => () => new ReadWriteSynchronizedList<object>());
 
 			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
-
 
 			report.Test(100, 4);
 			report.Test(250, 4);
@@ -163,28 +156,24 @@ internal class Program
 			report.Test(2000, 4);
 		}
 
-
 		Console.WriteLine("::: Synchronized HashSets :::\n");
 		{
 			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, CollectionParallelBenchmark.Results);
 
 			report.AddBenchmark("ConcurrentDictionary",
-				count => () => new ConcurrentHashSet<object>());
+				_ => () => new ConcurrentHashSet<object>());
 
 			report.AddBenchmark("LockSynchronizedHashSet",
-				count => () => new LockSynchronizedHashSet<object>());
+				_ => () => new LockSynchronizedHashSet<object>());
 			report.AddBenchmark("ReadWriteSynchronizedHashSet",
-				count => () => new ReadWriteSynchronizedHashSet<object>());
+				_ => () => new ReadWriteSynchronizedHashSet<object>());
 
 			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
-
 
 			report.Test(100, 4);
 			report.Test(250, 4);
 			report.Test(1000, 4 * 4);
 			report.Test(2000, 8 * 4);
 		}
-
 	}
-
 }
