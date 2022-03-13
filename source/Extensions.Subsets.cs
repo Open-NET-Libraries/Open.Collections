@@ -30,7 +30,7 @@ public static partial class Extensions
 		{
 			if (count == 1)
 			{
-				foreach (var e in source)
+				foreach (T? e in source)
 				{
 					buffer[0] = e;
 					yield return buffer;
@@ -38,13 +38,13 @@ public static partial class Extensions
 				yield break;
 			}
 
-			var diff = source.Count - count;
-			var pool = count > 128 ? ArrayPool<int>.Shared : null;
-			var indices = pool?.Rent(count) ?? new int[count];
+            int diff = source.Count - count;
+            ArrayPool<int>? pool = count > 128 ? ArrayPool<int>.Shared : null;
+            int[]? indices = pool?.Rent(count) ?? new int[count];
 			try
 			{
-				var pos = 0;
-				var index = 0;
+                int pos = 0;
+                int index = 0;
 
 			loop:
 				while (pos < count)
@@ -78,12 +78,12 @@ public static partial class Extensions
 	/// <returns>An enumerable containing the resultant subsets as a memory buffer.</returns>
 	public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count)
 	{
-		var pool = count > 128 ? ArrayPool<T>.Shared : null;
-		var buffer = pool?.Rent(count) ?? new T[count];
+        ArrayPool<T>? pool = count > 128 ? ArrayPool<T>.Shared : null;
+        T[]? buffer = pool?.Rent(count) ?? new T[count];
 		var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 		try
 		{
-			foreach (var _ in Subsets(source, count, buffer))
+			foreach (T[]? _ in Subsets(source, count, buffer))
 				yield return readBuffer;
 		}
 		finally
@@ -100,7 +100,34 @@ public static partial class Extensions
 	/// <returns>An enumerable containing the resultant subsets.</returns>
 	public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count)
 	{
-		foreach (var subset in SubsetsBuffered(source, count))
-			yield return subset.ToArray();
+        ArrayPool<T>? pool = count > 128 ? ArrayPool<T>.Shared : null;
+        T[]? buffer = pool?.Rent(count) ?? new T[count];
+		try
+		{
+			foreach (T[]? _ in Subsets(source, count, buffer))
+			{
+				var a = new T[count];
+				buffer.CopyTo(a.AsSpan());
+				yield return a;
+			}
+		}
+		finally
+		{
+			pool?.Return(buffer, true);
+		}
+	}
+
+	/// <param name="source">The source list to derive from.</param>
+	/// <param name="count">The maximum number of items in the result sets.</param>
+	/// <param name="pool">The array pool to get result arrays from.</param>
+	/// <inheritdoc cref="Subsets{T}(IReadOnlyList{T}, int)" />
+	public static IEnumerable<ArrayPoolSegment<T>> Subsets<T>(this IReadOnlyList<T> source, int count, ArrayPool<T>? pool, bool clearArray = false)
+	{
+		foreach (ReadOnlyMemory<T> subset in SubsetsBuffered(source, count))
+		{
+			var a = new ArrayPoolSegment<T>(count, pool, clearArray);
+			subset.CopyTo(a);
+			yield return a;
+		}
 	}
 }
