@@ -10,37 +10,37 @@ public static partial class Extensions
 {
 	static IEnumerable<T[]> PermutationsCore<T>(IReadOnlyCollection<T> elements, T[] buffer)
 	{
-		var count = elements.Count;
+        int count = elements.Count;
 		if (count == 0) yield break;
 		if (count > buffer.Length)
 			throw new ArgumentOutOfRangeException(nameof(buffer), buffer, "Length is less than the number of elements.");
 
-		// based on: https://stackoverflow.com/questions/1145703/permutation-of-string-without-recursion
+        // based on: https://stackoverflow.com/questions/1145703/permutation-of-string-without-recursion
 
-		var max = 1;
-		for (var i = 2; i <= count; i++) max *= i;
+        int max = 1;
+		for (int i = 2; i <= count; i++) max *= i;
 
-		var a = new int[count];
+        int[]? a = new int[count];
 		var pos = new List<T>(count);
 
-		for (var j = 0; j < max; ++j)
+		for (int j = 0; j < max; ++j)
 		{
 			pos.AddRange(elements);
 
 			int i;
-			var n = j;
-			var c = 0;
+            int n = j;
+            int c = 0;
 
 			for (i = count; i > 0; --i)
 			{
-				var m = n; n /= i;
+                int m = n; n /= i;
 				a[c++] = m % i;
 			}
 
 			// Avoid copy if not needed.
 			for (i = 0; i < count; i++)
 			{
-				var index = a[i];
+                int index = a[i];
 				buffer[i] = pos[index];
 				pos.RemoveAt(index);
 			}
@@ -81,15 +81,15 @@ public static partial class Extensions
 
 		static IEnumerable<ReadOnlyMemory<T>> PermutationsBufferedCore(IReadOnlyCollection<T> elements)
 		{
-			var count = elements.Count;
+            int count = elements.Count;
 			if (count == 0) yield break;
 
-			var pool = count > 128 ? ArrayPool<T>.Shared : null;
-			var buffer = pool?.Rent(count) ?? new T[count];
+            ArrayPool<T>? pool = count > 128 ? ArrayPool<T>.Shared : null;
+            T[]? buffer = pool?.Rent(count) ?? new T[count];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, count);
 			try
 			{
-				foreach (var _ in PermutationsCore(elements, buffer))
+				foreach (T[]? _ in PermutationsCore(elements, buffer))
 					yield return readBuffer;
 			}
 			finally
@@ -112,7 +112,7 @@ public static partial class Extensions
 	/// <inheritdoc cref="Permutations{T}(IEnumerable{T})"/>
 	public static IEnumerable<T[]> Permutations<T>(this IReadOnlyCollection<T> elements)
 	{
-		foreach (var p in PermutationsBuffered(elements))
+		foreach (ReadOnlyMemory<T> p in PermutationsBuffered(elements))
 			yield return p.ToArray();
 	}
 
@@ -123,7 +123,7 @@ public static partial class Extensions
 	/// <param name="elements">The elements to derive from.</param>
 	public static IEnumerable<T[]> Permutations<T>(this IEnumerable<T> elements)
 	{
-		foreach (var p in PermutationsBuffered(elements))
+		foreach (ReadOnlyMemory<T> p in PermutationsBuffered(elements))
 			yield return p.ToArray();
 	}
 }

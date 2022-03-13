@@ -27,11 +27,11 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	/// <inheritdoc />
 	public override void Add(T item1, T item2, params T[] items)
 	{
-		lock (items)
+		lock (Sync)
 		{
 			InternalSource.Add(item1);
 			InternalSource.Add(item2);
-			foreach (var i in items)
+			foreach (T? i in items)
 				InternalSource.Add(i);
 		}
 	}
@@ -39,9 +39,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	/// <inheritdoc />
 	public override void Add(T[] items)
 	{
-		lock (items)
+		lock (Sync)
 		{
-			foreach (var i in items)
+			foreach (T? i in items)
 				InternalSource.Add(i);
 		}
 	}
@@ -88,14 +88,14 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		if (useSnapshot)
 		{
-			foreach (var item in Snapshot())
+			foreach (T? item in Snapshot())
 				action(item);
 		}
 		else
 		{
 			lock (Sync)
 			{
-				foreach (var item in InternalSource)
+				foreach (T? item in InternalSource)
 					action(item);
 			}
 		}
@@ -148,7 +148,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-			var contains = InternalSource.Contains(item);
+            bool contains = InternalSource.Contains(item);
 			if (contains) action(InternalSource);
 			return contains;
 		}
@@ -159,7 +159,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-			var notContains = !InternalSource.Contains(item);
+            bool notContains = !InternalSource.Contains(item);
 			if (notContains) action(InternalSource);
 			return notContains;
 		}

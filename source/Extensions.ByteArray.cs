@@ -41,8 +41,8 @@ public static partial class Extensions
 		if (bytes is null) throw new ArgumentNullException(nameof(bytes));
 		Contract.EndContractBlock();
 
-		var sbytes = new sbyte[bytes.Length];
-		for (var i = 0; i < bytes.Length; i++)
+        sbyte[]? sbytes = new sbyte[bytes.Length];
+		for (int i = 0; i < bytes.Length; i++)
 			sbytes[i] = (sbyte)bytes[i];
 
 		return sbytes;

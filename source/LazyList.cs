@@ -56,10 +56,10 @@ public class LazyList<T> : LazyListUnsafe<T>
 		if (maxIndex < _safeCount)
 			return true;
 
-		// This is where the fun begins...
-		// Mutliple threads can be out of sync (probably through a memory barrier)
-		// And a sync read operation must be done to ensure safety.
-		var count = Sync.ReadValue(() => _cached.Count);
+        // This is where the fun begins...
+        // Mutliple threads can be out of sync (probably through a memory barrier)
+        // And a sync read operation must be done to ensure safety.
+        int count = Sync.ReadValue(() => _cached.Count);
 		if (maxIndex < count)
 		{
 			// We're still within the existing results, but safe count is not up to date.
@@ -74,11 +74,11 @@ public class LazyList<T> : LazyListUnsafe<T>
 			return false;
 
 		// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
-		using (var uLock = Sync.UpgradableReadLock())
+		using (UpgradableReadLock? uLock = Sync.UpgradableReadLock())
 		{
-			// Note: Within an upgradable read, other reads pile up.
+            // Note: Within an upgradable read, other reads pile up.
 
-			var c = _cached.Count;
+            int c = _cached.Count;
 			if (_safeCount != c) // Always do comparisons outside of interlocking first.
 				Interlocked.CompareExchange(ref _safeCount, c, _safeCount);
 

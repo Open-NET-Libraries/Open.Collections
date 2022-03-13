@@ -13,7 +13,7 @@ public static class Subsets
 	{
 		if (subsetLength == 1)
 		{
-			for (var i = 0; i < sourceLength; ++i)
+			for (int i = 0; i < sourceLength; ++i)
 			{
 				buffer[0] = i;
 				yield return buffer;
@@ -21,10 +21,10 @@ public static class Subsets
 			yield break;
 		}
 
-		var diff = sourceLength - subsetLength;
+        int diff = sourceLength - subsetLength;
 
-		var pos = 0;
-		var index = 0;
+        int pos = 0;
+        int index = 0;
 
 	loop:
 		while (pos < subsetLength)
@@ -70,12 +70,12 @@ public static class Subsets
 	/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
 	public static IEnumerable<ReadOnlyMemory<int>> IndexesBuffered(int sourceLength, int subsetLength)
 	{
-		var pool = subsetLength > 128 ? ArrayPool<int>.Shared : null;
-		var buffer = pool?.Rent(subsetLength) ?? new int[subsetLength];
+        ArrayPool<int>? pool = subsetLength > 128 ? ArrayPool<int>.Shared : null;
+        int[]? buffer = pool?.Rent(subsetLength) ?? new int[subsetLength];
 		var readBuffer = new ReadOnlyMemory<int>(buffer, 0, subsetLength);
 		try
 		{
-			foreach (var _ in Indexes(sourceLength, subsetLength, buffer))
+			foreach (int[]? _ in Indexes(sourceLength, subsetLength, buffer))
 				yield return readBuffer;
 		}
 		finally
@@ -91,21 +91,21 @@ public static class Subsets
 	/// <param name="subsetLength">The size of the desired subsets.</param>s
 	public static IEnumerable<int[]> Indexes(int sourceLength, int subsetLength)
 	{
-		foreach (var i in IndexesBuffered(sourceLength, subsetLength))
+		foreach (ReadOnlyMemory<int> i in IndexesBuffered(sourceLength, subsetLength))
 			yield return i.ToArray();
 	}
 
 	/// <inheritdoc cref="Indexes(int, int)"/>
 	public static IEnumerable<ImmutableArray<int>> IndexesImmutable(int sourceLength, int subsetLength)
 	{
-		foreach (var i in IndexesBuffered(sourceLength, subsetLength))
+		foreach (ReadOnlyMemory<int> i in IndexesBuffered(sourceLength, subsetLength))
 			yield return i.ToImmutableArray();
 	}
 
 	/// <inheritdoc cref="Indexes(int, int)"/>
 	public static IEnumerable<ReadOnlyCollection<int>> IndexesReadOnly(int sourceLength, int subsetLength)
 	{
-		foreach (var i in IndexesBuffered(sourceLength, subsetLength))
+		foreach (ReadOnlyMemory<int> i in IndexesBuffered(sourceLength, subsetLength))
 			yield return i.ToReadOnlyCollection();
 	}
 }

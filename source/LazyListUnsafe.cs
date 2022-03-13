@@ -90,9 +90,9 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 	{
 		AssertIsAlive();
 
-		var index = -1;
+        int index = -1;
 		// Interlocked allows for multi-threaded access to this enumerator.
-		while (TryGetValueAt(Interlocked.Increment(ref index), out var value))
+		while (TryGetValueAt(Interlocked.Increment(ref index), out T? value))
 			yield return value;
 	}
 
@@ -101,9 +101,9 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 	{
 		AssertIsAlive();
 
-		for (var index = 0; EnsureIndex(index); index++)
+		for (int index = 0; EnsureIndex(index); index++)
 		{
-			var value = _cached[index];
+            T? value = _cached[index];
 			if (value is null)
 			{
 				if (item is null) return index;
@@ -131,7 +131,7 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 		if (startIndex >= array.Length)
 			throw new ArgumentOutOfRangeException(nameof(startIndex), startIndex, "Must be less than the length of the provided array.");
 
-		var span = array.AsSpan();
+        Span<T> span = array.AsSpan();
 		return this.CopyToSpan(startIndex == 0 ? span : span.Slice(startIndex));
 	}
 

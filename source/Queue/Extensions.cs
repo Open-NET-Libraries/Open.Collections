@@ -9,7 +9,7 @@ public static partial class Extensions
 
 	public static IEnumerable<T> AsDequeueingEnumerable<T>(this ConcurrentQueue<T> source)
 	{
-		while (source.TryDequeue(out var entry))
+		while (source.TryDequeue(out T? entry))
 			yield return entry;
 	}
 

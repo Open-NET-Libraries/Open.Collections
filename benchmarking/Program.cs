@@ -14,18 +14,18 @@ internal static class Program
 {
 	static void Main()
 	{
-		BenchmarkRunner.Run<SubsetBenchmarks>();
+		//BenchmarkRunner.Run<SubsetBenchmarks>();
 
 		//TestEntry.Test1();
 		//TestEntry.Test2();
-		//CollectionTests();
+		CollectionTests();
 
 		Console.Beep();
 	}
 
 	static void OutputList(int[][] list)
 	{
-		foreach (var e in list)
+		foreach (int[] e in list)
 			Console.WriteLine(string.Join(' ', e));
 		Console.WriteLine("Total: {0}", list.Length);
 		Console.ReadLine();
@@ -38,7 +38,7 @@ internal static class Program
 
 		static IEnumerable<TestEntry> EndlessTest(int limit = int.MaxValue)
 		{
-			var i = 0;
+            int i = 0;
 			while (i < limit)
 				yield return new TestEntry { Value = i++ };
 			// ReSharper disable once IteratorNeverReturns
@@ -51,8 +51,8 @@ internal static class Program
 			using var list = new LazyList<TestEntry>(EndlessTest());
 			Parallel.For(0, 10000000, i =>
 			{
-				// ReSharper disable once AccessToDisposedClosure
-				var e = list[i];
+                // ReSharper disable once AccessToDisposedClosure
+                TestEntry e = list[i];
 				if (e is null) throw new NullReferenceException();
 				Debug.Assert(e.Value == i);
 			});

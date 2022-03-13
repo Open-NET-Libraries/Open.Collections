@@ -18,57 +18,59 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 	#region Implementation of ICollection<T>
 
 	/// <inheritdoc />
-	public override void Add(T item) => Sync.Write(() => InternalSource.Add(item));
+	public override void Add(T item)
+        => Sync.Write(() => InternalSource.Add(item));
 
 	/// <inheritdoc />
-	public override void Add(T item1, T item2, params T[] items) => Sync.Write(() =>
-																	{
-																		InternalSource.Add(item1);
-																		InternalSource.Add(item2);
-																		foreach (var i in items)
-																			InternalSource.Add(i);
-																	});
+	public override void Add(T item1, T item2, params T[] items)
+        => Sync.Write(() =>
+		{
+			InternalSource.Add(item1);
+			InternalSource.Add(item2);
+			foreach (T? i in items)
+				InternalSource.Add(i);
+		});
 
 	/// <inheritdoc />
-	public override void Add(T[] items) => Sync.Write(() =>
-										   {
-											   foreach (var i in items)
-												   InternalSource.Add(i);
-										   });
+	public override void Add(T[] items)
+        => Sync.Write(() =>
+		{
+			foreach (T? i in items)
+				InternalSource.Add(i);
+		});
 
 	/// <inheritdoc />
-	public override void Clear() => Sync.Write(() => InternalSource.Clear());
+	public override void Clear()
+        => Sync.Write(() => InternalSource.Clear());
 
 	/// <inheritdoc />
-	public override bool Contains(T item) => Sync.ReadValue(() => InternalSource.Contains(item));
+	public override bool Contains(T item)
+        => Sync.ReadValue(() => InternalSource.Contains(item));
 
-	/// <inheritdoc />
-	public override bool Remove(T item)
-	{
-		var result = false;
-		Sync.ReadWriteConditionalOptimized(
-			_ => result = InternalSource.Contains(item),
-			() => result = InternalSource.Remove(item));
-		return result;
-	}
+    /// <inheritdoc />
+    public override bool Remove(T item)
+        => IfContains(item, c => c.Remove(item));
 
-	/// <inheritdoc />
-	public override int Count
+    /// <inheritdoc />
+    public override int Count
 		=> Sync.ReadValue(() => InternalSource.Count);
 
 	/// <inheritdoc />
-	public T[] Snapshot() => Sync.ReadValue(() => InternalSource.ToArray());
+	public T[] Snapshot()
+        => Sync.ReadValue(() => InternalSource.ToArray());
 
 	/// <inheritdoc />
-	public override void Export(ICollection<T> to) => Sync.Read(() => to.Add(InternalSource));
+	public override void Export(ICollection<T> to)
+        => Sync.Read(() => to.Add(InternalSource));
 
 	/// <inheritdoc />
-	public override void CopyTo(T[] array, int arrayIndex) => Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
+	public override void CopyTo(T[] array, int arrayIndex)
+        => Sync.Read(() => InternalSource.CopyTo(array, arrayIndex));
 
 	/// <inheritdoc />
 	public override Span<T> CopyTo(Span<T> span)
 	{
-		using var read = Sync.ReadLock();
+		using ReadLock? read = Sync.ReadLock();
 		return InternalSource.CopyToSpan(span);
 	}
 
@@ -93,14 +95,14 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 	{
 		if (useSnapshot)
 		{
-			foreach (var item in Snapshot())
+			foreach (T? item in Snapshot())
 				action(item);
 		}
 		else
 		{
 			Sync.Read(() =>
 			{
-				foreach (var item in InternalSource)
+				foreach (T? item in InternalSource)
 					action(item);
 			});
 		}
@@ -129,24 +131,20 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 	/// <inheritdoc />
 	public virtual bool IfContains(T item, Action<TCollection> action)
 	{
-		var executed = false;
-		Sync.ReadWriteConditionalOptimized(_ => InternalSource.Contains(item), () =>
-		{
-			action(InternalSource);
-			executed = true;
-		});
-		return executed;
+        using var syncLock = Sync.UpgradableReadLock();
+        if (!InternalSource.Contains(item)) return false;
+        syncLock.UpgradeToWriteLock();
+        action(InternalSource);
+        return true;
 	}
 
 	/// <inheritdoc />
 	public virtual bool IfNotContains(T item, Action<TCollection> action)
 	{
-		var executed = false;
-		Sync.ReadWriteConditionalOptimized(_ => !InternalSource.Contains(item), () =>
-		{
-			action(InternalSource);
-			executed = true;
-		});
-		return executed;
+        using var syncLock = Sync.UpgradableReadLock();
+        if (!InternalSource.Contains(item)) return false;
+        syncLock.UpgradeToWriteLock();
+        action(InternalSource);
+        return true;
 	}
 }

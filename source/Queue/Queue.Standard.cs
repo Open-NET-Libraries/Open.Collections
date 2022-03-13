@@ -18,7 +18,7 @@ public static partial class Queue
 		/// <inheritdoc />
 		public virtual bool TryDequeue(out T item)
 		{
-			var ok = Count != 0;
+            bool ok = Count != 0;
 			item = ok ? Dequeue() : default!;
 			return ok;
 		}
@@ -26,7 +26,7 @@ public static partial class Queue
 		/// <inheritdoc />
 		public virtual bool TryPeek(out T item)
 		{
-			var ok = Count != 0;
+            bool ok = Count != 0;
 			item = ok ? Peek() : default!;
 			return ok;
 		}

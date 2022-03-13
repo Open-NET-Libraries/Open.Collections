@@ -52,7 +52,7 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
 	/// <inheritdoc />
 	public bool TryTakeFirst(out T item)
 	{
-		var success = false;
+        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
 		Sync.ReadWriteConditionalOptimized(
@@ -70,7 +70,7 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
 	/// <inheritdoc />
 	public bool TryTakeLast(out T item)
 	{
-		var success = false;
+        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
 		Sync.ReadWriteConditionalOptimized(

@@ -10,7 +10,7 @@ public class LazyListTests
 	public void LazyListSmokeTest()
 	{
 		{
-			var e = Enumerable.Range(0, 5);
+            System.Collections.Generic.IEnumerable<int> e = Enumerable.Range(0, 5);
 			Assert.Equal(5, e.Memoize().Count);
 			Assert.Equal(5, e.MemoizeUnsafe().Count);
 
@@ -18,9 +18,9 @@ public class LazyListTests
 		}
 
 		{
-			var e = Enumerable.Range(0, 30);
-			var a = e.Memoize();
-			var b = e.MemoizeUnsafe();
+            System.Collections.Generic.IEnumerable<int> e = Enumerable.Range(0, 30);
+            LazyList<int> a = e.Memoize();
+            LazyListUnsafe<int> b = e.MemoizeUnsafe();
 			Assert.Equal(7, a[7]);
 			Assert.Equal(7, b[7]);
 

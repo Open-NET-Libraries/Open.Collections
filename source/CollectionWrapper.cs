@@ -22,7 +22,7 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
 	{
 		InternalSource.Add(item1);
 		InternalSource.Add(item2);
-		foreach (var i in items)
+		foreach (T? i in items)
 			InternalSource.Add(i);
 	}
 
@@ -34,7 +34,7 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
 	/// <param name="items">The items to add.</param>
 	public virtual void Add(T[] items)
 	{
-		foreach (var i in items)
+		foreach (T? i in items)
 			InternalSource.Add(i);
 	}
 

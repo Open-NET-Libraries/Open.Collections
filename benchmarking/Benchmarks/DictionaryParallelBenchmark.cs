@@ -15,21 +15,21 @@ public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValueP
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		foreach (var t in base.TestOnceInternal())
+		foreach (TimedResult t in base.TestOnceInternal())
 		{
 			yield return t;
 		}
 
 		const int mixSize = 100;
 		var c = (IDictionary<int, object>)Param();
-		for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
-		var items = Enumerable.Range(0, mixSize).Select(_ => new object()).ToArray();
+		for (int i = 0; i < TestSize; i++) c.Add(_items[i]);
+        object[] items = Enumerable.Range(0, mixSize).Select(_ => new object()).ToArray();
 
 		yield return TimedResult.Measure("Random Set/Get", () =>
 		{
-			for (var i = 0; i < TestSize; i++)
+			for (int i = 0; i < TestSize; i++)
 			{
-				var i1 = i;
+                int i1 = i;
 				Parallel.For(0, mixSize, x =>
 				{
 					if (x % 2 == 0)
@@ -38,7 +38,7 @@ public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValueP
 					}
 					else
 					{
-						var _ = c[i1];
+                        object _ = c[i1];
 					}
 				});
 			}

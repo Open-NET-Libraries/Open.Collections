@@ -121,11 +121,11 @@ public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionar
 	{
 		if (keys is not null)
 		{
-			var hasValues = values is not null && values.Length != 0;
+            bool hasValues = values is not null && values.Length != 0;
 			if (hasValues && values!.Length > keys.Length)
 				throw new Exception("Invalid initialization values.  Value array is longer than key array.");
 
-			for (var i = 0; i < keys.Length; i++)
+			for (int i = 0; i < keys.Length; i++)
 				AddInternal(keys[i], (hasValues && i < values!.Length) ? values[i] : default!);
 		}
 		else if (values is not null && values.Length != 0)
@@ -152,7 +152,7 @@ public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionar
 
 	private IEnumerable<KeyValuePair<TKey, TValue>> AsEnumerable()
 	{
-		foreach (var key in List)
+		foreach (TKey? key in List)
 			yield return KeyValuePair.Create(key, Dictionary[key]);
 	}
 
@@ -379,9 +379,9 @@ public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionar
 		get => Dictionary[key];
 		set
 		{
-			// ReSharper disable once RedundantAssignment
-			var index = -1;
-			var change = ItemChange.None;
+            // ReSharper disable once RedundantAssignment
+            int index = -1;
+            ItemChange change = ItemChange.None;
 			TValue previous;
 			lock (SyncRoot)
 			{
@@ -427,7 +427,7 @@ public class OrderedDictionary<TKey, TValue> : DisposableBase, IOrderedDictionar
 	/// <inheritdoc />
 	public bool TryGetValue(TKey key, out TValue value)
 	{
-		var result = Dictionary.TryGetValue(key, out value);
+        bool result = Dictionary.TryGetValue(key, out value);
 		return result;
 	}
 

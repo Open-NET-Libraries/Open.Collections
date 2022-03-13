@@ -15,16 +15,16 @@ public class QueueBenchmark : BenchmarkBase<Func<IQueue<object>>>
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		var queue = Param();
+        IQueue<object> queue = Param();
 
 		yield return TimedResult.Measure("Fill", () =>
 		{
-			for (var i = 0; i < TestSize; i++) queue.Enqueue(_item);
+			for (int i = 0; i < TestSize; i++) queue.Enqueue(_item);
 		});
 
 		yield return TimedResult.Measure("Empty", () =>
 		{
-			for (var i = 0; i < TestSize; i++) queue.TryDequeue(out var _);
+			for (int i = 0; i < TestSize; i++) queue.TryDequeue(out object _);
 		});
 	}
 

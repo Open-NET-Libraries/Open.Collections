@@ -13,26 +13,26 @@ public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		var c = Param();
+        ICollection<T> c = Param();
 
 		yield return TimedResult.Measure("Fill (.Add(item))", () =>
 		{
-			for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
+			for (int i = 0; i < TestSize; i++) c.Add(_items[i]);
 		});
 
 		yield return TimedResult.Measure("Enumerate", () =>
 		{
-			// ReSharper disable once NotAccessedVariable
-			var x = 0;
+            // ReSharper disable once NotAccessedVariable
+            int x = 0;
 			// ReSharper disable once LoopCanBeConvertedToQuery
-			foreach (var _ in c) { x++; }
+			foreach (T _ in c) { x++; }
 		});
 
 		yield return TimedResult.Measure(".Contains(item)", () =>
 		{
-			for (var i = 0; i < TestSize; i++)
+			for (int i = 0; i < TestSize; i++)
 			{
-				var _ = c.Contains(_items[i]);
+                bool _ = c.Contains(_items[i]);
 			}
 		});
 
@@ -40,29 +40,29 @@ public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
 		{
 			yield return TimedResult.Measure("IList<T> Read Access", () =>
 			{
-				for (var i = 0; i < TestSize; i += 2)
+				for (int i = 0; i < TestSize; i += 2)
 				{
-					var _ = list[i];
+					T _ = list[i];
 				}
 			});
 		}
 
 		yield return TimedResult.Measure("Empty Backwards (.Remove(last))", () =>
 		{
-			for (var i = 0; i < TestSize; i++) c.Remove(_items[TestSize - i - 1]);
+			for (int i = 0; i < TestSize; i++) c.Remove(_items[TestSize - i - 1]);
 		});
 
 		yield return TimedResult.Measure("Refill (.Add(item))", () =>
 		{
-			for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
+			for (int i = 0; i < TestSize; i++) c.Add(_items[i]);
 		});
 
 		yield return TimedResult.Measure("Empty Forwards (.Remove(first))", () =>
 		{
-			for (var i = 0; i < TestSize; i++) c.Remove(_items[i]);
+			for (int i = 0; i < TestSize; i++) c.Remove(_items[i]);
 		});
 
-		for (var i = 0; i < TestSize; i++) c.Add(_items[i]);
+		for (int i = 0; i < TestSize; i++) c.Add(_items[i]);
 
 		yield return TimedResult.Measure(".Clear()", () => c.Clear());
 	}

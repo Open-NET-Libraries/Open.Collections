@@ -17,7 +17,7 @@ public static class LinkedList
 		/// <inheritdoc />
 		public bool TryTakeFirst(out T item)
 		{
-			var node = First;
+            LinkedListNode<T>? node = First;
 			if (node is null)
 			{
 				item = default!;
@@ -32,7 +32,7 @@ public static class LinkedList
 		/// <inheritdoc />
 		public bool TryTakeLast(out T item)
 		{
-			var node = Last;
+            LinkedListNode<T>? node = Last;
 			if (node is null)
 			{
 				item = default!;

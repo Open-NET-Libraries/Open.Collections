@@ -61,7 +61,7 @@ public static partial class Extensions
 
 		if (target.Contains(key))
 		{
-			var result = target[key];
+            object? result = target[key];
 			value = result is null ? default! : (T)result;
 			return true;
 		}

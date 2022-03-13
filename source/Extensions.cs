@@ -33,13 +33,13 @@ public static partial class Extensions
 
 		// go through the items in the dictionary and copy over the key value pairs)
 
-		foreach (var kvp in source)
+		foreach (KeyValuePair<string, object> kvp in source)
 		{
 			switch (kvp.Value)
 			{
 				// if the value can also be turned into an ExpandoObject, then do it!
 				case IDictionary<string, object> objects:
-					var expandoValue = objects.ToExpando();
+                    ExpandoObject? expandoValue = objects.ToExpando();
 					expandoDic.Add(kvp.Key, expandoValue);
 					break;
 
@@ -47,11 +47,11 @@ public static partial class Extensions
 					// iterate through the collection and convert any strin-object dictionaries
 					// along the way into expando objects
 					var itemList = new List<object>();
-					foreach (var item in collection)
+					foreach (object? item in collection)
 					{
 						if (item is IDictionary<string, object> dictionary)
 						{
-							var expandoItem = dictionary.ToExpando();
+                            ExpandoObject? expandoItem = dictionary.ToExpando();
 							itemList.Add(expandoItem);
 						}
 						else
@@ -77,8 +77,8 @@ public static partial class Extensions
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
 
-		var d0 = source.GetLength(0);
-		var d1 = source.GetLength(1);
+        int d0 = source.GetLength(0);
+        int d1 = source.GetLength(1);
 
 		var newArray = new T[d0, d1];
 
@@ -102,12 +102,12 @@ public static partial class Extensions
 		if (closure is null) throw new ArgumentNullException(nameof(closure));
 		Contract.EndContractBlock();
 
-		var d0 = source.GetLength(0);
-		var d1 = source.GetLength(1);
+        int d0 = source.GetLength(0);
+        int d1 = source.GetLength(1);
 
-		for (var i0 = 0; i0 < d0; i0++)
+		for (int i0 = 0; i0 < d0; i0++)
 		{
-			for (var i1 = 0; i1 < d1; i1++)
+			for (int i1 = 0; i1 < d1; i1++)
 			{
 				closure(i0, i1, source[i0, i1]);
 			}
@@ -120,10 +120,32 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var newArray = new T[length ?? source.Length];
-		var len = Math.Min(newArray.Length, source.Length);
-		for (var i = 0; i < len; i++)
+        int len = Math.Min(newArray.Length, source.Length);
+		for (int i = 0; i < len; i++)
 			newArray[i] = source[i];
 		return newArray;
+	}
+
+	public static IEnumerable<ArraySegment<T>> CopyEachUsing<T>(
+		this IEnumerable<ReadOnlyMemory<T>> source,
+		ArrayPool<T> pool)
+	{
+		if (source is null) throw new ArgumentNullException(nameof(source));
+		if (pool is null) throw new ArgumentNullException(nameof(pool));
+		Contract.EndContractBlock();
+
+		return CopyUsingCore(source, pool);
+
+		static IEnumerable<ArraySegment<T>> CopyUsingCore(IEnumerable<ReadOnlyMemory<T>> source, ArrayPool<T> pool)
+		{
+			foreach (ReadOnlyMemory<T> item in source)
+			{
+                int len = item.Length;
+                T[]? a = pool.Rent(len);
+				item.CopyTo(a);
+				yield return new ArraySegment<T>(a, 0, len);
+			}
+		}
 	}
 
 	public static ICollection<T> AsCollection<T>(this IEnumerable<T> source)
@@ -142,7 +164,7 @@ public static partial class Extensions
 
 		if (parallelOptions is null)
 		{
-			foreach (var t in target)
+			foreach (T? t in target)
 				closure(t);
 			return;
 		}
@@ -177,7 +199,7 @@ public static partial class Extensions
 			return;
 		}
 
-		foreach (var t in target)
+		foreach (T? t in target)
 			closure(t);
 	}
 
@@ -187,7 +209,7 @@ public static partial class Extensions
 		if (closure is null) throw new ArgumentNullException(nameof(closure));
 		Contract.EndContractBlock();
 
-		foreach (var t in target)
+		foreach (T? t in target)
 		{
 			if (!token.IsCancellationRequested)
 				closure(t);
@@ -223,7 +245,7 @@ public static partial class Extensions
 				return collection.Count >= minimum;
 		}
 
-		using var e = source.GetEnumerator();
+		using IEnumerator<T>? e = source.GetEnumerator();
 		while (e.MoveNext())
 		{
 			if (--minimum == 0)
@@ -270,7 +292,7 @@ public static partial class Extensions
 			{
 				while (e.MoveNext())
 				{
-					var value = e.Current;
+                    T? value = e.Current;
 
 				retry:
 					if (queue.Writer.TryWrite(value)) continue;
@@ -302,13 +324,13 @@ public static partial class Extensions
 		{
 			if (count <= 0)
 			{
-				foreach (var item in source)
+				foreach (T? item in source)
 					yield return item;
 				yield break;
 			}
 
 			var queue = Channel.CreateBounded<T>(count);
-			var e = source.GetEnumerator();
+            IEnumerator<T>? e = source.GetEnumerator();
 
 			// The very first call (kick-off) should be synchronous.
 			if (e.MoveNext()) yield return e.Current;
@@ -320,12 +342,12 @@ public static partial class Extensions
 			// Dequeue into the enumerable.
 			do
 			{
-				while (queue.Reader.TryRead(out var item))
+				while (queue.Reader.TryRead(out T? item))
 					yield return item;
 			}
 			while (queue.Reader.WaitToReadAsync().AsTask().Result);
 
-			var complete = queue.Reader.Completion;
+            Task? complete = queue.Reader.Completion;
 			if (complete.IsFaulted)
 			{
 				throw complete.Exception.InnerException;
@@ -343,10 +365,10 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var b = new StringBuilder();
-		var hasSeparator = !string.IsNullOrEmpty(separator);
-		var needSeparator = false;
+        bool hasSeparator = !string.IsNullOrEmpty(separator);
+        bool needSeparator = false;
 
-		foreach (var item in source)
+		foreach (T? item in source)
 		{
 			if (needSeparator)
 				b.Append(separator);
@@ -390,7 +412,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var sb = new StringBuilder();
-		using (var enumerator = source.GetEnumerator())
+		using (IEnumerator<T>? enumerator = source.GetEnumerator())
 		{
 			if (enumerator.MoveNext())
 				sb.Append(enumerator.Current);
@@ -411,7 +433,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var sb = new StringBuilder();
-		using (var enumerator = source.GetEnumerator())
+		using (IEnumerator<T>? enumerator = source.GetEnumerator())
 		{
 			if (enumerator.MoveNext())
 				sb.Append(enumerator.Current);
@@ -451,7 +473,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var result = new SortedDictionary<TKey, TValue>();
-		foreach (var kv in source)
+		foreach (KeyValuePair<TKey, TValue> kv in source)
 			result.Add(kv.Key, kv.Value);
 
 		return result;
@@ -466,7 +488,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var result = new SortedDictionary<TKey, TValue>();
-		foreach (var s in source)
+		foreach (TSource? s in source)
 			result.Add(keySelector(s), valueSelector(s));
 
 		return result;
@@ -478,7 +500,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		var result = new SortedDictionary<TKey, IEnumerable<TValue>>();
-		foreach (var g in source)
+		foreach (IGrouping<TKey, TValue>? g in source)
 		{
 			result.Add(g.Key, g);
 		}
@@ -514,12 +536,12 @@ public static partial class Extensions
 		if (source is null || target is null)
 			return false;
 
-		var sCount = source.Length;
-		var tCount = target.Length;
+        int sCount = source.Length;
+        int tCount = target.Length;
 		if (sCount != tCount)
 			return false;
 
-		for (var i = 0; i < sCount; i++)
+		for (int i = 0; i < sCount; i++)
 		{
 			if (!source[i].Equals(target[i]))
 				return false;
@@ -543,8 +565,8 @@ public static partial class Extensions
 		if (source is IReadOnlyCollection<T> sC && target is IReadOnlyCollection<T> tC && sC.Count != tC.Count)
 			return false;
 
-		using (var enumSource = source.GetEnumerator())
-		using (var enumTarget = target.GetEnumerator())
+		using (IEnumerator<T>? enumSource = source.GetEnumerator())
+		using (IEnumerator<T>? enumTarget = target.GetEnumerator())
 		{
 			while (enumSource.MoveNext() && enumTarget.MoveNext())
 			{
@@ -579,9 +601,9 @@ public static partial class Extensions
 
 		static IEnumerable<T> MergeCore(IEnumerable<IEnumerable<T>> target)
 		{
-			foreach (var i in target)
+			foreach (IEnumerable<T>? i in target)
 			{
-				foreach (var t in i)
+				foreach (T? t in i)
 					yield return t;
 			}
 		}
@@ -614,7 +636,7 @@ public static partial class Extensions
 	/// </summary>
 	public static IEnumerable<T> Arrange<T>(this IReadOnlyList<T> source, IEnumerable<int> order)
 	{
-		foreach (var i in order)
+		foreach (int i in order)
 			yield return source[i];
 	}
 
@@ -624,27 +646,27 @@ public static partial class Extensions
 		if (orderByInfo is null) throw new ArgumentNullException(nameof(orderByInfo));
 		Contract.EndContractBlock();
 
-		var props = orderByInfo.PropertyName.SplitAsSegments('.').Select(s => s.ToString());
-		var typeT = typeof(T);
-		var type = typeT;
+        IEnumerable<string>? props = orderByInfo.PropertyName.SplitAsSegments('.').Select(s => s.ToString());
+        Type? typeT = typeof(T);
+        Type? type = typeT;
 
-		var arg = Expression.Parameter(type, "x");
+        ParameterExpression? arg = Expression.Parameter(type, "x");
 		Expression expr = arg;
-		foreach (var prop in props)
+		foreach (string? prop in props)
 		{
-			// use reflection (not ComponentModel) to mirror LINQ
-			var pi = type.GetProperty(prop);
+            // use reflection (not ComponentModel) to mirror LINQ
+            System.Reflection.PropertyInfo? pi = type.GetProperty(prop);
 			if (pi is null)
 				throw new ArgumentException("'" + prop + "' does not exist as a property of " + type);
 			expr = Expression.Property(expr, pi);
 			type = pi.PropertyType;
 		}
-		var delegateTypeSource = typeof(Func<,>);
+        Type? delegateTypeSource = typeof(Func<,>);
 
-		//var delegateTypeSourceArgs = delegateTypeSource.GetGenericArguments();
+        //var delegateTypeSourceArgs = delegateTypeSource.GetGenericArguments();
 
-		var delegateType = delegateTypeSource.MakeGenericType(typeT, type);
-		var lambda = Expression.Lambda(delegateType, expr, arg);
+        Type? delegateType = delegateTypeSource.MakeGenericType(typeT, type);
+        LambdaExpression? lambda = Expression.Lambda(delegateType, expr, arg);
 
 		string methodName = !orderByInfo.Initial && collection is IOrderedQueryable<T>
 				? orderByInfo.Direction == SortDirection.Ascending
@@ -654,15 +676,15 @@ public static partial class Extensions
 					? "OrderBy"
 					: "OrderByDescending";
 
-		//TODO: apply caching to the generic methodsinfos?
-		var methods = typeof(Queryable).GetMethods();
-		var r1 = methods
+        //TODO: apply caching to the generic methodsinfos?
+        System.Reflection.MethodInfo[]? methods = typeof(Queryable).GetMethods();
+        System.Reflection.MethodInfo? r1 = methods
 			.Single(method => method.Name == methodName
 				&& method.IsGenericMethodDefinition
 				&& method.GetGenericArguments().Length == 2
 				&& method.GetParameters().Length == 2);
 
-		var result = r1
+        object? result = r1
 			.MakeGenericMethod(typeof(T), type)
 			.Invoke(null, new object[] { collection, lambda });
 
@@ -674,15 +696,15 @@ public static partial class Extensions
 		if (!orderBy.HasValue || orderBy.Length == 0)
 			yield break;
 
-		var items = orderBy.SplitAsSegments(',');
-		var initial = true;
-		foreach (var item in items)
+        IEnumerable<StringSegment>? items = orderBy.SplitAsSegments(',');
+        bool initial = true;
+		foreach (StringSegment item in items)
 		{
 			StringSegment name = default;
-			var dir = SortDirection.Ascending;
+            SortDirection dir = SortDirection.Ascending;
 
 			int i = 0;
-			foreach (var segment in item.Trim().SplitAsSegments(' '))
+			foreach (StringSegment segment in item.Trim().SplitAsSegments(' '))
 			{
 				switch (i)
 				{
@@ -730,7 +752,7 @@ public static partial class Extensions
 	{
 		if (source is null) return null;
 
-		foreach (var e in source)
+		foreach (T e in source)
 			return e;
 
 		return null;
@@ -739,9 +761,9 @@ public static partial class Extensions
 	public static IEnumerable<T> Weave<T>(this IEnumerable<IEnumerable<T>> source)
 	{
 		LinkedList<IEnumerator<T>>? queue = null;
-		foreach (var s in source)
+		foreach (IEnumerable<T>? s in source)
 		{
-			var e1 = s.GetEnumerator();
+            IEnumerator<T>? e1 = s.GetEnumerator();
 			if (e1.MoveNext())
 			{
 				yield return e1.Current;
@@ -755,14 +777,14 @@ public static partial class Extensions
 
 		if (queue is null) yield break;
 
-		// Start by getting the first enuerator if it exists.
-		var n = queue.First;
+        // Start by getting the first enuerator if it exists.
+        LinkedListNode<IEnumerator<T>>? n = queue.First;
 		while (n is not null)
 		{
 			while (n is not null)
 			{
-				// Loop through all the enumerators..
-				var e2 = n.Value;
+                // Loop through all the enumerators..
+                IEnumerator<T>? e2 = n.Value;
 				if (e2.MoveNext())
 				{
 					yield return e2.Current;
@@ -770,8 +792,8 @@ public static partial class Extensions
 				}
 				else
 				{
-					// None left? Remove the node.
-					var r = n;
+                    // None left? Remove the node.
+                    LinkedListNode<IEnumerator<T>>? r = n;
 					n = n.Next;
 					queue.Remove(r);
 					e2.Dispose();
@@ -812,8 +834,8 @@ public static partial class Extensions
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));
 
-		var len = source.Length;
-		for (var i = 0; i < len; i++)
+        int len = source.Length;
+		for (int i = 0; i < len; i++)
 		{
 			if (source[i]?.Equals(value) ?? value is null)
 				return i;
@@ -832,11 +854,11 @@ public static partial class Extensions
 	/// </returns>
 	public static Span<T> CopyToSpan<T>(this IEnumerable<T> source, Span<T> target)
 	{
-		var len = target.Length;
+        int len = target.Length;
 		if (len == 0) return target;
 
-		var count = 0;
-		foreach (var e in source)
+        int count = 0;
+		foreach (T? e in source)
 		{
 			target[count] = e;
 			if (len == ++count) return target;
@@ -850,8 +872,8 @@ public static partial class Extensions
 	/// </summary>
 	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
 	{
-		var builder = ImmutableArray.CreateBuilder<T>(span.Length);
-		foreach (var e in span)
+        ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
+		foreach (T? e in span)
 			builder.Add(e);
 		return builder.MoveToImmutable();
 	}
@@ -859,8 +881,8 @@ public static partial class Extensions
 	/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
 	public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
 	{
-		var builder = ImmutableArray.CreateBuilder<T>(span.Length);
-		foreach (var e in span)
+        ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
+		foreach (T? e in span)
 			builder.Add(e);
 		return builder.MoveToImmutable();
 	}

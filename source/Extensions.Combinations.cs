@@ -12,30 +12,30 @@ public static partial class Extensions
 	static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet, T[] buffer)
 	{
 		Debug.Assert(length != 0);
-		var count = source.Count;
+        int count = source.Count;
 		Debug.Assert(count != 0);
 
 		{
-			var value = source[0];
-			var result = buffer ?? new T[length];
-			for (var i = 0; i < length; i++) result[i] = value;
+            T? value = source[0];
+            T[]? result = buffer ?? new T[length];
+			for (int i = 0; i < length; i++) result[i] = value;
 			yield return result;
 			if (count == 1) yield break;
 		}
 
-		var pool = length > 128 ? ArrayPool<int>.Shared : null;
-		var indexes = pool?.Rent(length) ?? new int[length];
+        ArrayPool<int>? pool = length > 128 ? ArrayPool<int>.Shared : null;
+        int[]? indexes = pool?.Rent(length) ?? new int[length];
 		try
 		{
-			for (var i = 0; i < length; i++) indexes[i] = 0;
+			for (int i = 0; i < length; i++) indexes[i] = 0;
 
-			var lastIndex = length - 1;
+            int lastIndex = length - 1;
 			bool GetNext()
 			{
 				int i;
 				for (i = lastIndex; i >= 0; --i)
 				{
-					var e = ++indexes[i];
+                    int e = ++indexes[i];
 					if (count == e)
 					{
 						if (i == 0) return false;
@@ -58,7 +58,7 @@ public static partial class Extensions
 
 			while (GetNext())
 			{
-				for (var i = 0; i < length; i++)
+				for (int i = 0; i < length; i++)
 				{
 					buffer![i] = source[indexes[i]];
 				}
@@ -73,11 +73,11 @@ public static partial class Extensions
 
 	static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet)
 	{
-		var pool = length > 128 ? ArrayPool<T>.Shared : null;
-		var buffer = pool?.Rent(length) ?? new T[length];
+        ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
+        T[]? buffer = pool?.Rent(length) ?? new T[length];
 		try
 		{
-			foreach (var b in CombinationsCore(source, length, distinctSet, buffer))
+			foreach (T[]? b in CombinationsCore(source, length, distinctSet, buffer))
 				yield return b;
 		}
 		finally
@@ -97,7 +97,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		if (length == 0) return Enumerable.Empty<T[]>();
-		var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
 		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsCore(source, length, false, buffer);
 	}
 
@@ -112,7 +112,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		if (length == 0) return Enumerable.Empty<T[]>();
-		var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
 		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsCore(source, length, true, buffer);
 	}
 
@@ -126,8 +126,8 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		if (length == 0) return Enumerable.Empty<T[]>();
-		var source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		var count = source.Count;
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        int count = source.Count;
 		return count == 0
 			? Enumerable.Empty<T[]>()
 			: uniqueOnly
@@ -152,12 +152,12 @@ public static partial class Extensions
 		{
 			if (length == 0) yield break;
 
-			var pool = length > 128 ? ArrayPool<T>.Shared : null;
-			var buffer = pool?.Rent(length) ?? new T[length];
+            ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
+            T[]? buffer = pool?.Rent(length) ?? new T[length];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
 			try
 			{
-				foreach (var _ in Combinations(elements, length, buffer))
+				foreach (T[]? _ in Combinations(elements, length, buffer))
 					yield return readBuffer;
 			}
 			finally
@@ -184,12 +184,12 @@ public static partial class Extensions
 		{
 			if (length == 0) yield break;
 
-			var pool = length > 128 ? ArrayPool<T>.Shared : null;
-			var buffer = pool?.Rent(length) ?? new T[length];
+            ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
+            T[]? buffer = pool?.Rent(length) ?? new T[length];
 			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
 			try
 			{
-				foreach (var _ in CombinationsDistinct(elements, length, buffer))
+				foreach (T[]? _ in CombinationsDistinct(elements, length, buffer))
 					yield return readBuffer;
 			}
 			finally
@@ -203,7 +203,7 @@ public static partial class Extensions
 	/// <param name="length">The length of each result.</param>
 	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length)
 	{
-		foreach (var c in CombinationsBuffered(elements, length))
+		foreach (ReadOnlyMemory<T> c in CombinationsBuffered(elements, length))
 			yield return c.ToArray();
 	}
 
@@ -211,7 +211,7 @@ public static partial class Extensions
 	/// <param name="length">The length of each result.</param>
 	public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length)
 	{
-		foreach (var c in CombinationsDistinctBuffered(elements, length))
+		foreach (ReadOnlyMemory<T> c in CombinationsDistinctBuffered(elements, length))
 			yield return c.ToArray();
 	}
 
@@ -225,7 +225,7 @@ public static partial class Extensions
 	{
 		if (elements is null) throw new ArgumentNullException(nameof(elements));
 		Contract.EndContractBlock();
-		var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
 		return source.Count == 0 ? Enumerable.Empty<T[]>() : Combinations(source, source.Count);
 	}
 
@@ -239,7 +239,7 @@ public static partial class Extensions
 	{
 		if (elements is null) throw new ArgumentNullException(nameof(elements));
 		Contract.EndContractBlock();
-		var source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
 		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsDistinct(source, source.Count);
 	}
 }
