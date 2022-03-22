@@ -19,11 +19,14 @@ public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollecti
 	}
 
 	/// <inheritdoc />
-	public int IndexOf(T item) => Sync.ReadValue(() => InternalSource.IndexOf(item));
+	public int IndexOf(T item)
+        => Sync.Read(() => InternalSource.IndexOf(item));
 
 	/// <inheritdoc />
-	public void Insert(int index, T item) => Sync.Write(() => InternalSource.Insert(index, item));
+	public void Insert(int index, T item)
+        => Sync.Write(() => InternalSource.Insert(index, item));
 
 	/// <inheritdoc />
-	public void RemoveAt(int index) => Sync.Write(() => InternalSource.RemoveAt(index));
+	public void RemoveAt(int index)
+        => Sync.Write(() => InternalSource.RemoveAt(index));
 }

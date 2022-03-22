@@ -31,27 +31,27 @@ public sealed class ReadWriteSynchronizedHashSet<T> : ReadWriteSynchronizedColle
 
 	/// <inheritdoc />
 	public bool IsProperSubsetOf(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.IsProperSubsetOf(other));
+		=> Sync.Read(() => InternalSource.IsProperSubsetOf(other));
 
 	/// <inheritdoc />
 	public bool IsProperSupersetOf(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.IsProperSupersetOf(other));
+		=> Sync.Read(() => InternalSource.IsProperSupersetOf(other));
 
 	/// <inheritdoc />
 	public bool IsSubsetOf(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.IsSubsetOf(other));
+		=> Sync.Read(() => InternalSource.IsSubsetOf(other));
 
 	/// <inheritdoc />
 	public bool IsSupersetOf(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.IsSupersetOf(other));
+		=> Sync.Read(() => InternalSource.IsSupersetOf(other));
 
 	/// <inheritdoc />
 	public bool Overlaps(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.Overlaps(other));
+		=> Sync.Read(() => InternalSource.Overlaps(other));
 
 	/// <inheritdoc />
 	public bool SetEquals(IEnumerable<T> other)
-		=> Sync.ReadValue(() => InternalSource.SetEquals(other));
+		=> Sync.Read(() => InternalSource.SetEquals(other));
 
 	/// <inheritdoc />
 	public void SymmetricExceptWith(IEnumerable<T> other)

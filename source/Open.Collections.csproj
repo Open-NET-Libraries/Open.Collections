@@ -44,8 +44,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Open.Text" Version="6.0.2" />
-		<PackageReference Include="Open.Threading" Version="1.6.8" />
+		<PackageReference Include="Open.Text" Version="6.1.0" />
+		<PackageReference Include="Open.Threading" Version="2.0.0-preview1" />
 		<PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
 	</ItemGroup>
 

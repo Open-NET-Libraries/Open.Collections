@@ -45,7 +45,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 
 	/// <inheritdoc />
 	public override bool Contains(T item)
-        => Sync.ReadValue(() => InternalSource.Contains(item));
+        => Sync.Read(() => InternalSource.Contains(item));
 
     /// <inheritdoc />
     public override bool Remove(T item)
@@ -53,11 +53,11 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 
     /// <inheritdoc />
     public override int Count
-		=> Sync.ReadValue(() => InternalSource.Count);
+		=> Sync.Read(() => InternalSource.Count);
 
 	/// <inheritdoc />
 	public T[] Snapshot()
-        => Sync.ReadValue(() => InternalSource.ToArray());
+        => Sync.Read(() => InternalSource.ToArray());
 
 	/// <inheritdoc />
 	public override void Export(ICollection<T> to)
@@ -110,15 +110,15 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 
 	/// <inheritdoc />
 	public void Modify(Func<bool> condition, Action<TCollection> action)
-		=> Sync.ReadWriteConditionalOptimized(_ => condition(), () => action(InternalSource));
+		=> Sync.ReadWriteConditional(_ => condition(), () => action(InternalSource));
 
 	/// <summary>
 	/// Allows for multiple modifications at once.
 	/// </summary>
 	/// <param name="condition">Only executes the action if the condition is true.  The condition may be invoked more than once.</param>
 	/// <param name="action">The action to execute safely on the underlying collection safely.</param>
-	public void Modify(Func<LockType, bool> condition, Action<TCollection> action)
-		=> Sync.ReadWriteConditionalOptimized(condition, () => action(InternalSource));
+	public void Modify(Func<bool, bool> condition, Action<TCollection> action)
+		=> Sync.ReadWriteConditional(condition, () => action(InternalSource));
 
 	/// <inheritdoc />
 	public void Modify(Action<TCollection> action) => Sync.Write(()
@@ -126,14 +126,14 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 
 	/// <inheritdoc />
 	public TResult Modify<TResult>(Func<TCollection, TResult> action)
-		=> Sync.WriteValue(() => action(InternalSource));
+		=> Sync.Write(() => action(InternalSource));
 
 	/// <inheritdoc />
 	public virtual bool IfContains(T item, Action<TCollection> action)
 	{
-        using var syncLock = Sync.UpgradableReadLock();
+        using var uLock = Sync.UpgradableReadLock();
         if (!InternalSource.Contains(item)) return false;
-        syncLock.UpgradeToWriteLock();
+        using var wLock = Sync.WriteLock();
         action(InternalSource);
         return true;
 	}
@@ -141,9 +141,9 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 	/// <inheritdoc />
 	public virtual bool IfNotContains(T item, Action<TCollection> action)
 	{
-        using var syncLock = Sync.UpgradableReadLock();
+        using var uLock = Sync.UpgradableReadLock();
         if (!InternalSource.Contains(item)) return false;
-        syncLock.UpgradeToWriteLock();
+        using var wLock = Sync.WriteLock();
         action(InternalSource);
         return true;
 	}

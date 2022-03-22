@@ -225,7 +225,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		T result = default!;
-		bool condition(LockType _) => !target.TryGetValue(key, out result);
+		bool condition(bool _) => !target.TryGetValue(key, out result);
 
 		void render()
 		{
@@ -257,7 +257,7 @@ public static partial class Extensions
 
 		T result = default!;
 		// Note, the following sync read is on the TARGET and not the key. See below.
-		bool condition(LockType _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
+		bool condition(bool _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 		// Once a per value write lock is established, execute the scheduler, and syncronize adding...
 		void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
