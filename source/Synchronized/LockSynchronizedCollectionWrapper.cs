@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Open.Collections.Synchronized;
@@ -37,9 +38,20 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	}
 
 	/// <inheritdoc />
-	public override void Add(T[] items)
+	public override void AddRange(IEnumerable<T> items)
 	{
-		lock (Sync)
+        if (items is null) return;
+        IReadOnlyList<T> enumerable = items switch
+        {
+            IImmutableList<T> i => i,
+            T[] a => a,
+            _ => items.ToArray(),
+        };
+
+        if (enumerable.Count == 0)
+            return;
+
+        lock (Sync)
 		{
 			foreach (T? i in items)
 				InternalSource.Add(i);

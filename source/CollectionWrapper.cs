@@ -32,17 +32,19 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
 	/// An enumerable is potentially slow as it may be yielding to a process.
 	/// </summary>
 	/// <param name="items">The items to add.</param>
-	public virtual void Add(T[] items)
+	public virtual void AddRange(IEnumerable<T> items)
 	{
-		foreach (T? i in items)
+        foreach (T? i in items)
 			InternalSource.Add(i);
 	}
 
 	/// <inheritdoc />
-	public virtual void Clear() => InternalSource.Clear();
+	public virtual void Clear()
+        => InternalSource.Clear();
 
 	/// <inheritdoc />
-	public virtual bool Remove(T item) => InternalSource.Remove(item);
+	public virtual bool Remove(T item)
+        => InternalSource.Remove(item);
 
 	/// <inheritdoc />
 	public override bool IsReadOnly

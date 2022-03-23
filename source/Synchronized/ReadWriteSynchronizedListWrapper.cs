@@ -29,4 +29,14 @@ public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollecti
 	/// <inheritdoc />
 	public void RemoveAt(int index)
         => Sync.Write(() => InternalSource.RemoveAt(index));
+
+    /// <inheritdoc />
+    public override bool Remove(T item)
+        => Sync.ReadUpgradeable(() =>
+        {
+            int i = InternalSource.IndexOf(item);
+            if (i == -1) return false;
+            RemoveAt(i);
+            return true;
+        });
 }

@@ -1,12 +1,14 @@
 ﻿using Open.Threading;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 
 namespace Open.Collections.Synchronized;
 
-public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
+public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
+    : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 {
 	protected ReaderWriterLockSlim Sync = new(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
@@ -32,12 +34,22 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 		});
 
 	/// <inheritdoc />
-	public override void Add(T[] items)
-        => Sync.Write(() =>
-		{
-			foreach (T? i in items)
-				InternalSource.Add(i);
-		});
+	public override void AddRange(IEnumerable<T> items)
+    {
+        if (items is null) return;
+        IReadOnlyList<T> enumerable = items switch
+        {
+            IImmutableList<T> i => i,
+            T[] a => a,
+            _ => items.ToArray(),
+        };
+
+        Sync.Write(() =>
+        {
+            foreach (var item in enumerable)
+                InternalSource.Add(item);
+        });
+    }
 
 	/// <inheritdoc />
 	public override void Clear()
@@ -49,7 +61,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection> : Collection
 
     /// <inheritdoc />
     public override bool Remove(T item)
-        => IfContains(item, c => c.Remove(item));
+        => Sync.Write(() => InternalSource.Remove(item));
 
     /// <inheritdoc />
     public override int Count
