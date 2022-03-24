@@ -22,7 +22,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	/// <inheritdoc />
 	public override void Add(T item)
 	{
-		lock (Sync) InternalSource.Add(item);
+		lock (Sync) base.Add(item);
 	}
 
 	/// <inheritdoc />
@@ -30,10 +30,10 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-			InternalSource.Add(item1);
-			InternalSource.Add(item2);
+            base.Add(item1);
+            base.Add(item2);
 			foreach (T? i in items)
-				InternalSource.Add(i);
+                base.Add(i);
 		}
 	}
 
@@ -51,29 +51,25 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
         if (enumerable.Count == 0)
             return;
 
-        lock (Sync)
-		{
-			foreach (T? i in items)
-				InternalSource.Add(i);
-		}
+        lock (Sync) base.AddRange(items);
 	}
 
 	/// <inheritdoc />
 	public override void Clear()
 	{
-		lock (Sync) InternalSource.Clear();
+		lock (Sync) base.Clear();
 	}
 
 	/// <inheritdoc  />
 	public override bool Contains(T item)
 	{
-		lock (Sync) return InternalSource.Contains(item);
+		lock (Sync) return base.Contains(item);
 	}
 
 	/// <inheritdoc />
 	public override bool Remove(T item)
 	{
-		lock (Sync) return InternalSource.Remove(item);
+		lock (Sync) return base.Remove(item);
 	}
 
 	#endregion
@@ -100,14 +96,14 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		if (useSnapshot)
 		{
-			foreach (T? item in Snapshot())
+			foreach (var item in Snapshot())
 				action(item);
 		}
 		else
 		{
 			lock (Sync)
 			{
-				foreach (T? item in InternalSource)
+				foreach (var item in InternalSource)
 					action(item);
 			}
 		}
@@ -116,7 +112,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	/// <inheritdoc />
 	public override void CopyTo(T[] array, int arrayIndex)
 	{
-		lock (Sync) InternalSource.CopyTo(array, arrayIndex);
+		lock (Sync) base.CopyTo(array, arrayIndex);
 	}
 
 	/// <summary>
@@ -129,7 +125,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	/// </returns>
 	public override Span<T> CopyTo(Span<T> span)
 	{
-		lock (Sync) return InternalSource.CopyToSpan(span);
+		lock (Sync) return base.CopyTo(span);
 	}
 
 	/// <inheritdoc />

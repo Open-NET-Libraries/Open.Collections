@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
@@ -12,9 +13,11 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 
 	protected ReadOnlyCollectionWrapper(TCollection source) => InternalSource = source ?? throw new ArgumentNullException(nameof(source));
 
-	#region Implementation of IReadOnlyCollection<T>
-	/// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
-	public virtual bool Contains(T item) => InternalSource.Contains(item);
+    #region Implementation of IReadOnlyCollection<T>
+    /// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual bool Contains(T item)
+        => InternalSource.Contains(item);
 
 	/// <inheritdoc />
 	public virtual int Count
@@ -29,19 +32,25 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 	/// </summary>
 	/// <returns>An enumerator from the underlying collection.</returns>
 	// ReSharper disable once InheritdocConsiderUsage
-	public IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
+	public virtual IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-	/// <inheritdoc cref="ICollection&lt;T&gt;.CopyTo(T[], int)" />
-	public virtual void CopyTo(T[] array, int arrayIndex) => InternalSource.CopyTo(array, arrayIndex);
-	#endregion
+    /// <inheritdoc cref="ICollection&lt;T&gt;.CopyTo(T[], int)" />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual void CopyTo(T[] array, int arrayIndex)
+        => InternalSource.CopyTo(array, arrayIndex);
+    #endregion
 
-	/// <inheritdoc cref="Extensions.CopyToSpan{T}(IEnumerable{T}, Span{T})"/>
-	public virtual Span<T> CopyTo(Span<T> span) => InternalSource.CopyToSpan(span);
+    /// <inheritdoc cref="Extensions.CopyToSpan{T}(IEnumerable{T}, Span{T})"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual Span<T> CopyTo(Span<T> span)
+        => InternalSource.CopyToSpan(span);
 
-	/// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
-	public virtual void Export(ICollection<T> to) => to.Add(InternalSource);
+    /// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public virtual void Export(ICollection<T> to)
+        => to.Add(InternalSource);
 
 	#region Dispose
 	protected override void OnDispose() => Nullify(ref InternalSource)?.Dispose();
