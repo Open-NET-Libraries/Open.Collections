@@ -1,36 +1,17 @@
 ﻿using Open.Threading;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 
 namespace Open.Collections.Synchronized;
 
-public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
+public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
 {
-    protected List<T> _source = new();
-
-    public TrackedList(ModificationSynchronizer? sync = null) : base(sync)
+    public TrackedList(ModificationSynchronizer? sync = null) : base(new List<T>(), sync)
     {
     }
 
-    public TrackedList(out ModificationSynchronizer sync) : base(out sync)
+    public TrackedList(out ModificationSynchronizer sync) : base(new List<T>(), out sync)
     {
-    }
-
-    protected override ModificationSynchronizer InitSync(object? sync = null)
-    {
-        _syncOwned = true;
-        return new ReadWriteModificationSynchronizer(sync as ReaderWriterLockSlim);
-    }
-
-    protected override void OnDispose()
-    {
-        base.OnDispose();
-        Nullify(ref _source)?.Clear();
     }
 
     /// <inheritdoc />
@@ -39,7 +20,7 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
         get => Sync!.Reading(() =>
         {
             AssertIsAlive();
-            return _source[index];
+            return InternalSource[index];
         });
 
         set => SetValue(index, value);
@@ -53,32 +34,12 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
     private bool SetValueInternal(int index, T value)
     {
         bool changing
-            = index >= _source.Count
-            || !(_source[index]?.Equals(value) ?? value is null);
+            = index >= InternalSource.Count
+            || !(InternalSource[index]?.Equals(value) ?? value is null);
         if (changing)
-            _source[index] = value;
+            InternalSource[index] = value;
         return changing;
     }
-
-    /// <inheritdoc />
-    public int Count
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            return _source.Count;
-        });
-
-    /// <inheritdoc />
-    public virtual void Add(T item)
-        => Sync!.Modifying(() => AssertIsAlive(), () =>
-        {
-            AddInternal(item);
-            return true;
-        });
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void AddInternal(T item)
-        => _source.Add(item);
 
     public void Add(T item, T item2, params T[] items)
         => Sync!.Modifying(() => AssertIsAlive(), () =>
@@ -89,68 +50,12 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
                 AddInternal(i);
             return true;
         });
-    public void AddRange(IEnumerable<T> items)
-    {
-        if (items is null) return;
-        IReadOnlyList<T> enumerable = items switch
-        {
-            IImmutableList<T> i => i,
-            T[] a => a,
-            _ => items.ToArray(),
-
-        };
-
-        if (enumerable.Count == 0)
-            return;
-
-        Sync!.Modifying(() => AssertIsAlive(), () =>
-        {
-            foreach (var item in enumerable)
-                AddInternal(item);
-            return true;
-        });
-    }
-
-    /// <inheritdoc />
-    public void Clear()
-        => Sync!.Modifying(
-        () => AssertIsAlive() && _source.Count != 0,
-        () =>
-        {
-            int count = Count;
-            bool hasItems = count != 0;
-            if (hasItems)
-            {
-                _source.Clear();
-            }
-            return hasItems;
-        });
-
-    /// <inheritdoc />
-    public bool Contains(T item)
-        => Sync!.Reading(() => AssertIsAlive() && _source.Contains(item));
-
-    /// <inheritdoc />
-    public void CopyTo(T[] array, int arrayIndex)
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            _source.CopyTo(array, arrayIndex);
-        });
-
-    /// <inheritdoc />
-    public IEnumerator<T> GetEnumerator()
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            return _source.GetEnumerator();
-        });
 
     /// <inheritdoc />
     public int IndexOf(T item)
         => Sync!.Reading(
             () => AssertIsAlive()
-            ? _source.IndexOf(item)
+            ? InternalSource.IndexOf(item)
             : -1);
 
     /// <inheritdoc />
@@ -159,20 +64,20 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
             () => AssertIsAlive(),
             () =>
             {
-                _source.Insert(index, item);
+                InternalSource.Insert(index, item);
                 return true;
             });
 
     /// <inheritdoc />
-    public bool Remove(T item)
+    public override bool Remove(T item)
     {
         int i = -1;
         return Sync!.Modifying(
             () => AssertIsAlive()
-                && (i = _source.IndexOf(item)) != -1,
+                && (i = InternalSource.IndexOf(item)) != -1,
             () =>
             {
-                _source.RemoveAt(i);
+                InternalSource.RemoveAt(i);
                 return true;
             });
     }
@@ -183,16 +88,9 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
             () => AssertIsAlive(),
             () =>
             {
-                _source.RemoveAt(index);
+                InternalSource.RemoveAt(index);
                 return true;
             });
-
-    IEnumerator IEnumerable.GetEnumerator()
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            return _source.GetEnumerator();
-        });
 
     /// <summary>
     /// Synchonizes finding an item (<paramref name="target"/>), and if found, replaces it with the <paramref name="replacement"/>.
@@ -207,7 +105,7 @@ public class TrackedList<T> : ModificationSynchronizedBase, IList<T>
             () =>
             {
                 AssertIsAlive();
-                index = _source.IndexOf(target);
+                index = InternalSource.IndexOf(target);
                 return index != -1 || (throwIfNotFound ? throw new ArgumentException("Not found.", nameof(target)) : false);
             },
             () =>
