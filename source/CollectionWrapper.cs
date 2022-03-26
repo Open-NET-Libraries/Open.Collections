@@ -20,18 +20,17 @@ public abstract class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrap
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(T item) => AddInternal(item);
 
-    /// <inheritdoc cref="ICollection&lt;T&gt;" />
+    /// <summary>Adds more than one item.</summary>
     /// <param name="item1">First item to add.</param>
     /// <param name="item2">Additional item to add.</param>
     /// <param name="items">Extended param items to add.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(T item1, T item2, params T[] items)
-	{
-		AddInternal(item1);
-		AddInternal(item2);
-		foreach (T? i in items)
-			AddInternal(i);
-	}
+    public virtual void AddThese(T item1, T item2, params T[] items)
+    {
+        AddInternal(item1);
+        AddInternal(item2);
+        foreach (T? i in items)
+            AddInternal(i);
+    }
 
     /// <summary>
     /// Adds mutliple items to the collection.

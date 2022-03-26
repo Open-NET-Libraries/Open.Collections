@@ -13,14 +13,12 @@ public class LockSynchronizedListWrapper<T> : LockSynchronizedCollectionWrapper<
 	/// <inheritdoc />
 	public T this[int index]
 	{
-		// ReSharper disable once InconsistentlySynchronizedField
 		get => InternalSource[index];
-		// ReSharper disable once InconsistentlySynchronizedField
 		set => InternalSource[index] = value;
 	}
 
-	/// <inheritdoc />
-	public int IndexOf(T item)
+    /// <inheritdoc />
+    public int IndexOf(T item)
 	{
 		lock (Sync) return InternalSource.IndexOf(item);
 	}

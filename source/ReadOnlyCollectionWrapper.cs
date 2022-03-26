@@ -11,7 +11,8 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 {
 	protected TCollection InternalSource;
 
-	protected ReadOnlyCollectionWrapper(TCollection source) => InternalSource = source ?? throw new ArgumentNullException(nameof(source));
+	protected ReadOnlyCollectionWrapper(TCollection source)
+        => InternalSource = source ?? throw new ArgumentNullException(nameof(source));
 
     #region Implementation of IReadOnlyCollection<T>
     /// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
@@ -31,7 +32,6 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 	/// To ensure expected behavior, this returns an enumerator from the underlying collection.  Exceptions can be thrown if the collection content changes.
 	/// </summary>
 	/// <returns>An enumerator from the underlying collection.</returns>
-	// ReSharper disable once InheritdocConsiderUsage
 	public virtual IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
 
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -53,7 +53,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
         => to.Add(InternalSource);
 
 	#region Dispose
-	protected override void OnDispose() => Nullify(ref InternalSource)?.Dispose();
+	protected override void OnDispose() => Nullify(ref InternalSource);
 
 	/// <summary>
 	/// Extracts the underlying collection and returns it before disposing of this synchronized wrapper.

@@ -24,7 +24,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
         => Sync.Write(() => base.Add(item));
 
     /// <inheritdoc />
-    public override void Add(T item1, T item2, params T[] items)
+    public override void AddThese(T item1, T item2, params T[] items)
         => Sync.Write(() =>
         {
             base.Add(item1);

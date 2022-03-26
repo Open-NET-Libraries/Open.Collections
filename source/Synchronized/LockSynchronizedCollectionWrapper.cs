@@ -25,20 +25,20 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		lock (Sync) base.Add(item);
 	}
 
-	/// <inheritdoc />
-	public override void Add(T item1, T item2, params T[] items)
-	{
-		lock (Sync)
-		{
+    /// <inheritdoc />
+    public override void AddThese(T item1, T item2, params T[] items)
+    {
+        lock (Sync)
+        {
             base.Add(item1);
             base.Add(item2);
-			foreach (T? i in items)
+            foreach (T? i in items)
                 base.Add(i);
-		}
-	}
+        }
+    }
 
-	/// <inheritdoc />
-	public override void AddRange(IEnumerable<T> items)
+    /// <inheritdoc />
+    public override void AddRange(IEnumerable<T> items)
 	{
         if (items is null) return;
         IReadOnlyList<T> enumerable = items switch
