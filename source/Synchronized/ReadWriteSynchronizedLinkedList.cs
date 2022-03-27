@@ -5,8 +5,10 @@ namespace Open.Collections.Synchronized;
 
 public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
-	public ReadWriteSynchronizedLinkedList() : base(new LinkedList<T>()) { }
-	public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
+	public ReadWriteSynchronizedLinkedList()
+        : base(new LinkedList<T>()) { }
+	public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection)
+        : base(new LinkedList<T>(collection)) { }
 
 	/// <inheritdoc />
 	public LinkedListNode<T> First
@@ -18,46 +20,46 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
 
 	/// <inheritdoc />
 	public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
-        => Sync.Write(() => InternalSource.AddAfter(node, item));
+        => RWLock.Write(() => InternalSource.AddAfter(node, item));
 
 	/// <inheritdoc />
 	public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
-        => Sync.Write(() => InternalSource.AddAfter(node, newNode));
+        => RWLock.Write(() => InternalSource.AddAfter(node, newNode));
 
 	/// <inheritdoc />
 	public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
-        => Sync.Write(() => InternalSource.AddBefore(node, item));
+        => RWLock.Write(() => InternalSource.AddBefore(node, item));
 
 	/// <inheritdoc />
 	public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
-        => Sync.Write(() => InternalSource.AddBefore(node, newNode));
+        => RWLock.Write(() => InternalSource.AddBefore(node, newNode));
 
 	/// <inheritdoc />
 	public LinkedListNode<T> AddFirst(T item)
-        => Sync.Write(() => InternalSource.AddFirst(item));
+        => RWLock.Write(() => InternalSource.AddFirst(item));
 
 	/// <inheritdoc />
 	public void AddFirst(LinkedListNode<T> newNode)
-        => Sync.Write(() => InternalSource.AddFirst(newNode));
+        => RWLock.Write(() => InternalSource.AddFirst(newNode));
 
 	/// <inheritdoc />
 	public LinkedListNode<T> AddLast(T item)
-        => Sync.Write(() => InternalSource.AddLast(item));
+        => RWLock.Write(() => InternalSource.AddLast(item));
 
 	/// <inheritdoc />
 	public void AddLast(LinkedListNode<T> newNode)
-        => Sync.Write(() => InternalSource.AddLast(newNode));
+        => RWLock.Write(() => InternalSource.AddLast(newNode));
 
 	/// <inheritdoc />
 	public void Remove(LinkedListNode<T> node)
-        => Sync.Write(() => InternalSource.Remove(node));
+        => RWLock.Write(() => InternalSource.Remove(node));
 
 	/// <inheritdoc />
-	public void RemoveFirst() => Sync.Write(()
+	public void RemoveFirst() => RWLock.Write(()
         => InternalSource.RemoveFirst());
 
 	/// <inheritdoc />
-	public void RemoveLast() => Sync.Write(()
+	public void RemoveLast() => RWLock.Write(()
         => InternalSource.RemoveLast());
 
 	/// <inheritdoc />
@@ -66,7 +68,7 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
         bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		Sync.ReadWriteConditional(
+		RWLock.ReadWriteConditional(
 			_ => (node = InternalSource.First) is not null,
 			() =>
 			{
@@ -84,7 +86,7 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
         bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		Sync.ReadWriteConditional(
+		RWLock.ReadWriteConditional(
 			_ => (node = InternalSource.Last) is not null,
 			() =>
 			{

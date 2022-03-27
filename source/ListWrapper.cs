@@ -2,9 +2,15 @@
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
-public abstract class ListWrapper<T> : CollectionWrapper<T, IList<T>>, IList<T>
+public class ListWrapper<T> : CollectionWrapper<T, IList<T>>, IList<T>
 {
-    protected ListWrapper(IList<T> source) : base(source)
+    public ListWrapper(int capacity = 0)
+        : base(new List<T>(capacity), true)
+    {
+    }
+
+    public ListWrapper(IList<T> source, bool owner = false)
+        : base(source, owner)
     {
     }
 

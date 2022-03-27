@@ -9,7 +9,12 @@ public class DictionaryWrapper<TKey, TValue>
 {
     /// <inheritdoc />
     public DictionaryWrapper(int capacity = 0)
-        : base(new Dictionary<TKey, TValue>(capacity))
+        : base(new Dictionary<TKey, TValue>(capacity), true)
+    {
+    }
+
+    public DictionaryWrapper(IDictionary<TKey, TValue> source, bool owned = false)
+        : base(source, owned)
     {
     }
 

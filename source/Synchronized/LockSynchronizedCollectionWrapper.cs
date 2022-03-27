@@ -8,14 +8,8 @@ namespace Open.Collections.Synchronized;
 public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 {
-	protected LockSynchronizedCollectionWrapper(TCollection source) : base(source) => Sync = source;
-
-	protected readonly object Sync; // Could possibly override..
-
-	/// <summary>
-	/// The underlying object used for synchronization.  This is exposed to allow for more complex synchronization operations.
-	/// </summary>
-	public object SyncRoot => Sync;
+    protected LockSynchronizedCollectionWrapper(TCollection source)
+        : base(source) { }
 
 	#region Implementation of ICollection<T>
 
@@ -156,9 +150,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-            bool contains = InternalSource.Contains(item);
-			if (contains) action(InternalSource);
-			return contains;
+            if (!InternalSource.Contains(item)) return false;
+            action(InternalSource);
+            return true;
 		}
 	}
 
@@ -167,9 +161,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-            bool notContains = !InternalSource.Contains(item);
-			if (notContains) action(InternalSource);
-			return notContains;
-		}
-	}
+            if (InternalSource.Contains(item)) return false;
+            action(InternalSource);
+            return true;
+        }
+    }
 }

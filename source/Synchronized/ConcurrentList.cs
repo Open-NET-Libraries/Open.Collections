@@ -19,26 +19,26 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     public override int Count => _count;
     private readonly ConcurrentQueue<T> _buffer = new();
     private readonly ReaderWriterLockSlim _sync = new();
-    private ReaderWriterLockSlim Sync
+    private ReaderWriterLockSlim RWLock
         => AssertIsAlive() ? _sync : null!;
 
     protected override void OnDispose()
     {
         Clear();
-        Sync.Dispose();
+        RWLock.Dispose();
         base.OnDispose();
     }
 
     private void DumpBuffer()
     {
         if (_buffer.IsEmpty) return;
-        using var write = Sync.WriteLock();
+        using var write = RWLock.WriteLock();
         DumpBufferUnlocked();
     }
 
     private void DumpBufferUnlocked()
     {
-        Debug.Assert(Sync.IsWriteLockHeld);
+        Debug.Assert(RWLock.IsWriteLockHeld);
         while (_buffer.TryDequeue(out var item))
             InternalSource.Add(item);
     }
@@ -77,10 +77,10 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     /// <inheritdoc />
     public override int IndexOf(T item)
     {
-        int i = Sync.Read(() => base.IndexOf(item));
+        int i = RWLock.Read(() => base.IndexOf(item));
         if (i != -1 || _buffer.IsEmpty) return i;
         DumpBuffer(); // one dump then accept results.
-        return Sync.Read(() => base.IndexOf(item));
+        return RWLock.Read(() => base.IndexOf(item));
     }
 
     /// <inheritdoc />
@@ -88,7 +88,7 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     {
         AssertValidIndex(index);
         DumpBuffer();
-        using var write = Sync.WriteLock();
+        using var write = RWLock.WriteLock();
         base.Insert(index, item);
         Interlocked.Increment(ref _count);
     }
@@ -103,7 +103,7 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
 
     private void RemoveAtCore(int index)
     {
-        using var write = Sync.WriteLock();
+        using var write = RWLock.WriteLock();
         base.RemoveAt(index);
         Interlocked.Decrement(ref _count);
     }
@@ -111,7 +111,7 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     /// <inheritdoc />
     public override bool Remove(T item)
         // Assume the majority case is that the item exists.
-        => Sync.ReadUpgradeable(() =>
+        => RWLock.ReadUpgradeable(() =>
         {
             DumpBuffer();
             int i = base.IndexOf(item);
@@ -122,7 +122,7 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
 
     /// <inheritdoc />
     public override void Clear()
-        => Sync.Write(() =>
+        => RWLock.Write(() =>
         {
             DumpBufferUnlocked();
             int i = InternalSource.Count;
@@ -138,7 +138,7 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     public override void CopyTo(T[] array, int arrayIndex)
     {
         DumpBuffer();
-        Sync.Read(() => base.CopyTo(array, arrayIndex));
+        RWLock.Read(() => base.CopyTo(array, arrayIndex));
     }
 
     /// <inheritdoc />
@@ -152,6 +152,6 @@ public class ConcurrentList<T> : ListWrapper<T>, ISynchronizedCollection<T>
     public T[] Snapshot()
     {
         DumpBuffer();
-        return Sync.Read(()=>InternalSource.ToArray());
+        return RWLock.Read(()=>InternalSource.ToArray());
     }
 }

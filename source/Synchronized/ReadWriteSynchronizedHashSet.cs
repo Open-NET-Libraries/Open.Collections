@@ -23,43 +23,43 @@ public sealed class ReadWriteSynchronizedHashSet<T> : ReadWriteSynchronizedColle
 
 	/// <inheritdoc />
 	public void ExceptWith(IEnumerable<T> other)
-		=> Sync.Write(() => InternalSource.ExceptWith(other));
+		=> RWLock.Write(() => InternalSource.ExceptWith(other));
 
 	/// <inheritdoc />
 	public void IntersectWith(IEnumerable<T> other)
-		=> Sync.Write(() => InternalSource.IntersectWith(other));
+		=> RWLock.Write(() => InternalSource.IntersectWith(other));
 
 	/// <inheritdoc />
 	public bool IsProperSubsetOf(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.IsProperSubsetOf(other));
+		=> RWLock.Read(() => InternalSource.IsProperSubsetOf(other));
 
 	/// <inheritdoc />
 	public bool IsProperSupersetOf(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.IsProperSupersetOf(other));
+		=> RWLock.Read(() => InternalSource.IsProperSupersetOf(other));
 
 	/// <inheritdoc />
 	public bool IsSubsetOf(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.IsSubsetOf(other));
+		=> RWLock.Read(() => InternalSource.IsSubsetOf(other));
 
 	/// <inheritdoc />
 	public bool IsSupersetOf(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.IsSupersetOf(other));
+		=> RWLock.Read(() => InternalSource.IsSupersetOf(other));
 
 	/// <inheritdoc />
 	public bool Overlaps(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.Overlaps(other));
+		=> RWLock.Read(() => InternalSource.Overlaps(other));
 
 	/// <inheritdoc />
 	public bool SetEquals(IEnumerable<T> other)
-		=> Sync.Read(() => InternalSource.SetEquals(other));
+		=> RWLock.Read(() => InternalSource.SetEquals(other));
 
 	/// <inheritdoc />
 	public void SymmetricExceptWith(IEnumerable<T> other)
-		=> Sync.Write(() => InternalSource.SymmetricExceptWith(other));
+		=> RWLock.Write(() => InternalSource.SymmetricExceptWith(other));
 
 	/// <inheritdoc />
 	public void UnionWith(IEnumerable<T> other)
-		=> Sync.Write(() => InternalSource.UnionWith(other));
+		=> RWLock.Write(() => InternalSource.UnionWith(other));
 
     /// <inheritdoc />
     public override bool IfContains(T item, Action<HashSet<T>> action)

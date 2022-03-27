@@ -5,7 +5,7 @@ namespace Open.Collections.Synchronized;
 
 public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollectionWrapper<T, IList<T>>, IList<T>
 {
-	public ReadWriteSynchronizedListWrapper(IList<T> list) : base(list) { }
+	public ReadWriteSynchronizedListWrapper(IList<T> list, bool owner = false) : base(list, owner) { }
 
 	// This is a simplified version.
 	// It could be possible to allow indexed values to change independently of one another.
@@ -20,19 +20,19 @@ public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollecti
 
 	/// <inheritdoc />
 	public virtual int IndexOf(T item)
-        => Sync.Read(() => InternalSource.IndexOf(item));
+        => RWLock.Read(() => InternalSource.IndexOf(item));
 
 	/// <inheritdoc />
 	public virtual void Insert(int index, T item)
-        => Sync.Write(() => InternalSource.Insert(index, item));
+        => RWLock.Write(() => InternalSource.Insert(index, item));
 
 	/// <inheritdoc />
 	public virtual void RemoveAt(int index)
-        => Sync.Write(() => InternalSource.RemoveAt(index));
+        => RWLock.Write(() => InternalSource.RemoveAt(index));
 
     /// <inheritdoc />
     public override bool Remove(T item)
-        => Sync.ReadUpgradeable(() =>
+        => RWLock.ReadUpgradeable(() =>
         {
             int i = InternalSource.IndexOf(item);
             if (i == -1) return false;

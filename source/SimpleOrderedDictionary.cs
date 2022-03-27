@@ -13,8 +13,6 @@ public class SimpleOrderedDictionary<TKey, TValue>
     private readonly List<TKey> _keys;
     private readonly List<TValue> _values;
 
-    public object SyncRoot { get; } = new object();
-
     public SimpleOrderedDictionary(int capacity = 0)
         : base(capacity)
     {

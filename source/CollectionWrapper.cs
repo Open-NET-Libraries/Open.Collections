@@ -3,12 +3,21 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
-public abstract class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>
+public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>
 	where TCollection : class, ICollection<T>
 {
-	protected CollectionWrapper(TCollection source) : base(source)
+	public CollectionWrapper(TCollection source, bool owner = false)
+        : base(source, owner)
 	{
 	}
+
+    protected readonly object Sync = new(); // Could possibly override..
+
+    /// <summary>
+    /// The underlying object used for synchronization.
+    /// This is exposed to allow for more complex synchronization operations.
+    /// </summary>
+    public object SyncRoot => Sync;
 
     #region Implementation of ICollection<T>
 

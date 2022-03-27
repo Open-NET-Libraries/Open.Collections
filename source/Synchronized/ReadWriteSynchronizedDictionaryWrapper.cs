@@ -1,4 +1,5 @@
 ﻿using Open.Threading;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -30,7 +31,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     /// <inheritdoc />
     public virtual void Add(TKey key, TValue value)
     {
-        using var write = Sync.WriteLock();
+        using var write = RWLock.WriteLock();
         InternalSource.Add(key, value);
     }
 
@@ -43,7 +44,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     /// <inheritdoc />
     public virtual bool Remove(TKey key)
     {
-        using var write = Sync.WriteLock();
+        using var write = RWLock.WriteLock();
         return InternalSource.Remove(key);
     }
 
@@ -51,4 +52,24 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     /// <inheritdoc />
     public bool TryGetValue(TKey key, out TValue value)
         => InternalSource.TryGetValue(key, out value);
+
+    /// <inheritdoc />
+    public virtual bool IfContainsKey(TKey key, Action<IDictionary<TKey, TValue>> action)
+    {
+        using var uLock = RWLock.UpgradableReadLock();
+        if (!InternalSource.ContainsKey(key)) return false;
+        using var wLock = RWLock.WriteLock();
+        action(InternalSource);
+        return true;
+    }
+
+    /// <inheritdoc />
+    public virtual bool IfNotContainsKey(TKey key, Action<IDictionary<TKey, TValue>> action)
+    {
+        using var uLock = RWLock.UpgradableReadLock();
+        if (InternalSource.ContainsKey(key)) return false;
+        using var wLock = RWLock.WriteLock();
+        action(InternalSource);
+        return true;
+    }
 }
