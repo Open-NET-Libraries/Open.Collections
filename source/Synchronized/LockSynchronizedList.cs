@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
 public class LockSynchronizedList<T> : LockSynchronizedListWrapper<T>
 {
-	public LockSynchronizedList() : base(new List<T>()) { }
-	public LockSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
+    [ExcludeFromCodeCoverage]
+    public LockSynchronizedList(int capacity = 0) : base(new List<T>(capacity)) { }
+    [ExcludeFromCodeCoverage]
+    public LockSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
 }

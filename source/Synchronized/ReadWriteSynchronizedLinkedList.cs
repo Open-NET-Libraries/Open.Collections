@@ -1,80 +1,96 @@
 ﻿using Open.Threading;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
 public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
-	public ReadWriteSynchronizedLinkedList()
+    [ExcludeFromCodeCoverage]
+    public ReadWriteSynchronizedLinkedList()
         : base(new LinkedList<T>()) { }
-	public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection)
+
+    [ExcludeFromCodeCoverage]
+    public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection)
         : base(new LinkedList<T>(collection)) { }
 
-	/// <inheritdoc />
-	public LinkedListNode<T> First
-		=> InternalSource.First;
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> First
+        => InternalSource.First;
 
-	/// <inheritdoc />
-	public LinkedListNode<T> Last
-		=> InternalSource.Last;
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> Last
+        => InternalSource.Last;
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
         => RWLock.Write(() => InternalSource.AddAfter(node, item));
 
-	/// <inheritdoc />
-	public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
         => RWLock.Write(() => InternalSource.AddAfter(node, newNode));
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
         => RWLock.Write(() => InternalSource.AddBefore(node, item));
 
-	/// <inheritdoc />
-	public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
         => RWLock.Write(() => InternalSource.AddBefore(node, newNode));
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddFirst(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddFirst(T item)
         => RWLock.Write(() => InternalSource.AddFirst(item));
 
-	/// <inheritdoc />
-	public void AddFirst(LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddFirst(LinkedListNode<T> newNode)
         => RWLock.Write(() => InternalSource.AddFirst(newNode));
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddLast(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddLast(T item)
         => RWLock.Write(() => InternalSource.AddLast(item));
 
-	/// <inheritdoc />
-	public void AddLast(LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddLast(LinkedListNode<T> newNode)
         => RWLock.Write(() => InternalSource.AddLast(newNode));
 
-	/// <inheritdoc />
-	public void Remove(LinkedListNode<T> node)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Remove(LinkedListNode<T> node)
         => RWLock.Write(() => InternalSource.Remove(node));
 
-	/// <inheritdoc />
-	public void RemoveFirst() => RWLock.Write(()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void RemoveFirst() => RWLock.Write(()
         => InternalSource.RemoveFirst());
 
-	/// <inheritdoc />
-	public void RemoveLast() => RWLock.Write(()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void RemoveLast() => RWLock.Write(()
         => InternalSource.RemoveLast());
 
 	/// <inheritdoc />
 	public bool TryTakeFirst(out T item)
 	{
-        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		RWLock.ReadWriteConditional(
+        bool success = RWLock.ReadWriteConditional(
 			_ => (node = InternalSource.First) is not null,
 			() =>
 			{
 				result = node!.Value;
 				InternalSource.RemoveFirst();
-				success = true;
 			});
 		item = result;
 		return success;
@@ -83,16 +99,14 @@ public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCo
 	/// <inheritdoc />
 	public bool TryTakeLast(out T item)
 	{
-        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		RWLock.ReadWriteConditional(
+        bool success = RWLock.ReadWriteConditional(
 			_ => (node = InternalSource.Last) is not null,
 			() =>
 			{
 				result = node!.Value;
 				InternalSource.RemoveLast();
-				success = true;
 			});
 		item = result;
 		return success;

@@ -38,7 +38,7 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
-	public static void Add<T>(this ICollection<T> target, IEnumerable<T> values)
+	public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> values)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
@@ -50,11 +50,11 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
-	public static void Add<T>(this ICollection<T> target, T a, T b, params T[] more)
+	public static void AddThese<T>(this ICollection<T> target, T a, T b, params T[] more)
 	{
 		target.Add(a);
 		target.Add(b);
-		target.Add(more);
+		target.AddRange(more);
 	}
 
 	public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)

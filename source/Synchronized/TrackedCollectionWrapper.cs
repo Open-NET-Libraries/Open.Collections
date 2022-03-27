@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
@@ -14,18 +15,22 @@ public class TrackedCollectionWrapper<T, TCollection>
 {
     protected TCollection InternalSource;
 
+    [ExcludeFromCodeCoverage]
     public TrackedCollectionWrapper(TCollection collection, ModificationSynchronizer? sync = null)
         : base(sync) => InternalSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
+    [ExcludeFromCodeCoverage]
     public TrackedCollectionWrapper(TCollection collection, out ModificationSynchronizer sync)
         : base(out sync) => InternalSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
+    [ExcludeFromCodeCoverage]
     protected override ModificationSynchronizer InitSync(object? sync = null)
     {
         _syncOwned = true;
         return new ReadWriteModificationSynchronizer(sync as ReaderWriterLockSlim);
     }
 
+    [ExcludeFromCodeCoverage]
     protected override void OnDispose()
     {
         base.OnDispose();
@@ -40,6 +45,7 @@ public class TrackedCollectionWrapper<T, TCollection>
             return InternalSource.Count;
         });
 
+    [ExcludeFromCodeCoverage]
     protected virtual void AddInternal(T item)
        => InternalSource.Add(item);
 
@@ -73,6 +79,7 @@ public class TrackedCollectionWrapper<T, TCollection>
         });
     }
 
+    [ExcludeFromCodeCoverage]
     protected virtual void ClearInternal()
         => InternalSource.Clear();
 
@@ -106,6 +113,7 @@ public class TrackedCollectionWrapper<T, TCollection>
             () => AssertIsAlive(),
             () => InternalSource.Remove(item));
 
+    [ExcludeFromCodeCoverage]
     protected virtual IEnumerator<T> GetEnumeratorInternal()
         => InternalSource.GetEnumerator();
 
@@ -117,5 +125,6 @@ public class TrackedCollectionWrapper<T, TCollection>
             return GetEnumeratorInternal();
         });
 
+    [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

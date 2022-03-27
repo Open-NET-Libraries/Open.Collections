@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Open.Collections.Synchronized;
@@ -66,18 +67,20 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		lock (Sync) return base.Remove(item);
 	}
 
-	#endregion
+    #endregion
 
-	/// <inheritdoc />
-	public T[] Snapshot()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public T[] Snapshot()
 	{
 		lock (Sync) return this.ToArray();
 	}
 
-	/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
-	public override void Export(ICollection<T> to)
+    /// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+    [ExcludeFromCodeCoverage]
+    public override void Export(ICollection<T> to)
 	{
-		lock (Sync) to.Add(this);
+		lock (Sync) to.AddRange(this);
 	}
 
 	/// <summary>
@@ -103,33 +106,37 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		}
 	}
 
-	/// <inheritdoc />
-	public override void CopyTo(T[] array, int arrayIndex)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public override void CopyTo(T[] array, int arrayIndex)
 	{
 		lock (Sync) base.CopyTo(array, arrayIndex);
 	}
 
-	/// <summary>
-	/// Copies the results to the provided span up to its length or until the end of the results.
-	/// </summary>
-	/// <returns>
-	/// A span representing the results.
-	/// If the count was less than the target length, a new span representing the results.
-	/// Otherwise the target is returned.
-	/// </returns>
-	public override Span<T> CopyTo(Span<T> span)
+    /// <summary>
+    /// Copies the results to the provided span up to its length or until the end of the results.
+    /// </summary>
+    /// <returns>
+    /// A span representing the results.
+    /// If the count was less than the target length, a new span representing the results.
+    /// Otherwise the target is returned.
+    /// </returns>
+    [ExcludeFromCodeCoverage]
+    public override Span<T> CopyTo(Span<T> span)
 	{
 		lock (Sync) return base.CopyTo(span);
 	}
 
-	/// <inheritdoc />
-	public void Modify(Action<TCollection> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Modify(Action<TCollection> action)
 	{
 		lock (Sync) action(InternalSource);
 	}
 
-	/// <inheritdoc />
-	public void Modify(Func<bool> condition, Action<TCollection> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Modify(Func<bool> condition, Action<TCollection> action)
 	{
 		if (!condition()) return;
 		lock (Sync)
@@ -139,8 +146,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		}
 	}
 
-	/// <inheritdoc />
-	public TResult Modify<TResult>(Func<TCollection, TResult> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TResult Modify<TResult>(Func<TCollection, TResult> action)
 	{
 		lock (Sync) return action(InternalSource);
 	}

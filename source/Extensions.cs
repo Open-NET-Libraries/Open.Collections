@@ -203,7 +203,8 @@ public static partial class Extensions
 			closure(t);
 	}
 
-	public static void ForEach<T>(this IEnumerable<T> target, CancellationToken token, Action<T> closure)
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Allows for simpler implementation. Other methods cover non-cancellable case.")]
+    public static void ForEach<T>(this IEnumerable<T> target, CancellationToken token, Action<T> closure)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (closure is null) throw new ArgumentNullException(nameof(closure));

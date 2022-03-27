@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
@@ -21,7 +22,8 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
     /// And will throw <see cref="NotSupportedException"/> to prevent direct access to the source when .ExtractAndDispose() is called.
     /// </param>
     /// <exception cref="ArgumentNullException">If the <paramref name="source"/> is <see langword="null"/>.</exception>
-	public ReadOnlyCollectionWrapper(TCollection source, bool owner = false)
+    [ExcludeFromCodeCoverage]
+    public ReadOnlyCollectionWrapper(TCollection source, bool owner = false)
     {
         InternalSource = source ?? throw new ArgumentNullException(nameof(source));
         SourceOwned = owner;
@@ -29,33 +31,40 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 
     #region Implementation of IReadOnlyCollection<T>
     /// <inheritdoc cref="ICollection&lt;T&gt;.Contains(T)" />
+    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool Contains(T item)
         => InternalSource.Contains(item);
 
-	/// <inheritdoc />
-	public virtual int Count
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public virtual int Count
 		=> InternalSource.Count;
 
-	/// <inheritdoc cref="ICollection&lt;T&gt;.IsReadOnly" />
-	public virtual bool IsReadOnly
+    /// <inheritdoc cref="ICollection&lt;T&gt;.IsReadOnly" />
+    [ExcludeFromCodeCoverage]
+    public virtual bool IsReadOnly
 		=> true;
 
-	/// <summary>
-	/// To ensure expected behavior, this returns an enumerator from the underlying collection.  Exceptions can be thrown if the collection content changes.
-	/// </summary>
-	/// <returns>An enumerator from the underlying collection.</returns>
-	public virtual IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
+    /// <summary>
+    /// To ensure expected behavior, this returns an enumerator from the underlying collection.  Exceptions can be thrown if the collection content changes.
+    /// </summary>
+    /// <returns>An enumerator from the underlying collection.</returns>
+    [ExcludeFromCodeCoverage]
+    public virtual IEnumerator<T> GetEnumerator() => InternalSource.GetEnumerator();
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    [ExcludeFromCodeCoverage]
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc cref="ICollection&lt;T&gt;.CopyTo(T[], int)" />
+    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void CopyTo(T[] array, int arrayIndex)
         => InternalSource.CopyTo(array, arrayIndex);
     #endregion
 
     /// <inheritdoc cref="Extensions.CopyToSpan{T}(IEnumerable{T}, Span{T})"/>
+    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual Span<T> CopyTo(Span<T> span)
         => InternalSource.CopyToSpan(span);
@@ -63,9 +72,10 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
     /// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Export(ICollection<T> to)
-        => to.Add(InternalSource);
+        => to.AddRange(InternalSource);
 
     #region Dispose
+    [ExcludeFromCodeCoverage]
     protected override void OnDispose()
     {
         var source = Nullify(ref InternalSource);
@@ -86,5 +96,4 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
 		}
 	}
 	#endregion
-
 }

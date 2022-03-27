@@ -95,7 +95,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     public override void Export(ICollection<T> to)
     {
         using var read = RWLock.ReadLock();
-        to.Add(InternalSource);
+        to.AddRange(InternalSource);
     }
 
     /// <inheritdoc />

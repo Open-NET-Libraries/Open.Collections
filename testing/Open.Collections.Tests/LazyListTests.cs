@@ -30,4 +30,15 @@ public class LazyListTests
 			Assert.Equal(9, b.IndexOf(9));
 		}
 	}
+
+    [Fact]
+    public void DisposedTest()
+    {
+        var list = Enumerable.Range(0, 30).Memoize();
+        list.Dispose();
+        Assert.Throws<ObjectDisposedException>(() =>
+        {
+            foreach (int e in list) { }
+        });
+    }
 }

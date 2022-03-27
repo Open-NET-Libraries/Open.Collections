@@ -9,10 +9,8 @@ namespace Open.Collections.Tests;
 public abstract class BasicCollectionTests<TCollection>
     where TCollection : ICollection<int>
 {
-    public BasicCollectionTests(TCollection collection)
-    {
-        Collection = collection;
-    }
+    protected BasicCollectionTests(TCollection collection)
+        => Collection = collection;
 
     protected readonly TCollection Collection;
 
@@ -61,7 +59,7 @@ public abstract class BasicCollectionTests<TCollection>
             Collection.Add(3);
             search = 2;
         }
-        Collection.Contains(2).Should().BeTrue();
+        Collection.Contains(search).Should().BeTrue();
     }
 
     [Fact]

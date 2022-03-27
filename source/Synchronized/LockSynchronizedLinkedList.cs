@@ -1,5 +1,6 @@
 ﻿using Open.Threading;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
@@ -7,79 +8,94 @@ namespace Open.Collections.Synchronized;
 // Overriding the .Value property of the nodes is beyond the scope of this.  All that's needed is to synchronize the collection.
 public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
-	public LockSynchronizedLinkedList() : base(new LinkedList<T>()) { }
-	public LockSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
+    public LockSynchronizedLinkedList() : base(new LinkedList<T>()) { }
 
-	/// <inheritdoc />
-	public LinkedListNode<T> First
+    [ExcludeFromCodeCoverage]
+    public LockSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> First
 		=> InternalSource.First;
 
-	/// <inheritdoc />
-	public LinkedListNode<T> Last
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> Last
 		=> InternalSource.Last;
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item)
 	{
 		lock (Sync) return InternalSource.AddAfter(node, item);
 	}
 
-	/// <inheritdoc />
-	public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode)
 	{
 		lock (Sync) InternalSource.AddAfter(node, newNode);
 	}
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item)
 	{
 		lock (Sync) return InternalSource.AddBefore(node, item);
 	}
 
-	/// <inheritdoc />
-	public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode)
 	{
 		lock (Sync) InternalSource.AddBefore(node, newNode);
 	}
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddFirst(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddFirst(T item)
 	{
 		lock (Sync) return InternalSource.AddFirst(item);
 	}
 
-	/// <inheritdoc />
-	public void AddFirst(LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddFirst(LinkedListNode<T> newNode)
 	{
 		lock (Sync) InternalSource.AddFirst(newNode);
 	}
 
-	/// <inheritdoc />
-	public LinkedListNode<T> AddLast(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public LinkedListNode<T> AddLast(T item)
 	{
 		lock (Sync) return InternalSource.AddLast(item);
 	}
 
-	/// <inheritdoc />
-	public void AddLast(LinkedListNode<T> newNode)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void AddLast(LinkedListNode<T> newNode)
 	{
 		lock (Sync) InternalSource.AddLast(newNode);
 	}
 
-	/// <inheritdoc />
-	public void Remove(LinkedListNode<T> node)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Remove(LinkedListNode<T> node)
 	{
 		lock (Sync) InternalSource.Remove(node);
 	}
 
-	/// <inheritdoc />
-	public void RemoveFirst()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void RemoveFirst()
 	{
 		lock (Sync) InternalSource.RemoveFirst();
 	}
 
-	/// <inheritdoc />
-	public void RemoveLast()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void RemoveLast()
 	{
 		lock (Sync) InternalSource.RemoveLast();
 	}
@@ -87,17 +103,15 @@ public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWr
 	/// <inheritdoc />
 	public bool TryTakeFirst(out T item)
 	{
-        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		ThreadSafety.LockConditional(
+        bool success = ThreadSafety.LockConditional(
 			Sync,
 			() => (node = InternalSource.First) is not null,
 			() =>
 			{
 				result = node!.Value;
 				InternalSource.RemoveFirst();
-				success = true;
 			});
 		item = result;
 		return success;
@@ -106,17 +120,15 @@ public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWr
 	/// <inheritdoc />
 	public bool TryTakeLast(out T item)
 	{
-        bool success = false;
 		LinkedListNode<T>? node = null;
 		T result = default!;
-		ThreadSafety.LockConditional(
+        bool success = ThreadSafety.LockConditional(
 			Sync,
 			() => (node = InternalSource.Last) is not null,
 			() =>
 			{
 				result = node!.Value;
 				InternalSource.RemoveLast();
-				success = true;
 			});
 		item = result!;
 		return success;
