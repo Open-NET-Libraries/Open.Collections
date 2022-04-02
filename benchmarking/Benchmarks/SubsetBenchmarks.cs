@@ -11,8 +11,8 @@ public class SubsetBenchmarks
 	const int BufferSize = 7;
 	readonly IEnumerable<int> FullSet = Enumerable.Range(0, 32);
 
-	//[Benchmark]
-	public int Subset()
+	[Benchmark(Baseline = true)]
+	public int Subsets()
 	{
         int[] buffer = new int[BufferSize];
         int sum = FullSet.MemoizeUnsafe()
@@ -20,7 +20,7 @@ public class SubsetBenchmarks
 		return sum;
 	}
 
-	//[Benchmark]
+	[Benchmark]
 	public int SubsetsBuffered()
 	{
         int sum = FullSet.MemoizeUnsafe()
@@ -28,7 +28,7 @@ public class SubsetBenchmarks
 		return sum;
 	}
 
-	[Benchmark]
+	//[Benchmark]
 	public int SubsetsCopied()
 	{
         int sum = FullSet.MemoizeUnsafe()
