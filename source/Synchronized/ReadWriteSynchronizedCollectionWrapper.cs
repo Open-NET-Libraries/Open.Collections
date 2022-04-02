@@ -29,6 +29,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     }
 
     /// <inheritdoc />
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public override void AddThese(T item1, T item2, params T[] items)
     {
         using var write = RWLock.WriteLock();

@@ -868,10 +868,11 @@ public static partial class Extensions
 		return target.Slice(0, count);
 	}
 
-	/// <summary>
-	/// Builds an immutable array using the contents of the span.
-	/// </summary>
-	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
+    /// <summary>
+    /// Builds an immutable array using the contents of the span.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
+    public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
 	{
         ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
 		foreach (T? e in span)
@@ -879,8 +880,9 @@ public static partial class Extensions
 		return builder.MoveToImmutable();
 	}
 
-	/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
-	public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
+    /// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
+    public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
 	{
         ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
 		foreach (T? e in span)
