@@ -11,12 +11,19 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue>
     /// <inheritdoc />
 	public LockSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
 
+    public LockSynchronizedDictionaryWrapper() : this(new Dictionary<TKey, TValue>()) { }
+
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public virtual TValue this[TKey key]
     {
         get => InternalSource[key];
-        set => InternalSource[key] = value;
+        set
+        {
+            // With a dictionary, setting can be like adding.
+            // Collection size might change.  Gotta be careful.
+            lock (Sync) InternalSource[key] = value;
+        }
     }
 
     /// <inheritdoc />
@@ -34,7 +41,7 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(TKey key, TValue value)
     {
-        lock(Sync) InternalSource.Add(key, value);
+        lock (Sync) InternalSource.Add(key, value);
     }
 
     /// <inheritdoc />

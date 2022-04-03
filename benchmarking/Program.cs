@@ -2,6 +2,7 @@
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -19,9 +20,10 @@ internal static class Program
         //TestEntry.Test1();
         //TestEntry.Test2();
         //QueueTests();
-		ListTests();
+		//ListTests();
+        DictionaryTests();
 
-		Console.Beep();
+        Console.Beep();
 	}
 
 	static void OutputList(int[][] list)
@@ -173,6 +175,32 @@ internal static class Program
             _ => () => new LockSynchronizedHashSet<object>());
         report.AddBenchmark("ReadWriteSynchronizedHashSet",
             _ => () => new ReadWriteSynchronizedHashSet<object>());
+
+        report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+
+        report.Test(100, 4);
+        report.Test(250, 4);
+        report.Test(1000, 4 * 4);
+        report.Test(2000, 8 * 4);
+    }
+
+    static void DictionaryTests()
+    {
+        Console.WriteLine("::: Synchronized Dictionary :::\n");
+        var report = new BenchmarkConsoleReport<Func<IDictionary<int, object>>>(100000, DictionaryParallelBenchmark.Results);
+
+        report.AddBenchmark("ConcurrentDictionary",
+            _ => () => new ConcurrentDictionary<int, object>());
+
+        report.AddBenchmark("LockSynchronized Dictionary",
+            _ => () => new LockSynchronizedDictionaryWrapper<int, object>());
+        //report.AddBenchmark("ReadWriteSynchronized Dictionary",
+        //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>());
+
+        report.AddBenchmark("LockSynchronized OrderedDictionary",
+            _ => () => new LockSynchronizedDictionaryWrapper<int, object>(new OrderedDictionary<int, object>()));
+        //report.AddBenchmark("ReadWriteSynchronized OrderedDictionary",
+        //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>(new OrderedDictionary<int, object>()));
 
         report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 

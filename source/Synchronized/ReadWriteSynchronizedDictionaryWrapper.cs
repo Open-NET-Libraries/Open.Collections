@@ -13,12 +13,26 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     /// <inheritdoc />
 	public ReadWriteSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
 
+    public ReadWriteSynchronizedDictionaryWrapper() : this(new Dictionary<TKey, TValue>()) { }
+
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public virtual TValue this[TKey key]
     {
         get => InternalSource[key];
-        set => InternalSource[key] = value;
+        set
+        {
+            // With a dictionary, setting can be like adding.
+            // Collection size might change.  Gotta be careful.
+            using var upgradable = RWLock.UpgradableReadLock();
+            if(InternalSource.ContainsKey(key))
+            {
+                InternalSource[key] = value;
+                return;
+            }
+            using var write = RWLock.WriteLock();
+            InternalSource[key] = value;
+        }
     }
 
     /// <inheritdoc />
