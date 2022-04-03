@@ -29,6 +29,37 @@ public abstract class BasicCollectionTests<TCollection>
     }
 
     [Fact]
+    public void AddThese()
+    {
+        if (Collection is not IAddMultiple<int> c) return;
+        if (Collection.IsReadOnly)
+        {
+            Assert.Throws<Exception>(() => c.AddThese(1, 2, 3, 4));
+            return;
+        }
+
+        int count = Collection.Count;
+        c.AddThese(1, 2, 3, 4);
+        Collection.Count.Should().Be(count + 4);
+    }
+
+    [Fact]
+    public void AddRange()
+    {
+        if (Collection is not IAddMultiple<int> c) return;
+        var e = Enumerable.Range(1, 4);
+        if (Collection.IsReadOnly)
+        {
+            Assert.Throws<Exception>(() => c.AddRange(e));
+            return;
+        }
+
+        int count = Collection.Count;
+        c.AddRange(e);
+        Collection.Count.Should().Be(count + 4);
+    }
+
+    [Fact]
     public void Clear()
     {
         if (Collection.IsReadOnly)

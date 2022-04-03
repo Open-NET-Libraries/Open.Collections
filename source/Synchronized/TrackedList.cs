@@ -1,15 +1,18 @@
 ﻿using Open.Threading;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
 public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
 {
+    [ExcludeFromCodeCoverage]
     public TrackedList(ModificationSynchronizer? sync = null) : base(new List<T>(), sync)
     {
     }
 
+    [ExcludeFromCodeCoverage]
     public TrackedList(out ModificationSynchronizer sync) : base(new List<T>(), out sync)
     {
     }
@@ -40,16 +43,6 @@ public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
             InternalSource[index] = value;
         return changing;
     }
-
-    public void Add(T item, T item2, params T[] items)
-        => Sync!.Modifying(() => AssertIsAlive(), () =>
-        {
-            AddInternal(item);
-            AddInternal(item2);
-            foreach (var i in items)
-                AddInternal(i);
-            return true;
-        });
 
     /// <inheritdoc />
     public int IndexOf(T item)

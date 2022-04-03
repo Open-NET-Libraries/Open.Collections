@@ -5,7 +5,8 @@ using System.Runtime.CompilerServices;
 namespace Open.Collections;
 
 [ExcludeFromCodeCoverage]
-public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>
+public class CollectionWrapper<T, TCollection>
+    : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>, IAddMultiple<T>
 	where TCollection : class, ICollection<T>
 {
     public CollectionWrapper(TCollection source, bool owner = false)
@@ -31,10 +32,7 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(T item) => AddInternal(item);
 
-    /// <summary>Adds more than one item.</summary>
-    /// <param name="item1">First item to add.</param>
-    /// <param name="item2">Additional item to add.</param>
-    /// <param name="items">Extended param items to add.</param>
+    /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])"/>
     public virtual void AddThese(T item1, T item2, params T[] items)
     {
         AddInternal(item1);

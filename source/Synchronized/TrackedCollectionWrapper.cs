@@ -10,7 +10,7 @@ using System.Threading;
 namespace Open.Collections.Synchronized;
 
 public class TrackedCollectionWrapper<T, TCollection>
-    : ModificationSynchronizedBase, ICollection<T>
+    : ModificationSynchronizedBase, ICollection<T>, IAddMultiple<T>
     where TCollection : class, ICollection<T>
 {
     protected TCollection InternalSource;
@@ -57,6 +57,18 @@ public class TrackedCollectionWrapper<T, TCollection>
             return true;
         });
 
+    /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
+    public void AddThese(T item1, T item2, params T[] items)
+        => Sync!.Modifying(() => AssertIsAlive(), () =>
+        {
+            AddInternal(item1);
+            AddInternal(item2);
+            foreach (T? i in items)
+                AddInternal(i);
+            return true;
+        });
+
+    /// <inheritdoc />
     public void AddRange(IEnumerable<T> items)
     {
         if (items is null) return;
