@@ -5,13 +5,12 @@ using System.Runtime.CompilerServices;
 namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
-public class LockSynchronizedDictionaryWrapper<TKey, TValue>
-    : LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, IDictionary<TKey, TValue>>, IDictionary<TKey, TValue>
+public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
+    : LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>, IDictionary<TKey, TValue>
+    where TDictionary : class, IDictionary<TKey, TValue>
 {
     /// <inheritdoc />
-	public LockSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
-
-    public LockSynchronizedDictionaryWrapper() : this(new Dictionary<TKey, TValue>()) { }
+	public LockSynchronizedDictionaryWrapper(TDictionary dictionary) : base(dictionary) { }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
@@ -63,4 +62,15 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValue(TKey key, out TValue value)
         => InternalSource.TryGetValue(key, out value);
+}
+
+
+public class LockSynchronizedDictionaryWrapper<TKey, TValue>
+    : LockSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
+{
+    public LockSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary)
+    {
+    }
+
+    public LockSynchronizedDictionaryWrapper(int capacity = 0) : this(new Dictionary<TKey, TValue>(capacity)) { }
 }

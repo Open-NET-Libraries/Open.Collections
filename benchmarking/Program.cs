@@ -198,7 +198,7 @@ internal static class Program
         //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>());
 
         report.AddBenchmark("LockSynchronized OrderedDictionary",
-            _ => () => new LockSynchronizedDictionaryWrapper<int, object>(new OrderedDictionary<int, object>()));
+            _ => () => new LockSynchronizedOrderedDictionary<int, object>());
         //report.AddBenchmark("ReadWriteSynchronized OrderedDictionary",
         //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>(new OrderedDictionary<int, object>()));
 
