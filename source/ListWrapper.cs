@@ -2,14 +2,11 @@
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
-public class ListWrapper<T> : CollectionWrapper<T, IList<T>>, IList<T>
+public class ListWrapper<T, TList>
+    : CollectionWrapper<T, TList>, IList<T>
+    where TList : class, IList<T>
 {
-    public ListWrapper(int capacity = 0)
-        : base(new List<T>(capacity), true)
-    {
-    }
-
-    public ListWrapper(IList<T> source, bool owner = false)
+    public ListWrapper(TList source, bool owner = false)
         : base(source, owner)
     {
     }
@@ -35,4 +32,18 @@ public class ListWrapper<T> : CollectionWrapper<T, IList<T>>, IList<T>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void RemoveAt(int index)
         => InternalSource.RemoveAt(index);
+}
+
+public class ListWrapper<T>
+    : ListWrapper<T, IList<T>>
+{
+    public ListWrapper(IList<T> source, bool owner = false)
+        : base(source, owner)
+    {
+    }
+
+    public ListWrapper(int capacity = 0)
+        : base(new List<T>(capacity))
+    {
+    }
 }

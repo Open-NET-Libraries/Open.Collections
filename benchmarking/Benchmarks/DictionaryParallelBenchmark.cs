@@ -36,17 +36,26 @@ public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValueP
             Debug.Assert(c[i] == _items[i].Value);
 #endif
 
-        yield return TimedResult.Measure("Enumerate", () =>
+        yield return TimedResult.Measure("Enumerate (8 times)", () =>
         {
-            // ReSharper disable once NotAccessedVariable
-            int x = 0;
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var _ in c) { x++; }
-            Debug.Assert(x == testSize);
+            for (int i = 0; i < 8; ++i)
+            {
+                // ReSharper disable once NotAccessedVariable
+                int x = 0;
+                // ReSharper disable once LoopCanBeConvertedToQuery
+                foreach (var _ in c) { x++; }
+                Debug.Assert(x == TestSize);
+            }
         });
 
-        yield return TimedResult.Measure("Enumerate (In Parallel)",
-            () => Parallel.ForEach(c, _ => { }));
+        yield return TimedResult.Measure("Enumerate (8 times) (In Parallel)",
+            () =>
+            {
+                for (int i = 0; i < 8; ++i)
+                {
+                    Parallel.ForEach(c, _ => { });
+                }
+            });
 
         yield return TimedResult.Measure(".Contains(item) (In Parallel)",
             () => Parallel.For(0, testSize * 2, i =>
@@ -57,7 +66,7 @@ public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValueP
             }));
 
         object[] items = Enumerable.Range(0, mixSize).Select(_ => new object()).ToArray();
-        yield return TimedResult.Measure("Random Set/Get", () =>
+        yield return TimedResult.Measure("50/50 Set/Get (In Parallel)", () =>
         {
             for (int i = 0; i < testSize; i++)
             {

@@ -3,9 +3,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
-public class LockSynchronizedListWrapper<T> : LockSynchronizedCollectionWrapper<T, IList<T>>, IList<T>
+public class LockSynchronizedListWrapper<T, TList>
+    : LockSynchronizedCollectionWrapper<T, TList>, IList<T>
+    where TList : class, IList<T>
 {
-	public LockSynchronizedListWrapper(IList<T> list) : base(list) { }
+	public LockSynchronizedListWrapper(TList list, bool owner = false) : base(list, owner) { }
 
     // This is a simplified version.
     // It could be possible to allow indexed values to change independently of one another.
@@ -39,4 +41,12 @@ public class LockSynchronizedListWrapper<T> : LockSynchronizedCollectionWrapper<
 	{
 		lock (Sync) InternalSource.RemoveAt(index);
 	}
+}
+
+public class LockSynchronizedListWrapper<T>
+    : LockSynchronizedListWrapper<T, IList<T>>
+{
+    public LockSynchronizedListWrapper(IList<T> list, bool owner = false) : base(list, owner)
+    {
+    }
 }

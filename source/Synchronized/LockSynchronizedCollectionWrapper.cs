@@ -9,8 +9,8 @@ namespace Open.Collections.Synchronized;
 public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 {
-    protected LockSynchronizedCollectionWrapper(TCollection source)
-        : base(source) { }
+    protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
+        : base(source, owner) { }
 
 	#region Implementation of ICollection<T>
 

@@ -20,7 +20,7 @@ internal static class Program
         //TestEntry.Test1();
         //TestEntry.Test2();
         //QueueTests();
-		//ListTests();
+		ListTests();
         DictionaryTests();
 
         Console.Beep();
@@ -145,8 +145,8 @@ internal static class Program
 		Console.WriteLine("::: Synchronized Lists :::\n");
 		var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, ListParallelBenchmark.Results);
 
-        report.AddBenchmark("TrackedList",
-            _ => () => new TrackedList<object>());
+        //report.AddBenchmark("TrackedList",
+        //    _ => () => new TrackedList<object>());
         report.AddBenchmark("ConcurrentList",
             _ => () => new ConcurrentList<object>());
         report.AddBenchmark("LockSynchronizedList",

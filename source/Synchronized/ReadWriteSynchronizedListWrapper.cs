@@ -4,10 +4,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
-public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollectionWrapper<T, IList<T>>, IList<T>
+public class ReadWriteSynchronizedListWrapper<T, TList>
+    : ReadWriteSynchronizedCollectionWrapper<T, TList>, IList<T>
+    where TList : class, IList<T>
 {
     [ExcludeFromCodeCoverage]
-    public ReadWriteSynchronizedListWrapper(IList<T> list, bool owner = false) : base(list, owner) { }
+    public ReadWriteSynchronizedListWrapper(TList list, bool owner = false) : base(list, owner) { }
 
     // This is a simplified version.
     // It could be possible to allow indexed values to change independently of one another.
@@ -53,5 +55,14 @@ public class ReadWriteSynchronizedListWrapper<T> : ReadWriteSynchronizedCollecti
         if (i == -1) return false;
         RemoveAt(i);
         return true;
+    }
+}
+
+public class ReadWriteSynchronizedListWrapper<T>
+    : ReadWriteSynchronizedListWrapper<T, IList<T>>
+{
+    public ReadWriteSynchronizedListWrapper(IList<T> list, bool owner = false)
+        : base(list, owner)
+    {
     }
 }

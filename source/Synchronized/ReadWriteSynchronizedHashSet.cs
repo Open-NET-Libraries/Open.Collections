@@ -6,7 +6,8 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
-public sealed class ReadWriteSynchronizedHashSet<T> : ReadWriteSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
+public sealed class ReadWriteSynchronizedHashSet<T>
+    : ReadWriteSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
 {
     [ExcludeFromCodeCoverage]
     public ReadWriteSynchronizedHashSet() : base(new HashSet<T>()) { }

@@ -5,7 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
-public sealed class ReadWriteSynchronizedLinkedList<T> : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
+public sealed class ReadWriteSynchronizedLinkedList<T>
+    : ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
     [ExcludeFromCodeCoverage]
     public ReadWriteSynchronizedLinkedList()

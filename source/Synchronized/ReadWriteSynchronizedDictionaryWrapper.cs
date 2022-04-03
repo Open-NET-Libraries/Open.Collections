@@ -7,13 +7,12 @@ using System.Runtime.CompilerServices;
 namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
-public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
-    : ReadWriteSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, IDictionary<TKey, TValue>>, IDictionary<TKey, TValue>
+public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
+    : ReadWriteSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>, IDictionary<TKey, TValue>
+    where TDictionary : class, IDictionary<TKey, TValue>
 {
     /// <inheritdoc />
-	public ReadWriteSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
-
-    public ReadWriteSynchronizedDictionaryWrapper() : this(new Dictionary<TKey, TValue>()) { }
+	public ReadWriteSynchronizedDictionaryWrapper(TDictionary dictionary, bool owner = false) : base(dictionary, owner) { }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
@@ -94,4 +93,14 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
         action(InternalSource);
         return true;
     }
+}
+
+public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
+    : ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
+{
+    public ReadWriteSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary, bool owner = false) : base(dictionary, owner)
+    {
+    }
+
+    public ReadWriteSynchronizedDictionaryWrapper(int capacity = 0) : this(new Dictionary<TKey, TValue>(capacity)) { }
 }
