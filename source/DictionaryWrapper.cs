@@ -40,7 +40,7 @@ public class DictionaryWrapper<TKey, TValue>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     /// <inheritdoc />
-    public bool ContainsKey(TKey key)
+    public virtual bool ContainsKey(TKey key)
         => InternalSource.ContainsKey(key);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
