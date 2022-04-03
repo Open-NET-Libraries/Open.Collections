@@ -2,6 +2,7 @@
 
 namespace Open.Collections.Synchronized;
 
+[ExcludeFromCodeCoverage]
 public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 {
 	/// <summary>
@@ -10,14 +11,12 @@ public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 	public object SyncRoot { get; } = new();
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public new void Enqueue(T item)
 	{
 		lock (SyncRoot) base.Enqueue(item);
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public override bool TryDequeue(out T item)
 	{
 		if (Count == 0)
@@ -31,7 +30,6 @@ public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public override bool TryPeek(out T item)
 	{
 		if (Count == 0)

@@ -95,6 +95,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
     }
 }
 
+[ExcludeFromCodeCoverage]
 public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     : ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
 {

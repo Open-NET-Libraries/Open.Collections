@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
@@ -37,31 +38,38 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 		return true;
 	}
 
-	/// <inheritdoc />
-	public bool Remove(T item) => InternalSource.Remove(item);
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public bool Remove(T item) => InternalSource.Remove(item);
 
-	/// <inheritdoc />
-	public void Clear() => InternalSource.Clear();
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Clear() => InternalSource.Clear();
 
-	/// <inheritdoc />
-	public bool Contains(T item) => InternalSource.ContainsKey(item);
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public bool Contains(T item) => InternalSource.ContainsKey(item);
 
-	/// <inheritdoc />
-	public void CopyTo(T[] array, int arrayIndex) => InternalSource.Keys.CopyTo(array, arrayIndex);
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void CopyTo(T[] array, int arrayIndex) => InternalSource.Keys.CopyTo(array, arrayIndex);
 
-	/// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
-	public virtual Span<T> CopyTo(Span<T> span) => InternalSource.Keys.CopyToSpan(span);
+    /// <inheritdoc cref="ReadOnlyCollectionWrapper{T, TCollection}.CopyTo(Span{T})"/>
+    [ExcludeFromCodeCoverage]
+    public virtual Span<T> CopyTo(Span<T> span) => InternalSource.Keys.CopyToSpan(span);
 
-	/// <summary>
-	/// Returns a copy of the underlying keys.
-	/// </summary>
-	public HashSet<T> ToHashSet() => new(InternalSource.Keys);
+    /// <summary>
+    /// Returns a copy of the underlying keys.
+    /// </summary>
+    [ExcludeFromCodeCoverage]
+    public HashSet<T> ToHashSet() => new(InternalSource.Keys);
 
-	/// <inheritdoc />
-	public IEnumerator<T> GetEnumerator() => InternalSource.Keys.GetEnumerator();
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public IEnumerator<T> GetEnumerator() => InternalSource.Keys.GetEnumerator();
 
-	/// <inheritdoc />
-	public void ExceptWith(IEnumerable<T> other)
+    /// <inheritdoc />
+    public void ExceptWith(IEnumerable<T> other)
 	{
 		foreach (T? e in other) Remove(e);
 	}
@@ -106,13 +114,15 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 		}
 	}
 
-	/// <inheritdoc />
-	public void UnionWith(IEnumerable<T> other)
+    /// <inheritdoc />
+    public void UnionWith(IEnumerable<T> other)
 	{
 		foreach (T? e in other) Add(e);
 	}
 
-	void ICollection<T>.Add(T item) => Add(item);
+    [ExcludeFromCodeCoverage]
+    void ICollection<T>.Add(T item) => Add(item);
 
-	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    [ExcludeFromCodeCoverage]
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

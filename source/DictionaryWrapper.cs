@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
 /// <inheritdoc />
+[ExcludeFromCodeCoverage]
 public class DictionaryWrapper<TKey, TValue>
     : CollectionWrapper<KeyValuePair<TKey, TValue>, IDictionary<TKey, TValue>>, IDictionary<TKey, TValue>
 {

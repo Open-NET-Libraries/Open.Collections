@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -163,6 +164,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override bool Contains(T item)
         => IndexOf(item) != -1;
 
@@ -175,6 +177,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override IEnumerator<T> GetEnumerator()
     {
         DumpBuffer();
@@ -182,6 +185,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public T[] Snapshot()
     {
         DumpBuffer();

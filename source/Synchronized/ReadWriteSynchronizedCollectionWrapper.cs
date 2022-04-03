@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
@@ -21,6 +22,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     #region Implementation of ICollection<T>
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override void Add(T item)
 
     {
@@ -29,7 +31,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     }
 
     /// <inheritdoc />
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
+    [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public override void AddThese(T item1, T item2, params T[] items)
     {
         using var write = RWLock.WriteLock();
@@ -86,6 +88,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public T[] Snapshot()
     {
         using var read = RWLock.ReadLock();

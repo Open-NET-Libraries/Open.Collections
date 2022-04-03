@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
+[ExcludeFromCodeCoverage]
 public class LockSynchronizedListWrapper<T, TList>
     : LockSynchronizedCollectionWrapper<T, TList>, IList<T>
     where TList : class, IList<T>
@@ -14,7 +15,6 @@ public class LockSynchronizedListWrapper<T, TList>
     // If that fine grained of read-write control is necessary, then use the ThreadSafety utility and extensions.
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public T this[int index]
 	{
 		get => InternalSource[index];
@@ -22,27 +22,25 @@ public class LockSynchronizedListWrapper<T, TList>
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public int IndexOf(T item)
 	{
 		lock (Sync) return InternalSource.IndexOf(item);
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public void Insert(int index, T item)
 	{
 		lock (Sync) InternalSource.Insert(index, item);
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public void RemoveAt(int index)
 	{
 		lock (Sync) InternalSource.RemoveAt(index);
 	}
 }
 
+[ExcludeFromCodeCoverage]
 public class LockSynchronizedListWrapper<T>
     : LockSynchronizedListWrapper<T, IList<T>>
 {

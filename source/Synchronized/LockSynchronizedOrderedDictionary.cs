@@ -1,11 +1,15 @@
-﻿namespace Open.Collections.Synchronized;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
+[ExcludeFromCodeCoverage] // Nothing worth covering here yet.s
 public class LockSynchronizedOrderedDictionary<TKey, TValue>
-    : LockSynchronizedDictionaryWrapper<TKey, TValue, OrderedDictionary<TKey, TValue>>, IOrderedDictionary<TKey, TValue>    
+    : LockSynchronizedDictionaryWrapper<TKey, TValue, OrderedDictionary<TKey, TValue>>, IOrderedDictionary<TKey, TValue>
 {
     /// <inheritdoc />
-    public LockSynchronizedOrderedDictionary(int capacity = 0) : base(new OrderedDictionary<TKey, TValue>(capacity)) { }
+    public LockSynchronizedOrderedDictionary(int capacity = 0)
+        : base(new OrderedDictionary<TKey, TValue>(capacity)) { }
 
     /// <inheritdoc />
     public TKey GetKeyAt(int index) => InternalSource.GetKeyAt(index);

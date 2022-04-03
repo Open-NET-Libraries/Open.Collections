@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+[ExcludeFromCodeCoverage]
 public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>
 	where TCollection : class, ICollection<T>
 {
-    [ExcludeFromCodeCoverage]
     public CollectionWrapper(TCollection source, bool owner = false)
         : base(source, owner)
 	{
@@ -19,18 +19,15 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
     /// The underlying object used for synchronization.
     /// This is exposed to allow for more complex synchronization operations.
     /// </summary>
-    [ExcludeFromCodeCoverage]
     public object SyncRoot => Sync;
 
     #region Implementation of ICollection<T>
 
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void AddInternal(T item)
         => InternalSource.Add(item);
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(T item) => AddInternal(item);
 
@@ -38,7 +35,6 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
     /// <param name="item1">First item to add.</param>
     /// <param name="item2">Additional item to add.</param>
     /// <param name="items">Extended param items to add.</param>
-    [ExcludeFromCodeCoverage]
     public virtual void AddThese(T item1, T item2, params T[] items)
     {
         AddInternal(item1);
@@ -53,7 +49,6 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
     /// An enumerable is potentially slow as it may be yielding to a process.
     /// </summary>
     /// <param name="items">The items to add.</param>
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void AddRange(IEnumerable<T> items)
 	{
@@ -62,19 +57,16 @@ public class CollectionWrapper<T, TCollection> : ReadOnlyCollectionWrapper<T, TC
 	}
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Clear()
         => InternalSource.Clear();
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool Remove(T item)
         => InternalSource.Remove(item);
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public override bool IsReadOnly
 		=> InternalSource.IsReadOnly;
 	#endregion

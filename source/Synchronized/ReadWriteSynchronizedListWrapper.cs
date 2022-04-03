@@ -58,6 +58,7 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
     }
 }
 
+[ExcludeFromCodeCoverage]
 public class ReadWriteSynchronizedListWrapper<T>
     : ReadWriteSynchronizedListWrapper<T, IList<T>>
 {

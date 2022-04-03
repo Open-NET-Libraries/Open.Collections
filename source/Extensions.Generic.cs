@@ -54,7 +54,8 @@ public static partial class Extensions
 	{
 		target.Add(a);
 		target.Add(b);
-		target.AddRange(more);
+        if(more.Length!=0)
+    		target.AddRange(more);
 	}
 
 	public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)

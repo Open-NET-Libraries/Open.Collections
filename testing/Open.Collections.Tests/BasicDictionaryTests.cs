@@ -40,7 +40,7 @@ public abstract class BasicDictionaryTests<TDictionary>
             Assert.Throws<Exception>(() => Dictionary.Remove(0));
             return;
         }
-        
+
         Dictionary.Clear();
         Dictionary.Add(0, 1);
         Assert.Throws<ArgumentException>(() => Dictionary.Add(0, 2));

@@ -12,16 +12,17 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
     protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
         : base(source, owner) { }
 
-	#region Implementation of ICollection<T>
+    #region Implementation of ICollection<T>
 
-	/// <inheritdoc />
-	public override void Add(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public override void Add(T item)
 	{
 		lock (Sync) base.Add(item);
 	}
 
     /// <inheritdoc />
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
+    [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public override void AddThese(T item1, T item2, params T[] items)
     {
         lock (Sync)

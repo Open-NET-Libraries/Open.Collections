@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
@@ -6,11 +7,13 @@ public static class LinkedList
 {
 	public class Standard<T> : LinkedList<T>, ILinkedList<T>
 	{
+        [ExcludeFromCodeCoverage]
 		public Standard()
 		{
 		}
 
-		public Standard(IEnumerable<T> initial) : base(initial)
+        [ExcludeFromCodeCoverage]
+        public Standard(IEnumerable<T> initial) : base(initial)
 		{
 		}
 

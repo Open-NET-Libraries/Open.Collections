@@ -20,7 +20,6 @@ public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 		yield return TimedResult.Measure("Fill (.Add(item)) (In Parallel)",
 			() => Parallel.For(0, TestSize, i => c.Add(_items[i])));
 
-
         yield return TimedResult.Measure("Enumerate (8 times)", () =>
         {
             for (int i = 0; i < 8; ++i)

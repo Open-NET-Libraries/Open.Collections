@@ -5,7 +5,8 @@ using System.Runtime.CompilerServices;
 namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
-public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
+[ExcludeFromCodeCoverage]
+public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
     : LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>, IDictionary<TKey, TValue>
     where TDictionary : class, IDictionary<TKey, TValue>
 {
@@ -13,7 +14,6 @@ public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionar
 	public LockSynchronizedDictionaryWrapper(TDictionary dictionary) : base(dictionary) { }
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public virtual TValue this[TKey key]
     {
         get => InternalSource[key];
@@ -26,17 +26,14 @@ public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionar
     }
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public virtual ICollection<TKey> Keys
         => InternalSource.Keys;
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     public virtual ICollection<TValue> Values
         => InternalSource.Values;
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(TKey key, TValue value)
     {
@@ -44,13 +41,11 @@ public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionar
     }
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ContainsKey(TKey key)
         => InternalSource.ContainsKey(key);
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual bool Remove(TKey key)
     {
@@ -58,13 +53,12 @@ public abstract class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionar
     }
 
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValue(TKey key, out TValue value)
         => InternalSource.TryGetValue(key, out value);
 }
 
-
+[ExcludeFromCodeCoverage]
 public class LockSynchronizedDictionaryWrapper<TKey, TValue>
     : LockSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
 {

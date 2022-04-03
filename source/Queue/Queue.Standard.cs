@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
@@ -6,11 +7,13 @@ public static partial class Queue
 {
 	public class Standard<T> : Queue<T>, IQueue<T>
 	{
-		protected Standard()
+        [ExcludeFromCodeCoverage]
+        protected Standard()
 		{
 		}
 
-		public Standard(IEnumerable<T> initial) : base(initial)
+        [ExcludeFromCodeCoverage]
+        public Standard(IEnumerable<T> initial) : base(initial)
 		{
 		}
 
@@ -31,11 +34,17 @@ public static partial class Queue
 			return ok;
 		}
 #else
-		/// <inheritdoc />
-		public new virtual bool TryDequeue(out T item) => base.TryDequeue(out item);
+        /* Allow for overriding. */
 
-		/// <inheritdoc />
-		public new virtual bool TryPeek(out T item) => base.TryPeek(out item);
+        /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
+        public new virtual bool TryDequeue(out T item)
+            => base.TryDequeue(out item);
+
+        /// <inheritdoc />
+        [ExcludeFromCodeCoverage]
+        public new virtual bool TryPeek(out T item)
+            => base.TryPeek(out item);
 #endif
 
 	}
