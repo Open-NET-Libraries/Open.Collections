@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
@@ -22,13 +23,17 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 
 	public void Dispose() => Pool?.Return(Segment.Array, _clear);
 
-	public static implicit operator ArraySegment<T> (ArrayPoolSegment<T> segment) => segment.Segment;
-	public static implicit operator Memory<T> (ArrayPoolSegment<T> segment) => segment.Segment;
-	public static implicit operator ReadOnlyMemory<T>(ArrayPoolSegment<T> segment) => segment.Segment;
+    [ExcludeFromCodeCoverage]
+    public static implicit operator ArraySegment<T> (ArrayPoolSegment<T> segment) => segment.Segment;
+    [ExcludeFromCodeCoverage]
+    public static implicit operator Memory<T> (ArrayPoolSegment<T> segment) => segment.Segment;
+    [ExcludeFromCodeCoverage]
+    public static implicit operator ReadOnlyMemory<T>(ArrayPoolSegment<T> segment) => segment.Segment;
 }
 
 public static class ArrayPoolExtensions
 {
+    [ExcludeFromCodeCoverage]
 	public static ArrayPoolSegment<T> RentSegment<T>(
 		this ArrayPool<T> pool,
 		int length,

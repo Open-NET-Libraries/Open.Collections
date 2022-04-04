@@ -9,16 +9,18 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 {
 	protected readonly IDictionary<T, bool> InternalSource;
 
-	// ReSharper disable once MemberCanBeProtected.Global
-	public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
+    [ExcludeFromCodeCoverage]
+    public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
         => InternalSource = source;
 
-	/// <inheritdoc />
-	public int Count
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public int Count
 		=> InternalSource.Count;
 
-	/// <inheritdoc />
-	public bool IsReadOnly
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public bool IsReadOnly
 		=> InternalSource.IsReadOnly;
 
 	/// <inheritdoc />

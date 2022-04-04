@@ -70,6 +70,8 @@ public class ReadOnlyCollectionWrapper<T, TCollection> : DisposableBase, IReadOn
         => InternalSource.CopyToSpan(span);
 
     /// <inheritdoc cref="ISynchronizedCollection&lt;T&gt;.Export(ICollection{T})" />
+
+    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Export(ICollection<T> to)
         => to.AddRange(InternalSource);

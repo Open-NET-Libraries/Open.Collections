@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
@@ -71,11 +72,28 @@ public class SubsetTests
         char[][] actual = Set3.Subsets(3).ToArray();
 		Assert.Equal(expected, actual);
 
+        actual = Set3
+            .Subsets(3, ArrayPool<char>.Shared, true)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, actual);
+
         char[][] progressive = Set3.SubsetsProgressive(3).ToArray();
 		Assert.Equal(expected, progressive);
-	}
 
-	[Fact]
+        progressive = Set3
+            .SubsetsProgressive(3, ArrayPool<char>.Shared, true)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, progressive);
+    }
+
+    static T[] Selector<T>(ArrayPoolSegment<T> e)
+    {
+        T[] a = e.Segment.ToArray();
+        e.Dispose();
+        return a;
+    }
+
+    [Fact]
 	public void TestSubset4_4()
 	{
         int[][] expected = new int[][] {
@@ -88,9 +106,19 @@ public class SubsetTests
         int[][] actual = Set4.Subsets(4).ToArray();
 		Assert.Equal(expected, actual);
 
+        actual = Set4
+            .Subsets(4, ArrayPool<int>.Shared)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, actual);
+
         int[][] progressive = Set4.SubsetsProgressive(4).ToArray();
-		Assert.Equal(expected, progressive);
-	}
+        Assert.Equal(expected, progressive);
+
+        progressive = Set4
+            .SubsetsProgressive(4, ArrayPool<int>.Shared)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, progressive);
+    }
 
 	[Fact]
 	public void TestSubset4_3()

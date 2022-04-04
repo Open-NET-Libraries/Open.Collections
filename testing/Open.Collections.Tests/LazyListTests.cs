@@ -13,11 +13,24 @@ public class LazyListTests
             System.Collections.Generic.IEnumerable<int> e = Enumerable.Range(0, 5);
 			Assert.Equal(5, e.Memoize().Count);
 			Assert.Equal(5, e.MemoizeUnsafe().Count);
+            Assert.True(e.Memoize().TryGetValueAt(1, out _));
+            Assert.False(e.Memoize().TryGetValueAt(8, out _));
+            Assert.False(e.MemoizeUnsafe().Contains(9));
 
-			Assert.Throws<InvalidOperationException>(() => e.Memoize(true).Count);
-		}
+            Assert.Throws<InvalidOperationException>(() => e.Memoize(true).IndexOf(9));
+            Assert.Throws<InvalidOperationException>(() => e.Memoize(true).Count);
+            Assert.Throws<ArgumentOutOfRangeException>(() => e.MemoizeUnsafe()[-1]);
+            Assert.Throws<ArgumentOutOfRangeException>(() => e.MemoizeUnsafe().TryGetValueAt(-1, out _));
+            Assert.Throws<ArgumentOutOfRangeException>(() => e.MemoizeUnsafe()[6]);
 
-		{
+            int i = 0;
+            foreach(int x in e.Memoize())
+            {
+                Assert.Equal(i++, x);
+            }
+        }
+
+        {
             System.Collections.Generic.IEnumerable<int> e = Enumerable.Range(0, 30);
             LazyList<int> a = e.Memoize();
             LazyListUnsafe<int> b = e.MemoizeUnsafe();

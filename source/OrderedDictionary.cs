@@ -32,9 +32,11 @@ public class OrderedDictionary<TKey, TValue>
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override ICollection<TKey> Keys => _keys.AsReadOnly();
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public override ICollection<TValue> Values => _values.AsReadOnly();
 
     /// <inheritdoc />

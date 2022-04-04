@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
@@ -12,6 +13,7 @@ public class ListWrapper<T, TList>
     }
 
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public virtual T this[int index]
     {
         get => InternalSource[index];
@@ -34,6 +36,7 @@ public class ListWrapper<T, TList>
         => InternalSource.RemoveAt(index);
 }
 
+[ExcludeFromCodeCoverage]
 public class ListWrapper<T>
     : ListWrapper<T, IList<T>>
 {
