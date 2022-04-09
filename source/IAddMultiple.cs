@@ -3,6 +3,8 @@
 namespace Open.Collections;
 public interface IAddMultiple<T>
 {
+    // Note: "AddThese" is the name because Add can have multiple signatures.
+
     /// <summary>Adds more than one item.</summary>
     /// <param name="item1">First item to add.</param>
     /// <param name="item2">Additional item to add.</param>

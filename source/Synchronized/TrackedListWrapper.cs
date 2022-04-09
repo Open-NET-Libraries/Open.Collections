@@ -5,34 +5,30 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
-public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
+public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
 {
     [ExcludeFromCodeCoverage]
-    public TrackedList(ModificationSynchronizer? sync = null) : base(new List<T>(), sync)
+    public TrackedListWrapper(IList<T> list, ModificationSynchronizer? sync = null) : base(list, sync)
     {
     }
 
     [ExcludeFromCodeCoverage]
-    public TrackedList(out ModificationSynchronizer sync) : base(new List<T>(), out sync)
+    public TrackedListWrapper(IList<T> list, out ModificationSynchronizer sync) : base(list, out sync)
     {
     }
 
     /// <inheritdoc />
     public T this[int index]
     {
-        get => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            return InternalSource[index];
-        });
-
+        get => InternalSource[index];
         set => SetValue(index, value);
     }
 
     public bool SetValue(int index, T value)
         => Sync!.Modifying(
-            () => AssertIsAlive(),
-            () => SetValueInternal(index, value));
+            AssertIsAlive,
+            () => SetValueInternal(index, value),
+            version => OnChanged(ItemChange.Modified, index, value, version));
 
     private bool SetValueInternal(int index, T value)
     {
@@ -54,12 +50,13 @@ public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
     /// <inheritdoc />
     public void Insert(int index, T item)
         => Sync!.Modifying(
-            () => AssertIsAlive(),
+            AssertIsAlive,
             () =>
             {
                 InternalSource.Insert(index, item);
                 return true;
-            });
+            },
+            version => OnChanged(ItemChange.Inserted, index, item, version));
 
     /// <inheritdoc />
     public override bool Remove(T item)
@@ -72,18 +69,28 @@ public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
             {
                 InternalSource.RemoveAt(i);
                 return true;
-            });
+            },
+            version => OnChanged(ItemChange.Removed, i, item, version));
     }
 
-    /// <inheritdoc />
-    public void RemoveAt(int index)
-        => Sync!.Modifying(
-            () => AssertIsAlive(),
+    /// <returns>The item removed.</returns>
+    /// <inheritdoc cref="IList{T}.RemoveAt(int)" />
+    public T RemoveAt(int index)
+    {
+        T removed = default!;
+        Sync!.Modifying(
+            AssertIsAlive,
             () =>
             {
+                removed = InternalSource[index];
                 InternalSource.RemoveAt(index);
                 return true;
-            });
+            },
+            version => OnChanged(ItemChange.Removed, index, removed, version));
+        return removed;
+    }
+
+    void IList<T>.RemoveAt(int index) => RemoveAt(index);
 
     /// <summary>
     /// Synchonizes finding an item (<paramref name="target"/>), and if found, replaces it with the <paramref name="replacement"/>.
@@ -101,8 +108,35 @@ public class TrackedList<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
                 index = InternalSource.IndexOf(target);
                 return index != -1 || (throwIfNotFound ? throw new ArgumentException("Not found.", nameof(target)) : false);
             },
-            () =>
-                SetValueInternal(index, replacement)
+            () => SetValueInternal(index, replacement),
+            version => OnChanged(ItemChange.Modified, index, replacement, version)
         );
+    }
+}
+
+public class TrackedList<T> : TrackedListWrapper<T>
+{
+    [ExcludeFromCodeCoverage]
+    public TrackedList(int capacity, ModificationSynchronizer? sync = null)
+        : base(new List<T>(capacity), sync)
+    {
+    }
+
+    [ExcludeFromCodeCoverage]
+    public TrackedList(int capacity, out ModificationSynchronizer sync)
+        : base(new List<T>(capacity), out sync)
+    {
+    }
+
+    [ExcludeFromCodeCoverage]
+    public TrackedList(ModificationSynchronizer? sync = null)
+        : base(new List<T>(), sync)
+    {
+    }
+
+    [ExcludeFromCodeCoverage]
+    public TrackedList(out ModificationSynchronizer sync)
+        : base(new List<T>(), out sync)
+    {
     }
 }

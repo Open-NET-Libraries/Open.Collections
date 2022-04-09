@@ -35,6 +35,12 @@ public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     /// <summary>
     /// Updates or creates and item.
     /// </summary>
+    /// <returns><see langword="true"/> if the value was updated; otherwise <see langword="false"/>.</returns>
+    bool SetValue(TKey key, TValue value, out int index);
+
+    /// <summary>
+    /// Updates or creates and item.
+    /// </summary>
     /// <returns>The index that was updated or added.</returns>
     int SetValue(TKey key, TValue value);
 
@@ -55,7 +61,7 @@ public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     /// </summary>
     /// <remarks><see langword="true"/> if the value changed; otherwise <see langword="false"/>.</remarks>
     /// <exception cref="ArgumentOutOfRangeException">The index is less than zero or greater than the length of the collection.</exception>
-    bool SetValueAt(int index, TValue value);
+    bool SetValueAt(int index, TValue value, out TKey key);
 
     /// <summary>
     /// Removes the entry at the specified index from the <see cref="IOrderedDictionary{TKey,TValue}"/> items.

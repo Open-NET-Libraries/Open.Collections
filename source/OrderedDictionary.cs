@@ -153,9 +153,25 @@ public class OrderedDictionary<TKey, TValue>
     }
 
     /// <inheritdoc />
-    public bool SetValueAt(int index, TValue value)
+    public bool SetValue(TKey key, TValue value, out int index)
     {
-        var key = _keys[index];
+        if (!InternalSource.ContainsKey(key))
+        {
+            index = Add(key, value);
+            return true;
+        }
+
+        index = GetIndex(key);
+        InternalSource[key] = value;
+        var previous = _values[index];
+        _values[index] = value;
+        return !(previous?.Equals(value) ?? value is null);
+    }
+
+    /// <inheritdoc />
+    public bool SetValueAt(int index, TValue value, out TKey key)
+    {
+        key = _keys[index];
         if (InternalSource.TryGetValue(key, out var previous))
         {
             if (previous is null)

@@ -32,8 +32,8 @@ public class CollectionWrapper<T, TCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void Add(T item) => AddInternal(item);
 
-    /// <inheritdoc cref="IAddMultiple{T}.Add(T, T, T[])"/>
-    public virtual void Add(T item1, T item2, params T[] items)
+    /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])"/>
+    public virtual void AddThese(T item1, T item2, params T[] items)
     {
         AddInternal(item1);
         AddInternal(item2);

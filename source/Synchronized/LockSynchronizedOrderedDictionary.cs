@@ -30,15 +30,21 @@ public class LockSynchronizedOrderedDictionary<TKey, TValue>
     }
 
     /// <inheritdoc />
+    public bool SetValue(TKey key, TValue value, out int index)
+    {
+        lock (Sync) return InternalSource.SetValue(key, value, out index);
+    }
+
+    /// <inheritdoc />
     public int SetValue(TKey key, TValue value)
     {
         lock (Sync) return InternalSource.SetValue(key, value);
     }
 
     /// <inheritdoc />
-    public bool SetValueAt(int index, TValue value)
+    public bool SetValueAt(int index, TValue value, out TKey key)
     {
-        lock (Sync) return InternalSource.SetValueAt(index, value);
+        lock (Sync) return InternalSource.SetValueAt(index, value, out key);
     }
 
     /// <inheritdoc />

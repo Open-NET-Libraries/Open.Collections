@@ -14,28 +14,34 @@ public enum ItemChange
 	Modified
 }
 
-public class ItemChangedEventArgs<TIValue> : EventArgs
+public class ItemChangedEventArgs<T> : EventArgs
 {
 	public readonly ItemChange Change;
-	public readonly TIValue Value;
-	public readonly TIValue? PreviousValue;
+	public readonly T Value;
+    public readonly int Version;
 
-	public ItemChangedEventArgs(ItemChange action, TIValue value)
+    public ItemChangedEventArgs(ItemChange action, T value, int version)
 	{
 		Change = action;
 		Value = value;
-	}
-
-	public ItemChangedEventArgs(ItemChange action, TIValue previous, TIValue value) : this(action, value) => PreviousValue = previous;
+        Version = version;
+    }
 }
 
-public class KeyValueChangedEventArgs<TIKey, TIValue> : ItemChangedEventArgs<TIValue>
+public class ItemChangedEventArgs<TIndex, TValue> : ItemChangedEventArgs<TValue>
 {
-	public readonly TIKey Key;
-
-	public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue value) : base(action, value) => Key = key;
-
-	public KeyValueChangedEventArgs(ItemChange action, TIKey key, TIValue previous, TIValue value) : base(action, previous, value) => Key = key;
+    public readonly TIndex Index;
+    public ItemChangedEventArgs(ItemChange action, TIndex index, TValue value, int version)
+        : base(action, value, version) => Index = index;
 }
 
-public delegate void KeyValueChangedEventHandler<TIKey, TIValue>(object source, KeyValueChangedEventArgs<TIKey, TIValue> e);
+public static class ItemChangeEventArgs
+{
+    public static ItemChangedEventArgs<T> CreateArgs<T>(
+        this ItemChange change, T value, int version)
+        => new(change, value, version);
+
+    public static ItemChangedEventArgs<TIndex, TValue> CreateArgs<TIndex, TValue>(
+        this ItemChange change, TIndex index, TValue value, int version)
+        => new(change, index, value, version);
+}

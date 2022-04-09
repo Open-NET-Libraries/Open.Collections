@@ -16,6 +16,23 @@ public class TrackedCollectionWrapper<T, TCollection>
 {
     protected TCollection InternalSource;
 
+    /// <summary>
+    /// Event fired after a chnage or group of changes has been made.
+    /// </summary>
+    public event EventHandler? Modified;
+
+    /// <summary>
+    /// Event fired after an item has been added or removed from the collection.
+    /// </summary>
+    public event EventHandler<ItemChangedEventArgs<T>>? Changed;
+
+    protected bool HasChangedListeners => Changed is not null;
+
+    /// <summary>
+    /// Event fired after the collection has been cleared.
+    /// </summary>
+    public event EventHandler<int>? Cleared;
+
     [ExcludeFromCodeCoverage]
     public TrackedCollectionWrapper(TCollection collection, ModificationSynchronizer? sync = null)
         : base(sync) => InternalSource = collection ?? throw new ArgumentNullException(nameof(collection));
@@ -36,10 +53,13 @@ public class TrackedCollectionWrapper<T, TCollection>
     {
         base.OnDispose();
         Nullify(ref InternalSource); // Eliminate risk from wrapper.
+        Modified = null;
+        Changed = null;
+        Cleared = null;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private bool AssertIsAliveCore() => AssertIsAlive();
+    protected bool AssertIsAlive() => base.AssertIsAlive();
 
     /// <inheritdoc />
     public int Count
@@ -53,24 +73,60 @@ public class TrackedCollectionWrapper<T, TCollection>
     protected virtual void AddInternal(T item)
        => InternalSource.Add(item);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void OnModified()
+        => Modified?.Invoke(this, EventArgs.Empty);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void OnChanged(ItemChange change, T item, int version)
+        => Changed?.Invoke(this, change.CreateArgs(item, version));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void OnChanged<TIndex>(ItemChange change, TIndex index, T item, int version)
+        => Changed?.Invoke(this, change.CreateArgs(index, item, version));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OnAdded(T item, int version)
+        => OnChanged(ItemChange.Added, item, version);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void OnRemoved(T item, int version)
+        => OnChanged(ItemChange.Removed, item, version);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual void OnCleared(int version)
+        => Cleared?.Invoke(this, version);
+
     /// <inheritdoc />
     public void Add(T item)
-        => Sync!.Modifying(AssertIsAliveCore, () =>
-        {
-            AddInternal(item);
-            return true;
-        });
+        => Sync!.Modifying(
+            AssertIsAlive,
+            () =>
+            {
+                AddInternal(item);
+                return true;
+            },
+            version => OnAdded(item, version));
 
-    /// <inheritdoc cref="IAddMultiple{T}.Add(T, T, T[])" />
-    public void Add(T item1, T item2, params T[] items)
-        => Sync!.Modifying(AssertIsAliveCore, () =>
-        {
-            AddInternal(item1);
-            AddInternal(item2);
-            foreach (T? i in items)
-                AddInternal(i);
-            return true;
-        });
+    /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
+    public void AddThese(T item1, T item2, params T[] items)
+        => Sync!.Modifying(AssertIsAlive,
+            () =>
+            {
+                AddInternal(item1);
+                AddInternal(item2);
+                foreach (T? i in items)
+                    AddInternal(i);
+                return true;
+            },
+            version =>
+            {
+                if (Changed is null) return;
+                OnAdded(item1, version);
+                OnAdded(item2, version);
+                foreach (T? i in items)
+                    OnAdded(i, version);
+            });
 
     /// <inheritdoc />
     public void AddRange(IEnumerable<T> items)
@@ -87,11 +143,16 @@ public class TrackedCollectionWrapper<T, TCollection>
         if (enumerable.Count == 0)
             return;
 
-        Sync!.Modifying(AssertIsAliveCore, () =>
+        Sync!.Modifying(AssertIsAlive, () =>
         {
             foreach (var item in enumerable)
                 AddInternal(item);
             return true;
+        },
+        version =>
+        {
+            foreach (var item in enumerable)
+                OnAdded(item, version);
         });
     }
 
@@ -109,7 +170,7 @@ public class TrackedCollectionWrapper<T, TCollection>
             bool hasItems = count != 0;
             if (hasItems) ClearInternal();
             return hasItems;
-        });
+        }, OnCleared);
 
     /// <inheritdoc />
     public bool Contains(T item)
@@ -126,20 +187,13 @@ public class TrackedCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     public virtual bool Remove(T item)
         => Sync!.Modifying(
-            AssertIsAliveCore,
-            () => InternalSource.Remove(item));
-
-    [ExcludeFromCodeCoverage]
-    protected virtual IEnumerator<T> GetEnumeratorInternal()
-        => InternalSource.GetEnumerator();
+            AssertIsAlive,
+            () => InternalSource.Remove(item),
+            version => OnRemoved(item, version));
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            return GetEnumeratorInternal();
-        });
+        => InternalSource.GetEnumerator();
 
     [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -23,7 +23,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 
     /// <inheritdoc />
     [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
-    public override void Add(T item1, T item2, params T[] items)
+    public override void AddThese(T item1, T item2, params T[] items)
     {
         lock (Sync)
         {

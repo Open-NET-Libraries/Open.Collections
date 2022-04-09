@@ -33,12 +33,12 @@ public abstract class BasicCollectionTests<TCollection>
         if (Collection is not IAddMultiple<int> c) return;
         if (Collection.IsReadOnly)
         {
-            Assert.Throws<Exception>(() => c.Add(1, 2, 3, 4));
+            Assert.Throws<Exception>(() => c.AddThese(1, 2, 3, 4));
             return;
         }
 
         int count = Collection.Count;
-        c.Add(1, 2, 3, 4);
+        c.AddThese(1, 2, 3, 4);
         Collection.Count.Should().Be(count + 4);
     }
 
