@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class BasicListTests<TList> : BasicCollectionTests<TList>
+public abstract class BasicListTests<TList>
+    : BasicCollectionTests<TList>
     where TList : IList<int>
 {
     protected BasicListTests(TList list) : base(list)

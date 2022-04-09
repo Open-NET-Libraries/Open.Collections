@@ -4,7 +4,8 @@ namespace Open.Collections.Tests.Collections;
 public class TrackedDictionaryTests
     : BasicDictionaryTests<TrackedDictionary<int, int>>
 {
-    public TrackedDictionaryTests() : base(new())
+    public TrackedDictionaryTests()
+        : base(new (new Threading.ReadWriteModificationSynchronizer()))
     {
     }
 }
@@ -12,7 +13,8 @@ public class TrackedDictionaryTests
 public class TrackedOrderedDictionaryTests
     : BasicDictionaryTests<TrackedOrderedDictionary<int, int>>
 {
-    public TrackedOrderedDictionaryTests() : base(new())
+    public TrackedOrderedDictionaryTests()
+        : base(new(new Threading.SimpleLockingModificationSynchronizer()))
     {
     }
 }

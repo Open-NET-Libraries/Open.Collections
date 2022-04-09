@@ -2,7 +2,7 @@
 
 namespace Open.Collections.Tests.Collections;
 public class ReadWriteSyncListTests
-    : BasicListTests<ReadWriteSynchronizedList<int>>
+    : ParallelListTests<ReadWriteSynchronizedList<int>>
 {
     public ReadWriteSyncListTests() : base(new())
     {

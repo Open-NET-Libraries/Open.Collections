@@ -2,7 +2,7 @@
 
 namespace Open.Collections.Tests.Collections;
 public class LockSyncDictionaryTests
-    : BasicDictionaryTests<LockSynchronizedDictionary<int, int>>
+    : ParallelDictionaryTests<LockSynchronizedDictionary<int, int>>
 {
     public LockSyncDictionaryTests() : base(new())
     {
@@ -10,7 +10,7 @@ public class LockSyncDictionaryTests
 }
 
 public class LockSyncOrderedDictionaryTests
-    : BasicDictionaryTests<LockSynchronizedDictionary<int, int>>
+    : ParallelDictionaryTests<LockSynchronizedDictionary<int, int>>
 {
     public LockSyncOrderedDictionaryTests() : base(new())
     {

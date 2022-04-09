@@ -2,7 +2,7 @@
 
 namespace Open.Collections.Tests.Collections;
 public class ReadWriteSyncDictionaryTests
-    : BasicDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
+    : ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
 {
     public ReadWriteSyncDictionaryTests() : base(new())
     {
@@ -10,7 +10,7 @@ public class ReadWriteSyncDictionaryTests
 }
 
 public class ReadWriteSyncOrderedDictionaryTests
-    : BasicDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
+    : ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
 {
     public ReadWriteSyncOrderedDictionaryTests() : base(new())
     {

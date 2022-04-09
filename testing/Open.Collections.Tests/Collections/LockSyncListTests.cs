@@ -2,7 +2,7 @@
 
 namespace Open.Collections.Tests.Collections;
 public class LockSyncListTests
-    : BasicListTests<LockSynchronizedList<int>>
+    : ParallelListTests<LockSynchronizedList<int>>
 {
     public LockSyncListTests() : base(new())
     {
