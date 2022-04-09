@@ -102,6 +102,11 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
     public ReadWriteSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary, bool owner = false) : base(dictionary, owner)
     {
     }
+}
 
-    public ReadWriteSynchronizedDictionaryWrapper(int capacity = 0) : this(new Dictionary<TKey, TValue>(capacity)) { }
+[ExcludeFromCodeCoverage]
+public class ReadWriteSynchronizedDictionary<TKey, TValue>
+    : ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
+{
+    public ReadWriteSynchronizedDictionary(int capacity = 0) : base(new Dictionary<TKey, TValue>(capacity)) { }
 }

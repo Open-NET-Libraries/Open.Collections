@@ -1,16 +1,18 @@
 ﻿using Open.Collections.Synchronized;
 
 namespace Open.Collections.Tests.Collections;
-public class ReadWriteSyncDictionaryTests : BasicDictionaryTests<ReadWriteSynchronizedDictionaryWrapper<int, int>>
+public class ReadWriteSyncDictionaryTests
+    : BasicDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
 {
     public ReadWriteSyncDictionaryTests() : base(new())
     {
     }
 }
 
-public class ReadWriteSyncOrderedDictionaryTests : BasicDictionaryTests<ReadWriteSynchronizedDictionaryWrapper<int, int>>
+public class ReadWriteSyncOrderedDictionaryTests
+    : BasicDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
 {
-    public ReadWriteSyncOrderedDictionaryTests() : base(new(new OrderedDictionary<int, int>()))
+    public ReadWriteSyncOrderedDictionaryTests() : base(new())
     {
     }
 }

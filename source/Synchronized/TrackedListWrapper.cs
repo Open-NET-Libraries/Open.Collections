@@ -114,7 +114,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
     }
 }
 
-public class TrackedList<T> : TrackedListWrapper<T>
+public sealed class TrackedList<T> : TrackedListWrapper<T>
 {
     [ExcludeFromCodeCoverage]
     public TrackedList(int capacity, ModificationSynchronizer? sync = null)

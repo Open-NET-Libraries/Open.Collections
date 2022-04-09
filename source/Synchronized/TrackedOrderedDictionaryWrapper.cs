@@ -149,7 +149,7 @@ public class TrackedOrderedDictionaryWrapper<TKey, TValue>
     }
 }
 
-public class TrackedOrderedDictionary<TKey, TValue>
+public sealed class TrackedOrderedDictionary<TKey, TValue>
     : TrackedOrderedDictionaryWrapper<TKey, TValue>
 {
 

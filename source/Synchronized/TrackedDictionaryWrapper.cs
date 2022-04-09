@@ -58,8 +58,8 @@ public class TrackedDictionaryWrapper<TKey, TValue, TDictionary>
     private bool SetValueInternal(TKey key, TValue value)
     {
         bool changing
-            = InternalSource.TryGetValue(key, out var current)
-            && !(current?.Equals(value) ?? value is null);
+            = !InternalSource.TryGetValue(key, out var current)
+            || !(current?.Equals(value) ?? value is null);
         if (changing)
             InternalSource[key] = value;
         return changing;

@@ -193,7 +193,7 @@ internal static class Program
             _ => () => new ConcurrentDictionary<int, object>());
 
         report.AddBenchmark("LockSynchronized Dictionary",
-            _ => () => new LockSynchronizedDictionaryWrapper<int, object>());
+            _ => () => new LockSynchronizedDictionary<int, object>());
         //report.AddBenchmark("ReadWriteSynchronized Dictionary",
         //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>());
 
