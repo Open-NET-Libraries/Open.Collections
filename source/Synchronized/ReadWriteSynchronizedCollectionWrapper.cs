@@ -32,7 +32,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
-    public override void AddThese(T item1, T item2, params T[] items)
+    public override void Add(T item1, T item2, params T[] items)
     {
         using var write = RWLock.WriteLock();
         base.Add(item1);

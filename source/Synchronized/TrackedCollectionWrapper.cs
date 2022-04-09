@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace Open.Collections.Synchronized;
@@ -37,6 +38,9 @@ public class TrackedCollectionWrapper<T, TCollection>
         Nullify(ref InternalSource); // Eliminate risk from wrapper.
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool AssertIsAliveCore() => AssertIsAlive();
+
     /// <inheritdoc />
     public int Count
         => Sync!.Reading(() =>
@@ -51,15 +55,15 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     public void Add(T item)
-        => Sync!.Modifying(() => AssertIsAlive(), () =>
+        => Sync!.Modifying(AssertIsAliveCore, () =>
         {
             AddInternal(item);
             return true;
         });
 
-    /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
-    public void AddThese(T item1, T item2, params T[] items)
-        => Sync!.Modifying(() => AssertIsAlive(), () =>
+    /// <inheritdoc cref="IAddMultiple{T}.Add(T, T, T[])" />
+    public void Add(T item1, T item2, params T[] items)
+        => Sync!.Modifying(AssertIsAliveCore, () =>
         {
             AddInternal(item1);
             AddInternal(item2);
@@ -83,7 +87,7 @@ public class TrackedCollectionWrapper<T, TCollection>
         if (enumerable.Count == 0)
             return;
 
-        Sync!.Modifying(() => AssertIsAlive(), () =>
+        Sync!.Modifying(AssertIsAliveCore, () =>
         {
             foreach (var item in enumerable)
                 AddInternal(item);
@@ -122,7 +126,7 @@ public class TrackedCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     public virtual bool Remove(T item)
         => Sync!.Modifying(
-            () => AssertIsAlive(),
+            AssertIsAliveCore,
             () => InternalSource.Remove(item));
 
     [ExcludeFromCodeCoverage]
