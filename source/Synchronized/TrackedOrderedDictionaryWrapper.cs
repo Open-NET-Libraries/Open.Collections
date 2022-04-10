@@ -152,7 +152,6 @@ public class TrackedOrderedDictionaryWrapper<TKey, TValue>
 public sealed class TrackedOrderedDictionary<TKey, TValue>
     : TrackedOrderedDictionaryWrapper<TKey, TValue>
 {
-
     [ExcludeFromCodeCoverage]
     public TrackedOrderedDictionary(int capacity, ModificationSynchronizer? sync = null)
         : base(new OrderedDictionary<TKey, TValue>(capacity), sync)
@@ -181,7 +180,6 @@ public sealed class TrackedOrderedDictionary<TKey, TValue>
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public override TKey GetKeyAt(int index) => InternalSource.GetKeyAt(index);
-
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

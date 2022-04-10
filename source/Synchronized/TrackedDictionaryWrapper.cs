@@ -130,7 +130,6 @@ public class TrackedDictionaryWrapper<TKey, TValue>
     }
 }
 
-
 public class TrackedDictionary<TKey, TValue>
     : TrackedDictionaryWrapper<TKey, TValue>
 {

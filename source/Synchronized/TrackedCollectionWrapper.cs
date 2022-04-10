@@ -11,7 +11,9 @@ using System.Threading;
 namespace Open.Collections.Synchronized;
 
 public class TrackedCollectionWrapper<T, TCollection>
-    : ModificationSynchronizedBase, ICollection<T>, IAddMultiple<T>
+    : ModificationSynchronizedBase, ICollection<T>,
+    IAddMultiple<T>,
+    ISynchronizedCollectionWrapper<T, TCollection>
     where TCollection : class, ICollection<T>
 {
     protected TCollection InternalSource;
@@ -197,4 +199,81 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc />
+    public void Read(Action action)
+        => Sync!.Reading(() =>
+        {
+            AssertIsAlive();
+            action();
+        });
+
+    /// <inheritdoc />
+    public TResult Read<TResult>(Func<TResult> action)
+        => Sync!.Reading(() =>
+        {
+            AssertIsAlive();
+            return action();
+        });
+
+    /// <inheritdoc />
+    public void Modify(Action<TCollection> action)
+         => Sync!.Modifying(AssertIsAlive, () =>
+         {
+             action(InternalSource);
+             return true;
+         });
+
+    /// <inheritdoc />
+    public void Modify(Func<bool> condition, Action<TCollection> action)
+         => Sync!.Modifying(()=> AssertIsAlive() && condition(), () =>
+         {
+             action(InternalSource);
+             return true;
+         });
+
+    /// <inheritdoc />
+    public TResult Modify<TResult>(Func<TCollection, TResult> action)
+    {
+        TResult result = default!;
+        Sync!.Modifying(AssertIsAlive, () =>
+        {
+            result = action(InternalSource);
+            return true;
+        });
+        return result;
+    }
+
+    /// <inheritdoc />
+    public virtual bool IfContains(T item, Action<TCollection> action)
+        => Sync!.Modifying(
+            ()=> AssertIsAlive() && InternalSource.Contains(item),
+            () =>
+            {
+                action(InternalSource);
+                return true;
+            });
+
+    /// <inheritdoc />
+    public virtual bool IfNotContains(T item, Action<TCollection> action)
+        => Sync!.Modifying(
+            () => AssertIsAlive() && !InternalSource.Contains(item),
+            () =>
+            {
+                action(InternalSource);
+                return true;
+            });
+
+    /// <inheritdoc />
+    public T[] Snapshot() => Sync!.Reading(() =>
+    {
+        AssertIsAlive();
+        return InternalSource.ToArray();
+    });
+
+    public void Export(ICollection<T> to) => Sync!.Reading(() =>
+    {
+        AssertIsAlive();
+        to.AddRange(InternalSource);
+    });
 }

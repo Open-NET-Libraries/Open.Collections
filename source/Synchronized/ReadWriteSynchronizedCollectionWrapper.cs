@@ -127,26 +127,20 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     }
     #endregion
 
-    /// <summary>
-    /// A thread-safe ForEach method.
-    /// WARNING: If useSnapshot is false, the collection will be unable to be written to while still processing results and dead-locks can occur.
-    /// </summary>
-    /// <param name="action">The action to be performed per entry.</param>
-    /// <param name="useSnapshot">Indicates if a copy of the contents will be used instead locking the collection.</param>
-    public void ForEach(Action<T> action, bool useSnapshot = true)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Read(Action action)
     {
-        if (useSnapshot)
-        {
-            foreach (var item in Snapshot())
-                action(item);
-            return;
-        }
+        using var read = RWLock.ReadLock();
+        action();
+    }
 
-        RWLock.Read(() =>
-        {
-            foreach (var item in InternalSource)
-                action(item);
-        });
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TResult Read<TResult>(Func<TResult> action)
+    {
+        using var read = RWLock.ReadLock();
+        return action();
     }
 
     /// <inheritdoc />
@@ -162,12 +156,18 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
         => RWLock.ReadWriteConditional(condition, () => action(InternalSource));
 
     /// <inheritdoc />
-    public void Modify(Action<TCollection> action) => RWLock.Write(()
-        => action(InternalSource));
+    public void Modify(Action<TCollection> action)
+    {
+        using var write = RWLock.WriteLock();
+        action(InternalSource);
+    }
 
     /// <inheritdoc />
     public TResult Modify<TResult>(Func<TCollection, TResult> action)
-        => RWLock.Write(() => action(InternalSource));
+    {
+        using var write = RWLock.WriteLock();
+        return action(InternalSource);
+    }
 
     /// <inheritdoc />
     public virtual bool IfContains(T item, Action<TCollection> action)

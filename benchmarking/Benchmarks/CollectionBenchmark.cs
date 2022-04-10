@@ -21,17 +21,17 @@ public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
             for (int i = 0; i < TestSize; i++) c.Add(_items[i]);
         });
 
-        yield return TimedResult.Measure("Enumerate (8 times)", () =>
-        {
-            for (int i = 0; i < 8; ++i)
-            {
-                // ReSharper disable once NotAccessedVariable
-                int x = 0;
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (T _ in c) { x++; }
-                Debug.Assert(x == TestSize);
-            }
-        });
+        //yield return TimedResult.Measure("Enumerate (8 times)", () =>
+        //{
+        //    for (int i = 0; i < 8; ++i)
+        //    {
+        //        // ReSharper disable once NotAccessedVariable
+        //        int x = 0;
+        //        // ReSharper disable once LoopCanBeConvertedToQuery
+        //        foreach (T _ in c) { x++; }
+        //        Debug.Assert(x == TestSize);
+        //    }
+        //});
 
         yield return TimedResult.Measure(".Contains(item)", () =>
         {

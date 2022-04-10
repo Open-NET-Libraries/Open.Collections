@@ -6,7 +6,8 @@ using System.Linq;
 
 namespace Open.Collections.Synchronized;
 
-public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
+public class LockSynchronizedCollectionWrapper<T, TCollection>
+    : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 {
     protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
@@ -85,29 +86,6 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		lock (Sync) to.AddRange(this);
 	}
 
-	/// <summary>
-	/// A thread-safe ForEach method.
-	/// WARNING: If useSnapshot is false, the collection will be unable to be written to while still processing results and dead-locks can occur.
-	/// </summary>
-	/// <param name="action">The action to be performed per entry.</param>
-	/// <param name="useSnapshot">Indicates if a copy of the contents will be used instead locking the collection.</param>
-	public void ForEach(Action<T> action, bool useSnapshot = true)
-	{
-		if (useSnapshot)
-		{
-			foreach (var item in Snapshot())
-				action(item);
-		}
-		else
-		{
-			lock (Sync)
-			{
-				foreach (var item in InternalSource)
-					action(item);
-			}
-		}
-	}
-
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public override void CopyTo(T[] array, int arrayIndex)
@@ -128,6 +106,20 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync) return base.CopyTo(span);
 	}
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Read(Action action)
+    {
+        lock (Sync) action();
+    }
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TResult Read<TResult>(Func<TResult> action)
+    {
+        lock (Sync) return action();
+    }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

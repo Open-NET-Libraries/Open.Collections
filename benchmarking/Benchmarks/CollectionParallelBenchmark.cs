@@ -20,27 +20,27 @@ public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 		yield return TimedResult.Measure("Fill (.Add(item)) (In Parallel)",
 			() => Parallel.For(0, TestSize, i => c.Add(_items[i])));
 
-        yield return TimedResult.Measure("Enumerate (8 times)", () =>
-        {
-            for (int i = 0; i < 8; ++i)
-            {
-                // ReSharper disable once NotAccessedVariable
-                int x = 0;
-                // ReSharper disable once LoopCanBeConvertedToQuery
-                foreach (T _ in c) { x++; }
-                Debug.Assert(x == TestSize);
-            }
-        });
+        //yield return TimedResult.Measure("Enumerate (8 times)", () =>
+        //{
+        //    for (int i = 0; i < 8; ++i)
+        //    {
+        //        // ReSharper disable once NotAccessedVariable
+        //        int x = 0;
+        //        // ReSharper disable once LoopCanBeConvertedToQuery
+        //        foreach (T _ in c) { x++; }
+        //        Debug.Assert(x == TestSize);
+        //    }
+        //});
 
-        // It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
-        yield return TimedResult.Measure("Enumerate (8 times) (In Parallel)",
-            () =>
-            {
-                for (int i = 0; i < 8; ++i)
-                {
-                    Parallel.ForEach(c, _ => { });
-                }
-            });
+        //// It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
+        //yield return TimedResult.Measure("Enumerate (8 times) (In Parallel)",
+        //    () =>
+        //    {
+        //        for (int i = 0; i < 8; ++i)
+        //        {
+        //            Parallel.ForEach(c, _ => { });
+        //        }
+        //    });
 
 		yield return TimedResult.Measure(".Contains(item) (In Parallel)",
 			() => Parallel.For(0, TestSize * 2, i => { bool _ = c.Contains(_items[i]); }));

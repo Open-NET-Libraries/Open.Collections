@@ -192,4 +192,20 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
         using var read = RWLock.ReadLock();
         return InternalSource.ToArray();
     }
+
+    /// <inheritdoc />
+    public void Read(Action action)
+    {
+        DumpBuffer();
+        using var read = RWLock.ReadLock();
+        action();
+    }
+
+    /// <inheritdoc />
+    public TResult Read<TResult>(Func<TResult> action)
+    {
+        DumpBuffer();
+        using var read = RWLock.ReadLock();
+        return action();
+    }
 }
