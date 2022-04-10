@@ -15,12 +15,13 @@ public abstract class ParallelDictionaryTests<TDictionary>
     [Fact]
     public void ParallelAddThenRemove()
     {
-        const int count = 10000000;
+        const int countAdd = 10000000;
         Dictionary.Clear();
-        Parallel.For(0, count, i => Dictionary.Add(i, i));
-        Dictionary.Count.Should().Be(count);
+        Parallel.For(0, countAdd, i => Dictionary.Add(i, i));
+        Dictionary.Count.Should().Be(countAdd);
 
-        Parallel.For(0, count, i => Dictionary.Remove(i));
-        Dictionary.Count.Should().Be(0);
+        const int countRemove = 900;
+        Parallel.For(0, countRemove, i => Dictionary.Remove(i * 3));
+        Dictionary.Count.Should().Be(countAdd - countRemove);
     }
 }
