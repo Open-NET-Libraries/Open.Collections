@@ -71,5 +71,6 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue>
 public class LockSynchronizedDictionary<TKey, TValue>
     : LockSynchronizedDictionaryWrapper<TKey, TValue>
 {
-    public LockSynchronizedDictionary(int capacity = 0) : base(new Dictionary<TKey, TValue>(capacity)) { }
+    public LockSynchronizedDictionary(int capacity) : base(new Dictionary<TKey, TValue>(capacity)) { }
+    public LockSynchronizedDictionary() : base(new Dictionary<TKey, TValue>()) { }
 }

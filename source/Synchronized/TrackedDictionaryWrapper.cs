@@ -156,4 +156,7 @@ public class TrackedDictionary<TKey, TValue>
         : base(new Dictionary<TKey, TValue>(), out sync)
     {
     }
+
+    [ExcludeFromCodeCoverage]
+    public TrackedDictionary() : this(null) { }
 }

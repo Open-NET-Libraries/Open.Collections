@@ -4,15 +4,9 @@ namespace Open.Collections.Tests.Collections;
 public class LockSyncDictionaryTests
     : ParallelDictionaryTests<LockSynchronizedDictionary<int, int>>
 {
-    public LockSyncDictionaryTests() : base(new())
-    {
-    }
 }
 
-public class LockSyncOrderedDictionaryTests
+public class LockSyncIndexedDictionaryTests
     : ParallelDictionaryTests<LockSynchronizedDictionary<int, int>>
 {
-    public LockSyncOrderedDictionaryTests() : base(new())
-    {
-    }
 }

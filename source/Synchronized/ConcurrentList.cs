@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -17,15 +16,24 @@ namespace Open.Collections.Synchronized;
 public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollection<T>
 {
     int _count;
-    public override int Count => _count;
-    private readonly ConcurrentQueue<T> _buffer = new();
-    private readonly ReaderWriterLockSlim _sync = new();
-    private ReaderWriterLockSlim RWLock
-        => AssertIsAlive() ? _sync : null!;
+    [ExcludeFromCodeCoverage]
+    public override int Count
+    {
+        get
+        {
+            AssertIsAlive();
+            return _count;
+        }
+    }
 
+    private readonly Queue.Concurrent<T> _buffer = new();
+    private readonly ReaderWriterLockSlim RWLock = new();
+
+    [ExcludeFromCodeCoverage]
     protected override void OnDispose()
     {
-        Clear();
+        _count = 0;
+        _buffer.Clear();
         RWLock.Dispose();
         base.OnDispose();
     }
@@ -76,7 +84,11 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
         }
     }
 
-    public ConcurrentList(int capacity = 0) : base(new List<T>(capacity)) { }
+    [ExcludeFromCodeCoverage]
+    public ConcurrentList(int capacity) : base(new List<T>(capacity)) { }
+
+    [ExcludeFromCodeCoverage]
+    public ConcurrentList() : base(new List<T>()) { }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void AssertValidIndex(int index)
@@ -99,7 +111,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
         }
     }
 
-    protected override void AddInternal(T item)
+    protected override void AddInternal(in T item)
     {
         _buffer.Enqueue(item);
         Interlocked.Increment(ref _count);
@@ -181,7 +193,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
     public override IEnumerator<T> GetEnumerator()
     {
         DumpBuffer();
-        return base.GetEnumerator();
+        return base.GetEnumerator().Preflight(ThrowIfDisposed);
     }
 
     /// <inheritdoc />

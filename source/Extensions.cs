@@ -980,4 +980,53 @@ retry:
     /// <inheritdoc cref="ToImmutableArray{T}(ReadOnlyMemory{T})"/>
     public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this Memory<T> memory)
         => memory.Span.ToReadOnlyCollection();
+
+    /// <summary>
+    /// Executes an action before the enumerable is consumed.
+    /// </summary>
+    public static IEnumerable<T> Preflight<T>(
+        this IEnumerable<T> source,
+        Action before)
+    {
+        before();
+        foreach (var item in source)
+            yield return item;
+    }
+
+    /// <summary>
+    /// Executes an action before the enumerable is consumed.
+    /// </summary>
+    public static IEnumerator<T> Preflight<T>(
+        this IEnumerator<T> source,
+        Action before)
+    {
+        before();
+        while (source.MoveNext())
+            yield return source.Current;
+    }
+
+    public static IEnumerable<T> BeforeGetEnumerator<T>(
+        this IEnumerable<T> source,
+        Action before)
+        => new PreflightEnumerable<T>(source, before);
+
+    private class PreflightEnumerable<T> : IEnumerable<T>
+    {
+        private readonly IEnumerable<T> _source;
+        private readonly Action _before;
+
+        public PreflightEnumerable(IEnumerable<T> source, Action before)
+        {
+            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _before = before ?? throw new ArgumentNullException(nameof(before));
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            _before();
+            return _source.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
 }

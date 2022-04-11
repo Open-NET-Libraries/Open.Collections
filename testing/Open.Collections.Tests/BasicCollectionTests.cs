@@ -6,12 +6,40 @@ using Xunit;
 
 namespace Open.Collections.Tests;
 public abstract class BasicCollectionTests<TCollection>
-    where TCollection : ICollection<int>
+    where TCollection : ICollection<int>, new()
 {
     protected BasicCollectionTests(TCollection collection)
         => Collection = collection;
 
+    protected BasicCollectionTests() : this(new()) { }
+
     protected readonly TCollection Collection;
+
+    [Fact]
+    public virtual TCollection AssertWhenDisposed()
+    {
+        // Policy:
+        // Ideally an exception should throw whenever access occurs after disposal.
+        // But this isn't always possible, and sometimes remnants remain that can't easily be detected.
+        // Therefore, the policy is:
+        // - Behaviors should be consistent.
+        // - Throw on any modification attempt.
+        // - Return negative or empty results for any read attempt.
+
+        TCollection c = new();
+        c.Add(5);
+        if (c is not IDisposable disposable) return c;
+        disposable.Dispose();
+        ThrowsDisposed(() => _ = c.Any());
+        ThrowsDisposed(() => _ = c.Count);
+        ThrowsDisposed(() => c.Contains(5));
+        ThrowsDisposed(() => c.Add(5));
+        ThrowsDisposed(() => c.Remove(5));
+        return c;
+    }
+
+    protected static void ThrowsDisposed(Action action)
+        => Assert.Throws<ObjectDisposedException>(action);
 
     [Fact]
     public void Add()

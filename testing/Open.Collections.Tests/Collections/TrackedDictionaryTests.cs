@@ -4,17 +4,9 @@ namespace Open.Collections.Tests.Collections;
 public class TrackedDictionaryTests
     : ParallelDictionaryTests<TrackedDictionary<int, int>>
 {
-    public TrackedDictionaryTests()
-        : base(new (new Threading.ReadWriteModificationSynchronizer()))
-    {
-    }
 }
 
-public class TrackedOrderedDictionaryTests
-    : ParallelDictionaryTests<TrackedOrderedDictionary<int, int>>
+public class TrackedIndexedDictionaryTests
+    : ParallelDictionaryTests<TrackedIndexedDictionary<int, int>>
 {
-    public TrackedOrderedDictionaryTests()
-        : base(new(new Threading.SimpleLockingModificationSynchronizer()))
-    {
-    }
 }

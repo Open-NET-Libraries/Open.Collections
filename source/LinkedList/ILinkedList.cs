@@ -4,43 +4,43 @@ namespace Open.Collections;
 
 public interface ILinkedList<T> : ICollection<T>
 {
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.First"/>
+	/// <inheritdoc cref="LinkedList{T}.First"/>
 	LinkedListNode<T> First { get; }
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.Last"/>
+	/// <inheritdoc cref="LinkedList{T}.Last"/>
 	LinkedListNode<T> Last { get; }
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddAfter(LinkedListNode{T}, T)"/>
+	/// <inheritdoc cref="LinkedList{T}.AddAfter(LinkedListNode{T}, T)"/>
 	LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddAfter(LinkedListNode{T}, LinkedListNode{T})"/>
+	/// <inheritdoc cref="LinkedList{T}.AddAfter(LinkedListNode{T}, LinkedListNode{T})"/>
 	void AddAfter(LinkedListNode<T> node, LinkedListNode<T> newNode);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddBefore(LinkedListNode{T}, T)"/>
+	/// <inheritdoc cref="LinkedList{T}.AddBefore(LinkedListNode{T}, T)"/>
 	LinkedListNode<T> AddBefore(LinkedListNode<T> node, T item);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddBefore(LinkedListNode{T}, LinkedListNode{T})"/>
+	/// <inheritdoc cref="LinkedList{T}.AddBefore(LinkedListNode{T}, LinkedListNode{T})"/>
 	void AddBefore(LinkedListNode<T> node, LinkedListNode<T> newNode);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddFirst(T)"/>
+	/// <inheritdoc cref="LinkedList{T}.AddFirst(T)"/>
 	LinkedListNode<T> AddFirst(T item);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddFirst(LinkedListNode{T})"/>
+	/// <inheritdoc cref="LinkedList{T}.AddFirst(LinkedListNode{T})"/>
 	void AddFirst(LinkedListNode<T> newNode);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddLast(T)"/>
+	/// <inheritdoc cref="LinkedList{T}.AddLast(T)"/>
 	LinkedListNode<T> AddLast(T item);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.AddLast(LinkedListNode{T})"/>
+	/// <inheritdoc cref="LinkedList{T}.AddLast(LinkedListNode{T})"/>
 	void AddLast(LinkedListNode<T> newNode);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.Remove(LinkedListNode{T})"/>
+	/// <inheritdoc cref="LinkedList{T}.Remove(LinkedListNode{T})"/>
 	void Remove(LinkedListNode<T> node);
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.RemoveFirst()"/>
+	/// <inheritdoc cref="LinkedList{T}.RemoveFirst()"/>
 	void RemoveFirst();
 
-	/// <inheritdoc cref="LinkedList&lt;T&gt;.RemoveLast()"/>
+	/// <inheritdoc cref="LinkedList{T}.RemoveLast()"/>
 	void RemoveLast();
 
 	/// <summary>

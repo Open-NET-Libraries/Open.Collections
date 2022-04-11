@@ -4,20 +4,20 @@ using System.Diagnostics.CodeAnalysis;
 namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
-public class TrackedOrderedDictionaryWrapper<TKey, TValue, TDictionary>
-    : TrackedDictionaryWrapper<TKey, TValue, TDictionary>, IOrderedDictionary<TKey, TValue>
-    where TDictionary : class, IOrderedDictionary<TKey, TValue>
+public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
+    : TrackedDictionaryWrapper<TKey, TValue, TDictionary>, IIndexedDictionary<TKey, TValue>
+    where TDictionary : class, IIndexedDictionary<TKey, TValue>
 {
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionaryWrapper(TDictionary dictionary, ModificationSynchronizer? sync = null)
+    public TrackedIndexedDictionaryWrapper(TDictionary dictionary, ModificationSynchronizer? sync = null)
     : base(dictionary, sync)
     {
     }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionaryWrapper(TDictionary dictionary, out ModificationSynchronizer sync)
+    public TrackedIndexedDictionaryWrapper(TDictionary dictionary, out ModificationSynchronizer sync)
         : base(dictionary, out sync)
     {
     }
@@ -131,49 +131,55 @@ public class TrackedOrderedDictionaryWrapper<TKey, TValue, TDictionary>
         => AddSynchronized(key, value);
 }
 
-public class TrackedOrderedDictionaryWrapper<TKey, TValue>
-    : TrackedOrderedDictionaryWrapper<TKey, TValue, IOrderedDictionary<TKey, TValue>>
+public class TrackedIndexedDictionaryWrapper<TKey, TValue>
+    : TrackedIndexedDictionaryWrapper<TKey, TValue, IIndexedDictionary<TKey, TValue>>
 {
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionaryWrapper(IOrderedDictionary<TKey, TValue> dictionary, ModificationSynchronizer? sync = null)
+    public TrackedIndexedDictionaryWrapper(IIndexedDictionary<TKey, TValue> dictionary, ModificationSynchronizer? sync = null)
         : base(dictionary, sync)
     {
     }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionaryWrapper(IOrderedDictionary<TKey, TValue> dictionary, out ModificationSynchronizer sync)
+    public TrackedIndexedDictionaryWrapper(IIndexedDictionary<TKey, TValue> dictionary, out ModificationSynchronizer sync)
         : base(dictionary, out sync)
     {
     }
 }
 
-public sealed class TrackedOrderedDictionary<TKey, TValue>
-    : TrackedOrderedDictionaryWrapper<TKey, TValue>
+public sealed class TrackedIndexedDictionary<TKey, TValue>
+    : TrackedIndexedDictionaryWrapper<TKey, TValue>
 {
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionary(int capacity, ModificationSynchronizer? sync = null)
-        : base(new OrderedDictionary<TKey, TValue>(capacity), sync)
+    public TrackedIndexedDictionary(int capacity, ModificationSynchronizer? sync = null)
+        : base(new IndexedDictionary<TKey, TValue>(capacity), sync)
     {
     }
 
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionary(int capacity, out ModificationSynchronizer sync)
-        : base(new OrderedDictionary<TKey, TValue>(capacity), out sync)
+    public TrackedIndexedDictionary(int capacity, out ModificationSynchronizer sync)
+        : base(new IndexedDictionary<TKey, TValue>(capacity), out sync)
     {
     }
 
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionary(ModificationSynchronizer? sync = null)
-        : base(new OrderedDictionary<TKey, TValue>(), sync)
+    public TrackedIndexedDictionary(ModificationSynchronizer? sync)
+        : base(new IndexedDictionary<TKey, TValue>(), sync)
     {
     }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public TrackedOrderedDictionary(out ModificationSynchronizer sync)
-        : base(new OrderedDictionary<TKey, TValue>(), out sync)
+    public TrackedIndexedDictionary(out ModificationSynchronizer sync)
+        : base(new IndexedDictionary<TKey, TValue>(), out sync)
+    {
+    }
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TrackedIndexedDictionary() : this(null)
     {
     }
 

@@ -6,10 +6,6 @@ using Xunit;
 namespace Open.Collections.Tests.Collections;
 public class TrackedListTests : BasicListTests<TrackedList<int>>
 {
-    public TrackedListTests() : base(new())
-    {
-    }
-
     [Fact]
     public void AddRemoveEvents()
     {

@@ -108,5 +108,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
 public class ReadWriteSynchronizedDictionary<TKey, TValue>
     : ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
 {
-    public ReadWriteSynchronizedDictionary(int capacity = 0) : base(new Dictionary<TKey, TValue>(capacity)) { }
+    public ReadWriteSynchronizedDictionary() : base(new Dictionary<TKey, TValue>()) { }
+
+    public ReadWriteSynchronizedDictionary(int capacity) : base(new Dictionary<TKey, TValue>(capacity)) { }
 }

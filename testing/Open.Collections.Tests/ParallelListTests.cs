@@ -6,11 +6,13 @@ using Xunit;
 namespace Open.Collections.Tests;
 public abstract class ParallelListTests<TList>
     : BasicListTests<TList>
-    where TList : IList<int>
+    where TList : IList<int>, new()
 {
-    protected ParallelListTests(TList list) : base(list)
-    {
-    }
+    protected ParallelListTests(TList list)
+        : base(list) { }
+
+    protected ParallelListTests()
+        : this(new()) { }
 
     [Fact]
     public void ParallelAddThenRemove()

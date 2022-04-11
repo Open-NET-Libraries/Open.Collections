@@ -129,7 +129,7 @@ public sealed class TrackedList<T> : TrackedListWrapper<T>
     }
 
     [ExcludeFromCodeCoverage]
-    public TrackedList(ModificationSynchronizer? sync = null)
+    public TrackedList(ModificationSynchronizer? sync)
         : base(new List<T>(), sync)
     {
     }
@@ -139,4 +139,7 @@ public sealed class TrackedList<T> : TrackedListWrapper<T>
         : base(new List<T>(), out sync)
     {
     }
+
+    [ExcludeFromCodeCoverage]
+    public TrackedList() : this(null) { }
 }

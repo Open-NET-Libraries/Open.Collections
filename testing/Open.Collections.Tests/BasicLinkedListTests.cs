@@ -4,11 +4,13 @@ using Xunit;
 
 namespace Open.Collections.Tests;
 public abstract class BasicLinkedListTests<TList> : BasicCollectionTests<TList>
-    where TList : ILinkedList<int>
+    where TList : ILinkedList<int>, new()
 {
-    protected BasicLinkedListTests(TList collection) : base(collection)
-    {
-    }
+    protected BasicLinkedListTests(TList collection)
+        : base(collection) { }
+
+    protected BasicLinkedListTests()
+        : this(new()) { }
 
     [Fact]
     public void TryTake()

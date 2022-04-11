@@ -20,7 +20,7 @@ internal static class Program
         //TestEntry.Test1();
         //TestEntry.Test2();
         //QueueTests();
-		ListTests();
+		//ListTests();
         DictionaryTests();
 
         Console.Beep();
@@ -173,6 +173,7 @@ internal static class Program
 
         report.AddBenchmark("LockSynchronizedHashSet",
             _ => () => new LockSynchronizedHashSet<object>());
+
         report.AddBenchmark("ReadWriteSynchronizedHashSet",
             _ => () => new ReadWriteSynchronizedHashSet<object>());
 
@@ -194,13 +195,12 @@ internal static class Program
 
         report.AddBenchmark("LockSynchronized Dictionary",
             _ => () => new LockSynchronizedDictionary<int, object>());
-        //report.AddBenchmark("ReadWriteSynchronized Dictionary",
-        //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>());
 
         report.AddBenchmark("LockSynchronized OrderedDictionary",
             _ => () => new LockSynchronizedOrderedDictionary<int, object>());
-        //report.AddBenchmark("ReadWriteSynchronized OrderedDictionary",
-        //    _ => () => new ReadWriteSynchronizedDictionaryWrapper<int, object>(new OrderedDictionary<int, object>()));
+
+        report.AddBenchmark("LockSynchronized IndexedDictionary",
+            _ => () => new LockSynchronizedIndexedDictionary<int, object>());
 
         report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 

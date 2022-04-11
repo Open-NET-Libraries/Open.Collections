@@ -25,12 +25,16 @@ public class CollectionWrapper<T, TCollection>
     #region Implementation of ICollection<T>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected virtual void AddInternal(T item)
+    protected virtual void AddInternal(in T item)
         => InternalSource.Add(item);
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public virtual void Add(T item) => AddInternal(item);
+    public virtual void Add(T item)
+    {
+        AssertIsAlive();
+        AddInternal(in item);
+    }
 
     /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])"/>
     public virtual void AddThese(T item1, T item2, params T[] items)

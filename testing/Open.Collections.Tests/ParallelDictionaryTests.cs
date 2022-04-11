@@ -6,11 +6,13 @@ using Xunit;
 namespace Open.Collections.Tests;
 public abstract class ParallelDictionaryTests<TDictionary>
     : BasicDictionaryTests<TDictionary>
-    where TDictionary : IDictionary<int, int>
+    where TDictionary : IDictionary<int, int>, new()
 {
-    protected ParallelDictionaryTests(TDictionary dictionary) : base(dictionary)
-    {
-    }
+    protected ParallelDictionaryTests(TDictionary dictionary)
+        : base(dictionary) { }
+
+    protected ParallelDictionaryTests()
+        : this(new()) { }
 
     [Fact]
     public void ParallelAddThenRemove()

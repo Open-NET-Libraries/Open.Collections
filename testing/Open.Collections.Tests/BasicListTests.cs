@@ -6,10 +6,18 @@ using Xunit;
 namespace Open.Collections.Tests;
 public abstract class BasicListTests<TList>
     : BasicCollectionTests<TList>
-    where TList : IList<int>
+    where TList : IList<int>, new()
 {
-    protected BasicListTests(TList list) : base(list)
+    protected BasicListTests(TList list) : base(list) { }
+
+    protected BasicListTests() : this(new()) { }
+
+    public override TList AssertWhenDisposed()
     {
+        var list = base.AssertWhenDisposed();
+        if (list is not IDisposable) return list;
+        ThrowsDisposed(() => list.IndexOf(5));
+        return list;
     }
 
     [Fact]
@@ -18,7 +26,7 @@ public abstract class BasicListTests<TList>
         if (Collection.IsReadOnly) return;
 
         Collection.Add(10);
-        Collection.IndexOf(10).Should().Be(Collection.Count-1);
+        Collection.IndexOf(10).Should().Be(Collection.Count - 1);
         int value = Collection[0];
         Collection.IndexOf(int.MaxValue).Should().Be(-1);
         Collection[0] = int.MaxValue;

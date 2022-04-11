@@ -2,189 +2,143 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
-/// <summary>
-/// A minimal implementation of <see cref="IOrderedDictionary{TKey, TValue}"/> that is inherently not thread safe.
-/// </summary>
 public class OrderedDictionary<TKey, TValue>
-    : DictionaryWrapper<TKey, TValue>, IOrderedDictionary<TKey, TValue>
+    : DictionaryWrapperBase<TKey, TValue, LinkedList<KeyValuePair<TKey, TValue>>>, IDictionary<TKey, TValue>
 {
-    private readonly List<TKey> _keys;
-    private readonly List<TValue> _values;
-    private readonly Dictionary<TKey, int> _indexes;
+    /// <inheritdoc />
+    public OrderedDictionary()
+        : base(new LinkedList<KeyValuePair<TKey, TValue>>(), true)
+        => _lookup = new();
+    /// <inheritdoc />
+    public OrderedDictionary(int capacity)
+        : base(new LinkedList<KeyValuePair<TKey, TValue>>(), true)
+        => _lookup = new(capacity);
 
-    public OrderedDictionary(int capacity = 0)
-        : base(capacity)
+    private Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> _lookup;
+    protected Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> Lookup
+        => _lookup ?? throw new ObjectDisposedException(GetType().ToString());
+
+    [ExcludeFromCodeCoverage]
+    protected override void OnDispose()
     {
-        _keys = new(capacity);
-        _values = new(capacity);
-        _indexes = new(capacity);
+        InternalSource.Clear();
+        Nullify(ref _lookup)?.Clear();
+        base.OnDispose();
     }
 
-    /// <inheritdoc />
-    public override TValue this[TKey key]
-    {
-        get => InternalSource[key];
-        set => SetValue(key, value);
-    }
-
-    /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
-    public override ICollection<TKey> Keys => _keys.AsReadOnly();
-
-    /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
-    public override ICollection<TValue> Values => _values.AsReadOnly();
-
-    /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
-    public override int Count
-        => _keys.Count;
-
-    private int AddToLists(TKey key, TValue value)
-    {
-        int i = _keys.Count;
-        _keys.Add(key);
-        _values.Add(value);
-        _indexes[key] = i;
-        Debug.Assert(_keys.Count == i + 1);
-        Debug.Assert(_keys.Count == InternalSource.Count);
-        Debug.Assert(_keys.Count == _values.Count);
-        return i;
-    }
-
-    [ExcludeFromCodeCoverage]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void AddInternal(KeyValuePair<TKey, TValue> item)
+    protected override TValue GetValueInternal(TKey key) => Lookup[key].Value.Value;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void SetValueInternal(TKey key, TValue value) => SetValue(key, value);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void AddInternal(in KeyValuePair<TKey, TValue> kvp)
+        => AddNode(in kvp);
+
+    /// <inheritdoc />
+    public virtual bool SetValue(TKey key, TValue value)
     {
-        InternalSource.Add(item);
-        AddToLists(item.Key, item.Value);
-    }
-
-    /// <inheritdoc />
-    public new int Add(TKey key, TValue value)
-    {
-        base.Add(key, value);
-        return AddToLists(key, value);
-    }
-
-    void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
-        => Add(key, value);
-
-    /// <inheritdoc />
-    public TKey GetKeyAt(int index) => _keys[index];
-
-    /// <inheritdoc />
-    public TValue GetValueAt(int index) => _values[index];
-
-    /// <inheritdoc />
-    public void Insert(int index, TKey key, TValue value)
-    {
-        if (index == _keys.Count)
+        AssertIsAlive();
+        if (!Lookup.TryGetValue(key, out var node))
         {
             Add(key, value);
-            return;
+            return true;
         }
 
-        base.Add(key, value);
-        _indexes.Clear(); // clear the index cache and let it rebuild organically.
-        _keys.Insert(index, key);
-        _values.Insert(index, value);
-        Debug.Assert(_keys.Count == InternalSource.Count);
-        Debug.Assert(_keys.Count == _values.Count);
+        if (node.Value.Value?.Equals(value) ?? value is null)
+            return false;
+
+        node.Value = new KeyValuePair<TKey, TValue>(key, value);
+        return true;
     }
 
-    private int GetIndex(TKey key, bool addToIndex = true)
+    protected override ICollection<TKey> GetKeys()
+        => new ReadOnlyCollectionAdapter<TKey>(
+            ThrowIfDisposed(InternalSource.Select(e => e.Key)),
+            () => InternalSource.Count);
+
+    protected override ICollection<TValue> GetValues()
+        =>  new ReadOnlyCollectionAdapter<TValue>(
+            ThrowIfDisposed(InternalSource.Select(e => e.Value)),
+            () => InternalSource.Count);
+
+    /// <inheritdoc />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected override void AddInternal(TKey key, TValue value)
+        => AddInternal(KeyValuePair.Create(key, value));
+
+#if NETSTANDARD2_0
+    [SuppressMessage("Roslynator", "RCS1242:Do not pass non-read-only struct by read-only reference.", Justification = "KeyValuePairs are not truly readonly until NET Standard 2.1.")]
+#endif
+    protected virtual LinkedListNode<KeyValuePair<TKey,TValue>> AddNode(
+        in KeyValuePair<TKey, TValue> kvp)
     {
-        if (_indexes.TryGetValue(key, out int i))
-            return i;
+        AssertIsAlive();
+        var node = new LinkedListNode<KeyValuePair<TKey, TValue>>(kvp);
 
-        i = _keys.IndexOf(key);
-        if (i == -1)
-        {
-            Debugger.Break();
-            throw new Exception("Collection is out of sync possibly due to unsynchronized access by multiple threads.");
-        }
-
-        if (addToIndex) _indexes[key] = i;
-        return i;
+        Lookup.Add(kvp.Key, node);
+        InternalSource.AddLast(node);
+        return node;
     }
 
-    private void RemoveIndex(int index, TKey key)
-    {
-        _keys.RemoveAt(index);
-        _values.RemoveAt(index);
-        if (index == _keys.Count) _indexes.Remove(key); // Removed from end?
-        else _indexes.Clear(); // clear the index cache and let it rebuild organically.
-        Debug.Assert(_keys.Count == InternalSource.Count);
-        Debug.Assert(_keys.Count == _values.Count);
-    }
+    /// <inheritdoc />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool ContainsKey(TKey key)
+        => Lookup.ContainsKey(key);
 
     /// <inheritdoc />
     public override bool Remove(TKey key)
     {
-        if (!base.Remove(key)) return false;
-        int i = GetIndex(key, false);
-        RemoveIndex(i, key);
-        return true;
-    }
-
-    /// <inheritdoc />
-    public void RemoveAt(int index)
-    {
-        var key = _keys[index];
-        InternalSource.Remove(key);
-        RemoveIndex(index, key);
-    }
-
-    /// <inheritdoc />
-    public int SetValue(TKey key, TValue value)
-    {
-        if (!InternalSource.ContainsKey(key))
-            return Add(key, value);
-
-        int i = GetIndex(key);
-        InternalSource[key] = value;
-        _values[i] = value;
-        return i;
-    }
-
-    /// <inheritdoc />
-    public bool SetValue(TKey key, TValue value, out int index)
-    {
-        if (!InternalSource.ContainsKey(key))
+        if (Lookup.TryGetValue(key, out var node))
         {
-            index = Add(key, value);
+            bool removed = Lookup.Remove(key);
+            Debug.Assert(removed);
+            InternalSource.Remove(node);
             return true;
         }
 
-        index = GetIndex(key);
-        InternalSource[key] = value;
-        var previous = _values[index];
-        _values[index] = value;
-        return !(previous?.Equals(value) ?? value is null);
+        return false;
     }
 
     /// <inheritdoc />
-    public bool SetValueAt(int index, TValue value, out TKey key)
+    public override bool TryGetValue(TKey key, out TValue value)
     {
-        key = _keys[index];
-        if (InternalSource.TryGetValue(key, out var previous))
+        if(Lookup.TryGetValue(key, out var node))
         {
-            if (previous is null)
-            {
-                if (value is null) return false;
-            }
-            else if (previous.Equals(value))
-            {
-                return false;
-            }
+            value = node.Value.Value;
+            return true;
         }
-        InternalSource[key] = value;
-        _values[index] = value;
-        return true;
+
+        value = default!;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public override void Clear()
+    {
+        Lookup.Clear();
+        base.Clear();
+    }
+
+    public override bool Remove(KeyValuePair<TKey, TValue> item)
+    {
+        var key = item.Key;
+        if (Lookup.TryGetValue(key, out var node)
+            && (node.Value.Value?.Equals(item.Value) ?? item.Value is null))
+        {
+            Debug.Assert(key?.Equals(node.Value.Key) ?? node.Value.Key is null);
+            bool removed = Lookup.Remove(key);
+            Debug.Assert(removed);
+            InternalSource.Remove(node);
+            return true;
+        }
+
+        return false;
     }
 }

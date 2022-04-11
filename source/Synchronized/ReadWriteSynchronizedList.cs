@@ -7,6 +7,9 @@ namespace Open.Collections.Synchronized;
 public sealed class ReadWriteSynchronizedList<T>
     : ReadWriteSynchronizedListWrapper<T>
 {
+    public ReadWriteSynchronizedList()
+        : base(new List<T>()) { }
+
     public ReadWriteSynchronizedList(int capacity = 0)
         : base(new List<T>(capacity)) { }
 

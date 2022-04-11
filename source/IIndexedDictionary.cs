@@ -8,17 +8,17 @@ namespace Open.Collections;
 /// Represents a generic items of key/value pairs that are ordered independently of the key and value.
 /// </summary>
 /// <inheritdoc />
-public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+public interface IIndexedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
     /// <summary>
-    /// Adds an entry with the specified key and value into the <see cref="IOrderedDictionary{TKey,TValue}"/>.
+    /// Adds an entry with the specified key and value into the <see cref="IIndexedDictionary{TKey,TValue}"/>.
     /// </summary>
     /// <returns>The index of the newly added entry</returns>
     /// <inheritdoc cref="Insert(int, TKey, TValue)"/>
     new int Add(TKey key, TValue value);
 
     /// <summary>
-    /// Inserts a new entry into the <see cref="IOrderedDictionary{TKey,TValue}"/> items with the specified key and value at the specified index.
+    /// Inserts a new entry into the <see cref="IIndexedDictionary{TKey,TValue}"/> items with the specified key and value at the specified index.
     /// </summary>
     /// <param name="index">The zero-based index at which the element should be inserted.</param>
     /// <param name="key">The key of the entry to add.</param>
@@ -26,10 +26,10 @@ public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
     /// -or-<br/>
     /// <paramref name="index"/> is greater than <see cref="System.Collections.ICollection.Count"/>.</exception>
-    /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="IOrderedDictionary{TKey,TValue}"/>.</exception>
-    /// <exception cref="NotSupportedException">The <see cref="IOrderedDictionary{TKey,TValue}"/> is read-only.<br/>
+    /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="IIndexedDictionary{TKey,TValue}"/>.</exception>
+    /// <exception cref="NotSupportedException">The <see cref="IIndexedDictionary{TKey,TValue}"/> is read-only.<br/>
     /// -or-<br/>
-    /// The <see cref="IOrderedDictionary{TKey,TValue}"/> has a fized size.</exception>
+    /// The <see cref="IIndexedDictionary{TKey,TValue}"/> has a fized size.</exception>
     void Insert(int index, TKey key, TValue value);
 
     /// <summary>
@@ -64,7 +64,7 @@ public interface IOrderedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     bool SetValueAt(int index, TValue value, out TKey key);
 
     /// <summary>
-    /// Removes the entry at the specified index from the <see cref="IOrderedDictionary{TKey,TValue}"/> items.
+    /// Removes the entry at the specified index from the <see cref="IIndexedDictionary{TKey,TValue}"/> items.
     /// </summary>
     /// <param name="index">The zero-based index of the entry to remove.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>

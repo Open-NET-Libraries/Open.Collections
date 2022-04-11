@@ -4,7 +4,4 @@ namespace Open.Collections.Tests.Collections;
 public class LockSyncListTests
     : ParallelListTests<LockSynchronizedList<int>>
 {
-    public LockSyncListTests() : base(new())
-    {
-    }
 }

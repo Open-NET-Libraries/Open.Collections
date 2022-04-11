@@ -121,8 +121,7 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     #region Dispose
     protected override void OnDispose()
     {
-        Nullify(ref RWLock)?.Dispose();
-
+        RWLock.Dispose();
         base.OnDispose();
     }
     #endregion

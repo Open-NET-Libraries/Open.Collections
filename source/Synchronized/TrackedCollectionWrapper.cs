@@ -63,6 +63,9 @@ public class TrackedCollectionWrapper<T, TCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected bool AssertIsAlive() => base.AssertIsAlive();
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void ThrowIfDisposed() => base.AssertIsAlive();
+
     /// <inheritdoc />
     public int Count
         => Sync!.Reading(() =>
@@ -195,7 +198,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
-        => InternalSource.GetEnumerator();
+        => InternalSource.GetEnumerator().Preflight(ThrowIfDisposed);
 
     [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

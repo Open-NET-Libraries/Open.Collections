@@ -68,7 +68,8 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
-    public IEnumerator<T> GetEnumerator() => InternalSource.Keys.GetEnumerator();
+    public IEnumerator<T> GetEnumerator()
+        => InternalSource.Keys.GetEnumerator();
 
     /// <inheritdoc />
     public void ExceptWith(IEnumerable<T> other)
