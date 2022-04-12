@@ -18,7 +18,7 @@ public static partial class Extensions
 
 		static IEnumerable<T> TryTakeWhileCpre(ConcurrentBag<T> target, Func<ConcurrentBag<T>, bool> predicate)
 		{
-			while (!target.IsEmpty && predicate(target) && target.TryTake(out var value))
+			while (!target.IsEmpty && predicate(target) && target.TryTake(out T? value))
 			{
 				yield return value;
 			}
@@ -35,7 +35,7 @@ public static partial class Extensions
 
 	public static void Trim<T>(this ConcurrentBag<T> target, int maxSize)
 	{
-		foreach (var _ in TryTakeWhile(target, t => t.Count > maxSize))
+		foreach (T? _ in TryTakeWhile(target, t => t.Count > maxSize))
 		{
 		}
 	}

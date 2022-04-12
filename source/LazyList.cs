@@ -56,10 +56,10 @@ public class LazyList<T> : LazyListUnsafe<T>
 		if (maxIndex < _safeCount)
 			return true;
 
-		// This is where the fun begins...
-		// Mutliple threads can be out of sync (probably through a memory barrier)
-		// And a sync read operation must be done to ensure safety.
-		var count = Sync.ReadValue(() => _cached.Count);
+        // This is where the fun begins...
+        // Mutliple threads can be out of sync (probably through a memory barrier)
+        // And a sync read operation must be done to ensure safety.
+        int count = Sync.Read(() => _cached.Count);
 		if (maxIndex < count)
 		{
 			// We're still within the existing results, but safe count is not up to date.
@@ -73,37 +73,35 @@ public class LazyList<T> : LazyListUnsafe<T>
 		if (_enumerator is null)
 			return false;
 
-		// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
-		using (var uLock = Sync.UpgradableReadLock())
+        // This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
+        using var uLock = Sync.UpgradableReadLock();
+            // Note: Within an upgradable read, other reads pile up.
+
+        int c = _cached.Count;
+		if (_safeCount != c) // Always do comparisons outside of interlocking first.
+			Interlocked.CompareExchange(ref _safeCount, c, _safeCount);
+
+		if (maxIndex < _safeCount)
+			return true;
+
+		if (_enumerator is null)
+			return false;
+
+		using var wLock = Sync.WriteLock();
+
+		while (_enumerator.MoveNext())
 		{
-			// Note: Within an upgradable read, other reads pile up.
+			if (_cached.Count == int.MaxValue)
+				throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
 
-			var c = _cached.Count;
-			if (_safeCount != c) // Always do comparisons outside of interlocking first.
-				Interlocked.CompareExchange(ref _safeCount, c, _safeCount);
+			_cached.Add(_enumerator.Current);
 
-			if (maxIndex < _safeCount)
+			if (maxIndex < _cached.Count)
 				return true;
-
-			if (_enumerator is null)
-				return false;
-
-			uLock.UpgradeToWriteLock();
-
-			while (_enumerator.MoveNext())
-			{
-				if (_cached.Count == int.MaxValue)
-					throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
-
-				_cached.Add(_enumerator.Current);
-
-				if (maxIndex < _cached.Count)
-					return true;
-			}
-
-			IsEndless = false;
-			DisposeOf(ref _enumerator);
 		}
+
+		IsEndless = false;
+		DisposeOf(ref _enumerator);
 
 		return false;
 	}

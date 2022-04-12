@@ -1,6 +1,7 @@
 ﻿using Open.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,48 +15,58 @@ public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		var c = Param();
+        ICollection<T> c = Param();
 
 		yield return TimedResult.Measure("Fill (.Add(item)) (In Parallel)",
 			() => Parallel.For(0, TestSize, i => c.Add(_items[i])));
 
-		yield return TimedResult.Measure("Enumerate", () =>
-		{
-			// ReSharper disable once NotAccessedVariable
-			var x = 0;
-			// ReSharper disable once LoopCanBeConvertedToQuery
-			foreach (var _ in c) { x++; }
-		});
+        //yield return TimedResult.Measure("Enumerate (8 times)", () =>
+        //{
+        //    for (int i = 0; i < 8; ++i)
+        //    {
+        //        // ReSharper disable once NotAccessedVariable
+        //        int x = 0;
+        //        // ReSharper disable once LoopCanBeConvertedToQuery
+        //        foreach (T _ in c) { x++; }
+        //        Debug.Assert(x == TestSize);
+        //    }
+        //});
 
-		// It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
-		yield return TimedResult.Measure("Enumerate (In Parallel)",
-			() => Parallel.ForEach(c, _ => { }));
+        //// It's obvious to note that you have to 'lock' a collection or acquire a 'snapshot' before enumerating.
+        //yield return TimedResult.Measure("Enumerate (8 times) (In Parallel)",
+        //    () =>
+        //    {
+        //        for (int i = 0; i < 8; ++i)
+        //        {
+        //            Parallel.ForEach(c, _ => { });
+        //        }
+        //    });
 
 		yield return TimedResult.Measure(".Contains(item) (In Parallel)",
-			() => Parallel.For(0, TestSize * 2, i => { var _ = c.Contains(_items[i]); }));
+			() => Parallel.For(0, TestSize * 2, i => { bool _ = c.Contains(_items[i]); }));
 
 		if (c is IList<T> list)
 		{
 			yield return TimedResult.Measure("IList<T> Read Access", () =>
 			{
-				for (var i = 0; i < TestSize; i += 2)
+				for (int i = 0; i < TestSize; i += 2)
 				{
-					var _ = list[i];
+					T _ = list[i];
 				}
 			});
 
 			yield return TimedResult.Measure("IList<T> Read Access (In Parallel)",
-				() => Parallel.For(0, (int)TestSize, i => { var _ = list[i]; }));
+				() => Parallel.For(0, (int)TestSize, i => { T _ = list[i]; }));
 		}
 
 		yield return c is ISynchronizedCollection<T> syncList
 			? TimedResult.Measure(".Snapshot()", () =>
 			{
-				var _ = syncList.Snapshot();
+                T[] _ = syncList.Snapshot();
 			})
 			: TimedResult.Measure(".Snapshot()", () =>
 			{
-				var _ = c.ToArray();
+                T[] _ = c.ToArray();
 			});
 
 		yield return TimedResult.Measure("Empty Backwards (.Remove(last)) (In Parallel)",

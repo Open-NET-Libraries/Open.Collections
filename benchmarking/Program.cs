@@ -2,6 +2,7 @@
 using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -14,18 +15,20 @@ internal static class Program
 {
 	static void Main()
 	{
-		BenchmarkRunner.Run<SubsetBenchmarks>();
+        //BenchmarkRunner.Run<SubsetBenchmarks>();
 
-		//TestEntry.Test1();
-		//TestEntry.Test2();
-		//CollectionTests();
+        //TestEntry.Test1();
+        //TestEntry.Test2();
+        //QueueTests();
+		//ListTests();
+        DictionaryTests();
 
-		Console.Beep();
+        Console.Beep();
 	}
 
 	static void OutputList(int[][] list)
 	{
-		foreach (var e in list)
+		foreach (int[] e in list)
 			Console.WriteLine(string.Join(' ', e));
 		Console.WriteLine("Total: {0}", list.Length);
 		Console.ReadLine();
@@ -38,7 +41,7 @@ internal static class Program
 
 		static IEnumerable<TestEntry> EndlessTest(int limit = int.MaxValue)
 		{
-			var i = 0;
+            int i = 0;
 			while (i < limit)
 				yield return new TestEntry { Value = i++ };
 			// ReSharper disable once IteratorNeverReturns
@@ -51,8 +54,8 @@ internal static class Program
 			using var list = new LazyList<TestEntry>(EndlessTest());
 			Parallel.For(0, 10000000, i =>
 			{
-				// ReSharper disable once AccessToDisposedClosure
-				var e = list[i];
+                // ReSharper disable once AccessToDisposedClosure
+                TestEntry e = list[i];
 				if (e is null) throw new NullReferenceException();
 				Debug.Assert(e.Value == i);
 			});
@@ -121,59 +124,89 @@ internal static class Program
 		 */
 	}
 
-	static void CollectionTests()
+    //{
+    //	var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(1600000, (c, r, p) => CollectionBenchmark.Results(c, r, p));
+
+    //	report.AddBenchmark("LinkedList",
+    //		count => () => new LinkedList<object>());
+    //	report.AddBenchmark("HashSet",
+    //		count => () => new HashSet<object>());
+    //	report.AddBenchmark("List",
+    //		count => () => new List<object>());
+    //	report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+
+    //	report.Test(100);
+    //	report.Test(250);
+    //	report.Test(1000);
+    //}
+
+    static void ListTests()
 	{
-		//{
-		//	var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(1600000, (c, r, p) => CollectionBenchmark.Results(c, r, p));
-
-		//	report.AddBenchmark("LinkedList",
-		//		count => () => new LinkedList<object>());
-		//	report.AddBenchmark("HashSet",
-		//		count => () => new HashSet<object>());
-		//	report.AddBenchmark("List",
-		//		count => () => new List<object>());
-		//	report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
-
-		//	report.Test(100);
-		//	report.Test(250);
-		//	report.Test(1000);
-		//}
-
 		Console.WriteLine("::: Synchronized Lists :::\n");
-		{
-			var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, ListParallelBenchmark.Results);
+		var report = new BenchmarkConsoleReport<Func<IList<object>>>(100000, ListParallelBenchmark.Results);
 
-			report.AddBenchmark("LockSynchronizedList",
-				_ => () => new LockSynchronizedList<object>());
-			report.AddBenchmark("ReadWriteSynchronizedList",
-				_ => () => new ReadWriteSynchronizedList<object>());
+        //report.AddBenchmark("TrackedList",
+        //    _ => () => new TrackedList<object>());
+        report.AddBenchmark("ConcurrentList",
+            _ => () => new ConcurrentList<object>());
+        report.AddBenchmark("LockSynchronizedList",
+			_ => () => new LockSynchronizedList<object>());
+		report.AddBenchmark("ReadWriteSynchronizedList",
+			_ => () => new ReadWriteSynchronizedList<object>());
 
-			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+		report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
 
-			report.Test(100, 4);
-			report.Test(250, 4);
-			report.Test(1000, 4);
-			report.Test(2000, 4);
-		}
-
-		Console.WriteLine("::: Synchronized HashSets :::\n");
-		{
-			var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, CollectionParallelBenchmark.Results);
-
-			report.AddBenchmark("ConcurrentDictionary",
-				_ => () => new ConcurrentHashSet<object>());
-
-			report.AddBenchmark("LockSynchronizedHashSet",
-				_ => () => new LockSynchronizedHashSet<object>());
-			report.AddBenchmark("ReadWriteSynchronizedHashSet",
-				_ => () => new ReadWriteSynchronizedHashSet<object>());
-
-			report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
-
-			report.Test(100, 4);
-			report.Test(250, 4);
-			report.Test(1000, 4 * 4);
-			report.Test(2000, 8 * 4);
-		}
+		report.Test(100, 4);
+		report.Test(250, 4);
+		report.Test(1000, 4);
+		report.Test(2000, 4);
+        report.Test(4000, 4);
 	}
+
+    static void HashSetTests()
+    {
+        Console.WriteLine("::: Synchronized HashSets :::\n");
+        var report = new BenchmarkConsoleReport<Func<ICollection<object>>>(100000, CollectionParallelBenchmark.Results);
+
+        report.AddBenchmark("ConcurrentDictionary",
+            _ => () => new ConcurrentHashSet<object>());
+
+        report.AddBenchmark("LockSynchronizedHashSet",
+            _ => () => new LockSynchronizedHashSet<object>());
+
+        report.AddBenchmark("ReadWriteSynchronizedHashSet",
+            _ => () => new ReadWriteSynchronizedHashSet<object>());
+
+        report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+
+        report.Test(100, 4);
+        report.Test(250, 4);
+        report.Test(1000, 4 * 4);
+        report.Test(2000, 8 * 4);
+    }
+
+    static void DictionaryTests()
+    {
+        Console.WriteLine("::: Synchronized Dictionary :::\n");
+        var report = new BenchmarkConsoleReport<Func<IDictionary<int, object>>>(100000, DictionaryParallelBenchmark.Results);
+
+        report.AddBenchmark("ConcurrentDictionary",
+            _ => () => new ConcurrentDictionary<int, object>());
+
+        report.AddBenchmark("LockSynchronized Dictionary",
+            _ => () => new LockSynchronizedDictionary<int, object>());
+
+        report.AddBenchmark("LockSynchronized OrderedDictionary",
+            _ => () => new LockSynchronizedOrderedDictionary<int, object>());
+
+        report.AddBenchmark("LockSynchronized IndexedDictionary",
+            _ => () => new LockSynchronizedIndexedDictionary<int, object>());
+
+        report.Pretest(200, 200); // Run once through first to scramble/warm-up initial conditions.
+
+        report.Test(100, 4);
+        report.Test(250, 4);
+        report.Test(1000, 4 * 4);
+        report.Test(2000, 8 * 4);
+    }
 }

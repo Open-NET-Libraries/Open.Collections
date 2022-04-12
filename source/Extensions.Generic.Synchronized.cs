@@ -30,7 +30,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		TValue result = default!;
-		var success = ThreadSafety.SynchronizeRead(target, key, () =>
+        bool success = ThreadSafety.SynchronizeRead(target, key, () =>
 			ThreadSafety.SynchronizeRead(target, () =>
 				target.TryGetValue(key, out result)
 			)
@@ -51,7 +51,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var exists = target.TryGetValueSynchronized(key, out var value);
+        bool exists = target.TryGetValueSynchronized(key, out TValue? value);
 
 		if (!exists && throwIfNotExists)
 			throw new KeyNotFoundException(key.ToString());
@@ -92,10 +92,10 @@ public static partial class Extensions
 		ThreadSafety.SynchronizeWrite(target, key, () =>
 		{
 			// Synchronize reading the action and seeing what we need to do next...
-			if (target.TryGetValue(key, out var old))
+			if (target.TryGetValue(key, out T? old))
 			{
-				// Since we have a lock on the entry, go ahead an render the update action.
-				var updateValue = updateValueFactory(key, old);
+                // Since we have a lock on the entry, go ahead an render the update action.
+                T? updateValue = updateValueFactory(key, old);
 				// Then with a write lock on the collection, try it all again...
 				ThreadSafety.SynchronizeWrite(target, () => valueUsed = target.AddOrUpdate(key, value, updateValue));
 			}
@@ -130,10 +130,10 @@ public static partial class Extensions
 		ThreadSafety.SynchronizeWrite(target, key, () =>
 		{
 			// Synchronize reading the action and seeing what we need to do next...
-			if (target.TryGetValue(key, out var old))
+			if (target.TryGetValue(key, out T? old))
 			{
-				// Since we have a lock on the entry, go ahead an render the update action.
-				var updateValue = updateValueFactory(key, old);
+                // Since we have a lock on the entry, go ahead an render the update action.
+                T? updateValue = updateValueFactory(key, old);
 				// Then with a write lock on the collection, try it all again...
 				ThreadSafety.SynchronizeWrite(target,
 			() =>
@@ -144,8 +144,8 @@ public static partial class Extensions
 			}
 			else
 			{
-				// Since we have a lock on the entry, go ahead an render the add action.
-				var value = newValueFactory(key);
+                // Since we have a lock on the entry, go ahead an render the add action.
+                T? value = newValueFactory(key);
 				// Then with a write lock on the collection, try it all again...
 				ThreadSafety.SynchronizeWrite(target,
 			() =>
@@ -174,7 +174,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var list = c.GetOrAddSynchronized(key, _ => new List<TValue>());
+        IList<TValue>? list = c.GetOrAddSynchronized(key, _ => new List<TValue>());
 		list.AddSynchronized(value);
 	}
 
@@ -225,7 +225,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		T result = default!;
-		bool condition(LockType _) => !target.TryGetValue(key, out result);
+		bool condition(bool _) => !target.TryGetValue(key, out result);
 
 		void render()
 		{
@@ -257,7 +257,7 @@ public static partial class Extensions
 
 		T result = default!;
 		// Note, the following sync read is on the TARGET and not the key. See below.
-		bool condition(LockType _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
+		bool condition(bool _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 		// Once a per value write lock is established, execute the scheduler, and syncronize adding...
 		void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
@@ -293,7 +293,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var added = false;
+        bool added = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref added,
 			_ => !target.ContainsKey(key),
@@ -321,7 +321,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var added = false;
+        bool added = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref added,
 			_ => !target.ContainsKey(key),
@@ -348,7 +348,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var removed = false;
+        bool removed = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref removed,
 			_ => target.ContainsKey(key),
@@ -374,13 +374,13 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		value = default!;
-		var removed = false;
+        bool removed = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref value!,
 			_ => target.ContainsKey(key),
 			() =>
 			{
-				var r = target[key];
+                T? r = target[key];
 				removed = target.Remove(key);
 				return removed ? r : default;
 			},

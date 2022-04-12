@@ -13,7 +13,7 @@ public class LinkedListParallelBenchmark : LinkedListBenchmark
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		var c = Param();
+        ILinkedList<object> c = Param();
 
 		yield return TimedResult.Measure("Fill (.AddLast(item)) (In Parallel)",
 			() => Parallel.For(0, TestSize, _ => c.AddLast(_item)));

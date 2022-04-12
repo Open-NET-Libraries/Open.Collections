@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
@@ -15,37 +16,37 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset1_2()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 2 },
 			new int[] { 1, 3 },
 			new int[] { 2, 3 },
 		};
-		var actual = Set1.Subsets(2).ToArray();
+        int[][] actual = Set1.Subsets(2).ToArray();
 		Assert.Equal(expected, actual);
 
-		var progressive = Set1.SubsetsProgressive(2).ToArray();
+        int[][] progressive = Set1.SubsetsProgressive(2).ToArray();
 		Assert.Equal(expected, progressive);
 	}
 
 	[Fact]
 	public void TestSubset2_2()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'C' },
 			new char[] { 'A', 'E' },
 			new char[] { 'C', 'E' },
 		};
-		var actual = Set2.Subsets(2).ToArray();
+        char[][] actual = Set2.Subsets(2).ToArray();
 		Assert.Equal(expected, actual);
 
-		var progressive = Set2.SubsetsProgressive(2).ToArray();
+        char[][] progressive = Set2.SubsetsProgressive(2).ToArray();
 		Assert.Equal(expected, progressive);
 	}
 
 	[Fact]
 	public void TestSubset3_2()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'B' },
 			new char[] { 'A', 'C' },
 			new char[] { 'B', 'C' },
@@ -55,47 +56,74 @@ public class SubsetTests
 		};
 		Assert.Equal(expected.Length, Set3.Subsets(2).Count());
 
-		var progressive = Set3.SubsetsProgressive(2).ToArray();
+        char[][] progressive = Set3.SubsetsProgressive(2).ToArray();
 		Assert.Equal(expected, progressive);
 	}
 
 	[Fact]
 	public void TestSubset3_3()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'B', 'C' },
 			new char[] { 'A', 'B', 'D' },
 			new char[] { 'A', 'C', 'D' },
 			new char[] { 'B', 'C', 'D' },
 		};
-		var actual = Set3.Subsets(3).ToArray();
+        char[][] actual = Set3.Subsets(3).ToArray();
 		Assert.Equal(expected, actual);
 
-		var progressive = Set3.SubsetsProgressive(3).ToArray();
-		Assert.Equal(expected, progressive);
-	}
+        actual = Set3
+            .Subsets(3, ArrayPool<char>.Shared, true)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, actual);
 
-	[Fact]
+        char[][] progressive = Set3.SubsetsProgressive(3).ToArray();
+		Assert.Equal(expected, progressive);
+
+        progressive = Set3
+            .SubsetsProgressive(3, ArrayPool<char>.Shared, true)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, progressive);
+    }
+
+    static T[] Selector<T>(ArrayPoolSegment<T> e)
+    {
+        T[] a = e.Segment.ToArray();
+        e.Dispose();
+        return a;
+    }
+
+    [Fact]
 	public void TestSubset4_4()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 2, 3, 4 },
 			new int[] { 1, 2, 3, 5 },
 			new int[] { 1, 2, 4, 5 },
 			new int[] { 1, 3, 4, 5 },
 			new int[] { 2, 3, 4, 5 },
 		};
-		var actual = Set4.Subsets(4).ToArray();
+        int[][] actual = Set4.Subsets(4).ToArray();
 		Assert.Equal(expected, actual);
 
-		var progressive = Set4.SubsetsProgressive(4).ToArray();
-		Assert.Equal(expected, progressive);
-	}
+        actual = Set4
+            .Subsets(4, ArrayPool<int>.Shared)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, actual);
+
+        int[][] progressive = Set4.SubsetsProgressive(4).ToArray();
+        Assert.Equal(expected, progressive);
+
+        progressive = Set4
+            .SubsetsProgressive(4, ArrayPool<int>.Shared)
+            .Select(Selector).ToArray();
+        Assert.Equal(expected, progressive);
+    }
 
 	[Fact]
 	public void TestSubset4_3()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 2, 3 },
 			new int[] { 1, 2, 4 },
 			new int[] { 1, 3, 4 },
@@ -107,15 +135,15 @@ public class SubsetTests
 			new int[] { 2, 4, 5 },
 			new int[] { 3, 4, 5 },
 		};
-		var actual = Set4.SubsetsProgressive(3).ToArray();
+        int[][] actual = Set4.SubsetsProgressive(3).ToArray();
 		Assert.Equal(expected, actual);
 
-		var a2 = Set5.SubsetsProgressive(3);
-		var actual2 = a2.Take(10).ToArray();
+        System.Collections.Generic.IEnumerable<int[]> a2 = Set5.SubsetsProgressive(3);
+        int[][] actual2 = a2.Take(10).ToArray();
 		Assert.Equal(expected, actual2);
 
 		Assert.Equal(Set5.Subsets(3).Count(), a2.Count());
-		var a3 = Set5.Subsets(3);
+        System.Collections.Generic.IEnumerable<int[]> a3 = Set5.Subsets(3);
 		// Checksum.
 		Assert.Equal(a3.SelectMany(e => e).Sum(), a2.SelectMany(e => e).Sum());
 	}
@@ -128,11 +156,11 @@ public class SubsetTests
 	public void LargerProgressiveCheck(int size, int count)
 	{
 		var FullSet = Enumerable.Range(1, size).ToImmutableArray();
-		var buffer = new int[count];
+        int[] buffer = new int[count];
 		var s1 = FullSet.Subsets(count, buffer).ToImmutableArray();
 		var s2 = FullSet.SubsetsProgressive(count, buffer).ToImmutableArray();
-		var s1s = s1.SelectMany(e => e).Sum();
-		var s2s = s2.SelectMany(e => e).Sum();
+        int s1s = s1.SelectMany(e => e).Sum();
+        int s2s = s2.SelectMany(e => e).Sum();
 		Assert.Equal(s1.Length, s2.Length);
 		Assert.Equal(s1s, s2s);
 	}

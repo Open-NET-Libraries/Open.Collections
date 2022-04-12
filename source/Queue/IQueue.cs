@@ -2,18 +2,18 @@
 
 public interface IQueue<T>
 {
-	/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Enqueue(T)"/>
+	/// <inheritdoc cref="System.Collections.Generic.Queue{T}.Enqueue(T)"/>
 	void Enqueue(T item);
 
-	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;.TryDequeue(out T)"/>
+	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue{T}.TryDequeue(out T)"/>
 	bool TryDequeue(out T item);
 
-	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue&lt;T&gt;.TryPeek(out T)"/>
+	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue{T}.TryPeek(out T)"/>
 	bool TryPeek(out T item);
 
-	/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Count"/>
+	/// <inheritdoc cref="System.Collections.Generic.Queue{T}.Count"/>
 	int Count { get; }
 
-	/// <inheritdoc cref="System.Collections.Generic.Queue&lt;T&gt;.Clear()"/>
+	/// <inheritdoc cref="System.Collections.Generic.Queue{T}.Clear()"/>
 	void Clear();
 }

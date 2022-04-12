@@ -3,14 +3,12 @@ using System.Collections.Generic;
 
 namespace Open.Collections.Synchronized;
 
-public interface ISynchronizedCollectionWrapper<T, out TCollection> : ISynchronizedCollection<T>
+public interface ISynchronizedCollectionWrapper<T, out TCollection>
+    : ISynchronizedCollection<T>
 		where TCollection : ICollection<T>
 {
-	/// <summary>
-	/// Allows for multiple modifications at once.
-	/// </summary>
-	/// <param name="action">The action to execute safely on the underlying collection safely.</param>
-	void Modify(Action<TCollection> action);
+    /// <inheritdoc cref="Modify(Func{bool}, Action{TCollection})"/>
+    void Modify(Action<TCollection> action);
 
 	/// <summary>
 	/// Allows for multiple modifications at once.
@@ -19,11 +17,8 @@ public interface ISynchronizedCollectionWrapper<T, out TCollection> : ISynchroni
 	/// <param name="action">The action to execute safely on the underlying collection safely.</param>
 	void Modify(Func<bool> condition, Action<TCollection> action);
 
-	/// <summary>
-	/// Allows for multiple modifications at once.
-	/// </summary>
-	/// <param name="action">The action to execute safely on the underlying collection safely.</param>
 	/// <returns>The result of the action.</returns>
+    /// <inheritdoc cref="Modify(Func{bool}, Action{TCollection})"/>
 	TResult Modify<TResult>(Func<TCollection, TResult> action);
 
 	/// <summary>

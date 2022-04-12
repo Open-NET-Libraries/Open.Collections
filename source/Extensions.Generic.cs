@@ -38,7 +38,7 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
-	public static void Add<T>(this ICollection<T> target, IEnumerable<T> values)
+	public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> values)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
@@ -46,15 +46,16 @@ public static partial class Extensions
 		if (values is null)
 			return;
 
-		foreach (var value in values)
+		foreach (T? value in values)
 			target.Add(value);
 	}
 
-	public static void Add<T>(this ICollection<T> target, T a, T b, params T[] more)
+	public static void AddThese<T>(this ICollection<T> target, T a, T b, params T[] more)
 	{
 		target.Add(a);
 		target.Add(b);
-		target.Add(more);
+        if(more.Length!=0)
+    		target.AddRange(more);
 	}
 
 	public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)
@@ -62,10 +63,10 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
 
-		var count = 0;
+        int count = 0;
 		if (values is not null)
 		{
-			foreach (var value in values)
+			foreach (T? value in values)
 			{
 				if (
 				target.Remove(value))
@@ -113,7 +114,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		T valueUsed;
-		if (target.TryGetValue(key, out var old))
+		if (target.TryGetValue(key, out T? old))
 			target[key] = valueUsed = updateValueFactory(key, old);
 		else
 			target.Add(key, valueUsed = value);
@@ -138,7 +139,7 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		T valueUsed;
-		if (target.TryGetValue(key, out var old))
+		if (target.TryGetValue(key, out T? old))
 			target[key] = valueUsed = updateValueFactory(key, old);
 		else
 			target.Add(key, valueUsed = newValueFactory(key));
@@ -155,7 +156,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var list = c.GetOrAdd(key, _ => new List<TValue>());
+        IList<TValue>? list = c.GetOrAdd(key, _ => new List<TValue>());
 		list.Add(value);
 	}
 
@@ -215,7 +216,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		return target.TryGetValue(key, out var value) ? value : defaultValue;
+		return target.TryGetValue(key, out T? value) ? value : defaultValue;
 	}
 
 	/// <summary>
@@ -231,7 +232,7 @@ public static partial class Extensions
 		if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
-		return target.TryGetValue(key, out var value) ? value : valueFactory(key);
+		return target.TryGetValue(key, out T? value) ? value : valueFactory(key);
 	}
 
 	/// <summary>
@@ -248,7 +249,7 @@ public static partial class Extensions
 		if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
-		if (!target.TryGetValue(key, out var value))
+		if (!target.TryGetValue(key, out T? value))
 			target.Add(key, value = valueFactory(key));
 		return value;
 	}
@@ -266,7 +267,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		if (!target.TryGetValue(key, out var v))
+		if (!target.TryGetValue(key, out T? v))
 			target.Add(key, v = value);
 		return v;
 	}

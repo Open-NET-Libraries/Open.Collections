@@ -37,9 +37,9 @@ public static partial class Extensions
 			throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
-		var u = false;
+        bool u = false;
 
-		var value = source.GetOrAdd(key, (k) =>
+        TValue? value = source.GetOrAdd(key, (k) =>
 		{
 			u = true;
 			return valueFactory(k);
@@ -66,9 +66,9 @@ public static partial class Extensions
 			throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var u = false;
+        bool u = false;
 
-		var result = source.GetOrAdd(key, (_) =>
+        TValue? result = source.GetOrAdd(key, (_) =>
 		{
 			u = true;
 			return value;
@@ -89,11 +89,11 @@ public static partial class Extensions
 			throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		// Use temporary update value to allow code contract resolution.
-		var now = DateTime.Now;
-		var lastupdated = source.GetOrAdd(out var updating, key, now);
+        // Use temporary update value to allow code contract resolution.
+        DateTime now = DateTime.Now;
+        DateTime lastupdated = source.GetOrAdd(out bool updating, key, now);
 
-		var threshhold = now.Add(-timeBeforeExpires);
+        DateTime threshhold = now.Add(-timeBeforeExpires);
 		if (!updating && lastupdated < threshhold)
 		{
 			source.AddOrUpdate(key, now, (_, old) =>

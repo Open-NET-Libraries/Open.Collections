@@ -13,32 +13,32 @@ public class CombinationTests
 	[Fact]
 	public void TestCombination1()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 1 },
 			new int[] { 1, 2 },
 			new int[] { 2, 1 },
 			new int[] { 2, 2 },
 		};
-		var actual = Set1.Combinations().ToArray();
+        int[][] actual = Set1.Combinations().ToArray();
 		Assert.Equal(expected, actual);
 	}
 
 	[Fact]
 	public void TestCombination1Distinct()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 1 },
 			new int[] { 1, 2 },
 			new int[] { 2, 2 },
 		};
-		var actual = Set1.CombinationsDistinct().ToArray();
+        int[][] actual = Set1.CombinationsDistinct().ToArray();
 		Assert.Equal(expected, actual);
 	}
 
 	[Fact]
 	public void TestCombination2()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'A' },
 			new char[] { 'A', 'C' },
 			new char[] { 'A', 'E' },
@@ -49,14 +49,14 @@ public class CombinationTests
 			new char[] { 'E', 'C' },
 			new char[] { 'E', 'E' },
 		};
-		var actual = Set2.Combinations(2).ToArray();
+        char[][] actual = Set2.Combinations(2).ToArray();
 		Assert.Equal(expected, actual);
 	}
 
 	[Fact]
 	public void TestCombination2Distinct()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'A' },
 			new char[] { 'A', 'C' },
 			new char[] { 'A', 'E' },
@@ -64,14 +64,14 @@ public class CombinationTests
 			new char[] { 'C', 'E' },
 			new char[] { 'E', 'E' },
 		};
-		var actual = Set2.CombinationsDistinct(2).ToArray();
+        char[][] actual = Set2.CombinationsDistinct(2).ToArray();
 		Assert.Equal(expected, actual);
 	}
 
 	[Fact]
 	public void TestCombination3()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 0, 0, 0, 0 },
 			new int[] { 0, 0, 0, 1 },
 			new int[] { 0, 0, 1, 0 },
@@ -89,7 +89,7 @@ public class CombinationTests
 			new int[] { 1, 1, 1, 0 },
 			new int[] { 1, 1, 1, 1 },
 		};
-		var actual = Set3.Combinations(4).ToArray();
+        int[][] actual = Set3.Combinations(4).ToArray();
 		Assert.Equal(expected, actual);
 	}
 }

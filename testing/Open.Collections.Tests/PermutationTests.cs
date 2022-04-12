@@ -12,18 +12,18 @@ public class PermutationTests
 	[Fact]
 	public void TestPermutation1()
 	{
-		var expected = new int[][] {
+        int[][] expected = new int[][] {
 			new int[] { 1, 2 },
 			new int[] { 2, 1 },
 		};
-		var actual = Set1.Permutations().ToArray();
+        int[][] actual = Set1.Permutations().ToArray();
 		Assert.Equal(expected, actual);
 	}
 
 	[Fact]
 	public void TestPermutation2()
 	{
-		var expected = new char[][] {
+        char[][] expected = new char[][] {
 			new char[] { 'A', 'B', 'C' },
 			new char[] { 'B', 'A', 'C' },
 			new char[] { 'C', 'A', 'B' },
@@ -31,7 +31,7 @@ public class PermutationTests
 			new char[] { 'B', 'C', 'A' },
 			new char[] { 'C', 'B', 'A' },
 		};
-		var actual = Set2.Permutations().ToArray();
+        char[][] actual = Set2.Permutations().ToArray();
 		Assert.Equal(expected, actual);
 	}
 }

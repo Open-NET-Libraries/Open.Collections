@@ -13,13 +13,13 @@ public class QueueParallelBenchmark : QueueBenchmark
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
-		var queue = Param();
+        IQueue<object> queue = Param();
 
 		yield return TimedResult.Measure("Fill (In Parallel)",
 			() => Parallel.For(0, TestSize, _ => queue.Enqueue(_item)));
 
 		yield return TimedResult.Measure("Empty (In Parallel)",
-			() => Parallel.For(0, TestSize, _ => queue.TryDequeue(out var _)));
+			() => Parallel.For(0, TestSize, _ => queue.TryDequeue(out object _)));
 
 		yield return TimedResult.Measure("Mixed Enqueue/TryDequeue (In Parallel)",
 			() => Parallel.For(0, TestSize, i =>

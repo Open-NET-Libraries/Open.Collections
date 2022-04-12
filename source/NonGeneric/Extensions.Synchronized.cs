@@ -25,7 +25,7 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
-		var added = false;
+        bool added = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref added,
 			_ => !target.Contains(key),
@@ -52,7 +52,7 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
-		var added = false;
+        bool added = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref added,
 			_ => !target.Contains(key),
@@ -78,7 +78,7 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
-		var removed = false;
+        bool removed = false;
 		ThreadSafety.SynchronizeReadWriteKeyAndObject(
 			target, key, ref removed,
 			_ => target.Contains(key),
@@ -100,7 +100,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
 		T result = default!;
-		var success = ThreadSafety.SynchronizeRead(target, key, () =>
+        bool success = ThreadSafety.SynchronizeRead(target, key, () =>
 			ThreadSafety.SynchronizeRead(target, () =>
 				target.TryGetValue(key, out result)
 			)
@@ -119,7 +119,7 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 
-		var value = target.GetValueSynchronized(key, throwIfNotExists);
+        object? value = target.GetValueSynchronized(key, throwIfNotExists);
 		try
 		{
 			return value is null ? default! : (T)value;
@@ -139,7 +139,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		var exists = target.TryGetValueSynchronized(key, out object value);
+        bool exists = target.TryGetValueSynchronized(key, out object value);
 
 		if (!exists && throwIfNotExists)
 			throw new KeyNotFoundException(key.ToString());
@@ -164,7 +164,7 @@ public static partial class Extensions
 
 		T result = default!;
 		// Uses threadsafe means to acquire value.
-		bool condition(LockType _) => !target.TryGetValue(key, out result);
+		bool condition(bool _) => !target.TryGetValue(key, out result);
 
 		void render()
 		{
@@ -194,7 +194,7 @@ public static partial class Extensions
 		ValidateMillisecondsTimeout(millisecondsTimeout);
 
 		T result = default!;
-		bool condition(LockType _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
+		bool condition(bool _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
 		// Once a per value write lock is established, execute the scheduler, and syncronize adding...
 		void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);

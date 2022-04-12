@@ -1,133 +1,143 @@
-﻿using System;
+﻿using Open.Threading;
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Open.Collections.Synchronized;
 
-public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
+public class LockSynchronizedCollectionWrapper<T, TCollection>
+    : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
 		where TCollection : class, ICollection<T>
 {
-	protected LockSynchronizedCollectionWrapper(TCollection source) : base(source) => Sync = source;
+    protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
+        : base(source, owner) { }
 
-	protected readonly object Sync; // Could possibly override..
+    protected override void OnBeforeDispose()
+    {
+        ThreadSafety.Lock(Sync, () => { }, 1000);
+        base.OnBeforeDispose();
+    }
 
-	/// <summary>
-	/// The underlying object used for synchronization.  This is exposed to allow for more complex synchronization operations.
-	/// </summary>
-	public object SyncRoot => Sync;
+    #region Implementation of ICollection<T>
 
-	#region Implementation of ICollection<T>
-
-	/// <inheritdoc />
-	public override void Add(T item)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public override void Add(T item)
 	{
-		lock (Sync) InternalSource.Add(item);
+		lock (Sync) base.Add(item);
 	}
 
-	/// <inheritdoc />
-	public override void Add(T item1, T item2, params T[] items)
-	{
-		lock (items)
-		{
-			InternalSource.Add(item1);
-			InternalSource.Add(item2);
-			foreach (var i in items)
-				InternalSource.Add(i);
-		}
-	}
+    /// <inheritdoc />
+    public override void AddThese(T item1, T item2, params T[] items)
+    {
+        lock (Sync)
+        {
+            AssertIsAlive();
+            AddInternal(in item1);
+            AddInternal(in item2);
+            foreach (T? i in items)
+                AddInternal(in i);
+        }
+    }
 
-	/// <inheritdoc />
-	public override void Add(T[] items)
+    /// <inheritdoc />
+    public override void AddRange(IEnumerable<T> items)
 	{
-		lock (items)
-		{
-			foreach (var i in items)
-				InternalSource.Add(i);
-		}
+        if (items is null) return;
+        IReadOnlyList<T> enumerable = items switch
+        {
+            IImmutableList<T> i => i,
+            T[] a => a,
+            _ => items.ToArray(),
+        };
+
+        if (enumerable.Count == 0)
+            return;
+
+        lock (Sync) base.AddRange(items);
 	}
 
 	/// <inheritdoc />
 	public override void Clear()
 	{
-		lock (Sync) InternalSource.Clear();
+		lock (Sync) base.Clear();
 	}
 
 	/// <inheritdoc  />
 	public override bool Contains(T item)
 	{
-		lock (Sync) return InternalSource.Contains(item);
+		lock (Sync) return base.Contains(item);
 	}
 
 	/// <inheritdoc />
 	public override bool Remove(T item)
 	{
-		lock (Sync) return InternalSource.Remove(item);
+		lock (Sync) return base.Remove(item);
 	}
 
-	#endregion
+    #endregion
 
-	/// <inheritdoc />
-	public T[] Snapshot()
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public T[] Snapshot()
 	{
 		lock (Sync) return this.ToArray();
 	}
 
-	/// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
-	public override void Export(ICollection<T> to)
+    /// <inheritdoc cref="CollectionWrapper&lt;T, TCollection&gt;" />
+    [ExcludeFromCodeCoverage]
+    public override void Export(ICollection<T> to)
 	{
-		lock (Sync) to.Add(this);
+		lock (Sync) to.AddRange(this);
 	}
 
-	/// <summary>
-	/// A thread-safe ForEach method.
-	/// WARNING: If useSnapshot is false, the collection will be unable to be written to while still processing results and dead-locks can occur.
-	/// </summary>
-	/// <param name="action">The action to be performed per entry.</param>
-	/// <param name="useSnapshot">Indicates if a copy of the contents will be used instead locking the collection.</param>
-	public void ForEach(Action<T> action, bool useSnapshot = true)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public override void CopyTo(T[] array, int arrayIndex)
 	{
-		if (useSnapshot)
-		{
-			foreach (var item in Snapshot())
-				action(item);
-		}
-		else
-		{
-			lock (Sync)
-			{
-				foreach (var item in InternalSource)
-					action(item);
-			}
-		}
+		lock (Sync) base.CopyTo(array, arrayIndex);
 	}
 
-	/// <inheritdoc />
-	public override void CopyTo(T[] array, int arrayIndex)
+    /// <summary>
+    /// Copies the results to the provided span up to its length or until the end of the results.
+    /// </summary>
+    /// <returns>
+    /// A span representing the results.
+    /// If the count was less than the target length, a new span representing the results.
+    /// Otherwise the target is returned.
+    /// </returns>
+    [ExcludeFromCodeCoverage]
+    public override Span<T> CopyTo(Span<T> span)
 	{
-		lock (Sync) InternalSource.CopyTo(array, arrayIndex);
+		lock (Sync) return base.CopyTo(span);
 	}
 
-	/// <summary>
-	/// Copies the results to the provided span up to its length or until the end of the results.
-	/// </summary>
-	/// <returns>
-	/// A span representing the results.
-	/// If the count was less than the target length, a new span representing the results.
-	/// Otherwise the target is returned.
-	/// </returns>
-	public override Span<T> CopyTo(Span<T> span)
-	{
-		lock (Sync) return InternalSource.CopyToSpan(span);
-	}
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Read(Action action)
+    {
+        lock (Sync) action();
+    }
 
-	/// <inheritdoc />
-	public void Modify(Action<TCollection> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TResult Read<TResult>(Func<TResult> action)
+    {
+        lock (Sync) return action();
+    }
+
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Modify(Action<TCollection> action)
 	{
 		lock (Sync) action(InternalSource);
 	}
 
-	/// <inheritdoc />
-	public void Modify(Func<bool> condition, Action<TCollection> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public void Modify(Func<bool> condition, Action<TCollection> action)
 	{
 		if (!condition()) return;
 		lock (Sync)
@@ -137,8 +147,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 		}
 	}
 
-	/// <inheritdoc />
-	public TResult Modify<TResult>(Func<TCollection, TResult> action)
+    /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
+    public TResult Modify<TResult>(Func<TCollection, TResult> action)
 	{
 		lock (Sync) return action(InternalSource);
 	}
@@ -148,9 +159,10 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-			var contains = InternalSource.Contains(item);
-			if (contains) action(InternalSource);
-			return contains;
+            var source = InternalSource;
+            if (!source.Contains(item)) return false;
+            action(source);
+            return true;
 		}
 	}
 
@@ -159,9 +171,10 @@ public class LockSynchronizedCollectionWrapper<T, TCollection> : CollectionWrapp
 	{
 		lock (Sync)
 		{
-			var notContains = !InternalSource.Contains(item);
-			if (notContains) action(InternalSource);
-			return notContains;
-		}
-	}
+            var source = InternalSource;
+            if (source.Contains(item)) return false;
+            action(source);
+            return true;
+        }
+    }
 }
