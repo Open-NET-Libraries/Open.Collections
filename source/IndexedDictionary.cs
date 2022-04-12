@@ -17,6 +17,7 @@ public class IndexedDictionary<TKey, TValue>
     private readonly List<KeyValuePair<TKey, TValue>> _entries;
     private readonly Dictionary<TKey, int> _indexes;
 
+    [ExcludeFromCodeCoverage]
     public IndexedDictionary(int capacity)
         : base(capacity)
     {

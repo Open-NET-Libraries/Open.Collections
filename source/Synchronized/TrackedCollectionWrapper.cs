@@ -16,7 +16,9 @@ public class TrackedCollectionWrapper<T, TCollection>
     ISynchronizedCollectionWrapper<T, TCollection>
     where TCollection : class, ICollection<T>
 {
-    protected TCollection InternalSource;
+    protected TCollection? InternalUnsafeSource;
+    protected TCollection InternalSource
+        => InternalUnsafeSource ?? throw new ObjectDisposedException(GetType().ToString());
 
     /// <summary>
     /// Event fired after a chnage or group of changes has been made.
@@ -37,11 +39,11 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     [ExcludeFromCodeCoverage]
     public TrackedCollectionWrapper(TCollection collection, ModificationSynchronizer? sync = null)
-        : base(sync) => InternalSource = collection ?? throw new ArgumentNullException(nameof(collection));
+        : base(sync) => InternalUnsafeSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
     [ExcludeFromCodeCoverage]
     public TrackedCollectionWrapper(TCollection collection, out ModificationSynchronizer sync)
-        : base(out sync) => InternalSource = collection ?? throw new ArgumentNullException(nameof(collection));
+        : base(out sync) => InternalUnsafeSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
     [ExcludeFromCodeCoverage]
     protected override ModificationSynchronizer InitSync(object? sync = null)
@@ -54,7 +56,7 @@ public class TrackedCollectionWrapper<T, TCollection>
     protected override void OnDispose()
     {
         base.OnDispose();
-        Nullify(ref InternalSource); // Eliminate risk from wrapper.
+        Nullify(ref InternalUnsafeSource!); // Eliminate risk from wrapper.
         Modified = null;
         Changed = null;
         Cleared = null;
@@ -163,15 +165,15 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     [ExcludeFromCodeCoverage]
     protected virtual void ClearInternal()
-        => InternalSource.Clear();
+        => InternalUnsafeSource!.Clear();
 
     /// <inheritdoc />
     public void Clear()
         => Sync!.Modifying(
-        () => AssertIsAlive() && InternalSource.Count != 0,
+        () => InternalSource.Count != 0,
         () =>
         {
-            int count = Count;
+            int count = InternalUnsafeSource!.Count;
             bool hasItems = count != 0;
             if (hasItems) ClearInternal();
             return hasItems;
@@ -179,21 +181,17 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     public bool Contains(T item)
-        => Sync!.Reading(() => AssertIsAlive() && InternalSource.Contains(item));
+        => Sync!.Reading(() => InternalSource.Contains(item));
 
     /// <inheritdoc />
     public void CopyTo(T[] array, int arrayIndex)
-        => Sync!.Reading(() =>
-        {
-            AssertIsAlive();
-            InternalSource.CopyTo(array, arrayIndex);
-        });
+        => Sync!.Reading(() => InternalSource.CopyTo(array, arrayIndex));
 
     /// <inheritdoc />
     public virtual bool Remove(T item)
         => Sync!.Modifying(
             AssertIsAlive,
-            () => InternalSource.Remove(item),
+            () => InternalUnsafeSource!.Remove(item),
             version => OnRemoved(item, version));
 
     /// <inheritdoc />
@@ -223,15 +221,19 @@ public class TrackedCollectionWrapper<T, TCollection>
     public void Modify(Action<TCollection> action)
          => Sync!.Modifying(AssertIsAlive, () =>
          {
-             action(InternalSource);
+             action(InternalUnsafeSource!);
              return true;
          });
 
     /// <inheritdoc />
     public void Modify(Func<bool> condition, Action<TCollection> action)
-         => Sync!.Modifying(()=> AssertIsAlive() && condition(), () =>
+         => Sync!.Modifying(() =>
          {
-             action(InternalSource);
+             AssertIsAlive();
+             return condition();
+         }, () =>
+         {
+             action(InternalUnsafeSource!);
              return true;
          });
 
@@ -241,7 +243,7 @@ public class TrackedCollectionWrapper<T, TCollection>
         TResult result = default!;
         Sync!.Modifying(AssertIsAlive, () =>
         {
-            result = action(InternalSource);
+            result = action(InternalUnsafeSource!);
             return true;
         });
         return result;
@@ -250,33 +252,27 @@ public class TrackedCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     public virtual bool IfContains(T item, Action<TCollection> action)
         => Sync!.Modifying(
-            ()=> AssertIsAlive() && InternalSource.Contains(item),
+            () => InternalSource.Contains(item),
             () =>
             {
-                action(InternalSource);
+                action(InternalUnsafeSource!);
                 return true;
             });
 
     /// <inheritdoc />
     public virtual bool IfNotContains(T item, Action<TCollection> action)
         => Sync!.Modifying(
-            () => AssertIsAlive() && !InternalSource.Contains(item),
+            () => !InternalSource.Contains(item),
             () =>
             {
-                action(InternalSource);
+                action(InternalUnsafeSource!);
                 return true;
             });
 
     /// <inheritdoc />
-    public T[] Snapshot() => Sync!.Reading(() =>
-    {
-        AssertIsAlive();
-        return InternalSource.ToArray();
-    });
+    public T[] Snapshot()
+        => Sync!.Reading(() => InternalSource.ToArray());
 
-    public void Export(ICollection<T> to) => Sync!.Reading(() =>
-    {
-        AssertIsAlive();
-        to.AddRange(InternalSource);
-    });
+    public void Export(ICollection<T> to)
+        => Sync!.Reading(() => to.AddRange(InternalSource));
 }

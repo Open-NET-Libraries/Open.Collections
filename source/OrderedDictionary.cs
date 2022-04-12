@@ -11,10 +11,13 @@ public class OrderedDictionary<TKey, TValue>
     : DictionaryWrapperBase<TKey, TValue, LinkedList<KeyValuePair<TKey, TValue>>>, IDictionary<TKey, TValue>
 {
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public OrderedDictionary()
         : base(new LinkedList<KeyValuePair<TKey, TValue>>(), true)
         => _lookup = new();
+
     /// <inheritdoc />
+    [ExcludeFromCodeCoverage]
     public OrderedDictionary(int capacity)
         : base(new LinkedList<KeyValuePair<TKey, TValue>>(), true)
         => _lookup = new(capacity);

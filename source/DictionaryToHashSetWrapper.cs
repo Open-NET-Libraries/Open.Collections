@@ -26,12 +26,13 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 	/// <inheritdoc />
 	public virtual bool Add(T item)
 	{
-		if (InternalSource.ContainsKey(item))
+        var source = InternalSource;
+		if (source.ContainsKey(item))
 			return false;
 
 		try
 		{
-			InternalSource.Add(item, true);
+            source.Add(item, true);
 		}
 		catch
 		{
@@ -80,9 +81,10 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 	/// <inheritdoc />
 	public void IntersectWith(IEnumerable<T> other)
 	{
+        var source = InternalSource;
 		foreach (T? e in other)
 		{
-			if (!InternalSource.ContainsKey(e))
+			if (!source.ContainsKey(e))
 				Remove(e);
 		}
 	}
@@ -108,9 +110,10 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 	/// <inheritdoc />
 	public void SymmetricExceptWith(IEnumerable<T> other)
 	{
-		foreach (T? e in other)
+        var source = InternalSource;
+        foreach (T? e in other)
 		{
-			if (InternalSource.ContainsKey(e))
+			if (source.ContainsKey(e))
 				Add(e);
 			else
 				Remove(e);

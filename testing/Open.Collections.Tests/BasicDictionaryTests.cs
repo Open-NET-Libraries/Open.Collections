@@ -73,5 +73,10 @@ public abstract class BasicDictionaryTests<TDictionary>
         Dictionary[1].Should().Be(3);
         Dictionary.Remove(1).Should().BeTrue();
         Dictionary.TryGetValue(1, out _).Should().BeFalse();
+
+        Dictionary.Add(11, 11);
+        int count = Dictionary.Count;
+        Dictionary.Keys.Count.Should().Be(count);
+        Dictionary.Values.Count.Should().Be(count);
     }
 }

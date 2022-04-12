@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
+using Open.Collections.Synchronized;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
 
@@ -44,7 +46,7 @@ public abstract class BasicCollectionTests<TCollection>
     [Fact]
     public void Add()
     {
-        if(Collection.IsReadOnly)
+        if (Collection.IsReadOnly)
         {
             Assert.Throws<Exception>(() => Collection.Add(1));
             return;
@@ -53,6 +55,11 @@ public abstract class BasicCollectionTests<TCollection>
         int count = Collection.Count;
         Collection.Add(1);
         Collection.Count.Should().Be(count + 1);
+
+        if (Collection is not ISet<int> s) return;
+        s.Add(1).Should().BeFalse();
+        s.Remove(1).Should().BeTrue();
+        s.Add(1).Should().BeTrue();
     }
 
     [Fact]
@@ -83,6 +90,13 @@ public abstract class BasicCollectionTests<TCollection>
 
         int count = Collection.Count;
         c.AddRange(e);
+        count += 4;
+        Collection.Count.Should().Be(count);
+        c.AddRange(Enumerable.Empty<int>());
+        Collection.Count.Should().Be(count);
+        c.AddRange(Array.Empty<int>());
+        Collection.Count.Should().Be(count);
+        c.AddRange(e.ToImmutableArray());
         Collection.Count.Should().Be(count + 4);
     }
 
@@ -118,12 +132,26 @@ public abstract class BasicCollectionTests<TCollection>
             search = 2;
         }
         Collection.Contains(search).Should().BeTrue();
+
+        if (Collection is not ISynchronizedCollectionWrapper<int, ICollection<int>> c) return;
+
+        bool test = false;
+        c.IfNotContains(1, _ => test = true);
+        test.Should().BeFalse();
+        c.IfContains(1, _ => test = true);
+        test.Should().BeTrue();
+
+        test = false;
+        c.IfContains(1000, _ => test = true);
+        test.Should().BeFalse();
+        c.IfNotContains(1000, _ => test = true);
+        test.Should().BeTrue();
     }
 
     [Fact]
     public void CopyTo()
     {
-        if(!Collection.IsReadOnly)
+        if (!Collection.IsReadOnly)
         {
             Collection.Add(1);
             Collection.Add(2);

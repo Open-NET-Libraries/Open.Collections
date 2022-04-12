@@ -34,15 +34,23 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
         }
     }
 
+    ICollection<TKey>? _keys;
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
-    public virtual ICollection<TKey> Keys
-        => InternalSource.Keys;
+    public ICollection<TKey> Keys => _keys ??= GetKeys();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual ICollection<TKey> GetKeys()
+        => new ReadOnlyCollectionAdapter<TKey>(
+            ThrowIfDisposed(InternalSource.Keys),
+            () => InternalSource.Count);
 
+    ICollection<TValue>? _values;
     /// <inheritdoc />
-    [ExcludeFromCodeCoverage]
-    public virtual ICollection<TValue> Values
-        => InternalSource.Values;
+    public ICollection<TValue> Values => _values ??= GetValues();
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected virtual ICollection<TValue> GetValues()
+        => new ReadOnlyCollectionAdapter<TValue>(
+            ThrowIfDisposed(InternalSource.Values),
+            () => InternalSource.Count);
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

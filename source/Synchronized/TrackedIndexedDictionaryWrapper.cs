@@ -25,12 +25,12 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public virtual TKey GetKeyAt(int index)
-        => Sync!.Reading(() => InternalSource.GetKeyAt(index));
+        => Sync!.Reading(() => InternalUnsafeSource!.GetKeyAt(index));
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public virtual TValue GetValueAt(int index)
-        => Sync!.Reading(() => InternalSource.GetValueAt(index));
+        => Sync!.Reading(() => InternalUnsafeSource!.GetValueAt(index));
 
     /// <inheritdoc />
     public void Insert(int index, TKey key, TValue value)
@@ -38,7 +38,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
             AssertIsAlive,
             () =>
             {
-                InternalSource.Insert(index, key, value);
+                InternalUnsafeSource!.Insert(index, key, value);
                 return true;
             },
             version =>
@@ -56,9 +56,10 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
             AssertIsAlive,
             () =>
             {
-                key = InternalSource.GetKeyAt(index);
-                value = InternalSource[key];
-                InternalSource.RemoveAt(index);
+                var source = InternalUnsafeSource!;
+                key = source.GetKeyAt(index);
+                value = source[key];
+                source.RemoveAt(index);
                 return true;
             },
             version =>
@@ -81,7 +82,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
         int i = -1;
         bool result = Sync!.Modifying(
             AssertIsAlive,
-            () => InternalSource.SetValue(key, value, out i),
+            () => InternalUnsafeSource!.SetValue(key, value, out i),
             version =>
             {
                 if (HasChangedListeners) // Avoid creating KVP unnecessarily.
@@ -97,7 +98,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
         TKey k = default!;
         bool result = Sync!.Modifying(
             AssertIsAlive,
-            () => InternalSource.SetValueAt(index, value, out k),
+            () => InternalUnsafeSource!.SetValueAt(index, value, out k),
             version =>
             {
                 if (HasChangedListeners) // Avoid creating KVP unnecessarily.
@@ -114,7 +115,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
             AssertIsAlive,
             () =>
             {
-                index = InternalSource.Add(key, value);
+                index = InternalUnsafeSource!.Add(key, value);
                 return true;
             },
             version =>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Open.Threading;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -13,6 +14,12 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>
     protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
         : base(source, owner) { }
 
+    protected override void OnBeforeDispose()
+    {
+        ThreadSafety.Lock(Sync, () => { }, 1000);
+        base.OnBeforeDispose();
+    }
+
     #region Implementation of ICollection<T>
 
     /// <inheritdoc />
@@ -23,15 +30,15 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>
 	}
 
     /// <inheritdoc />
-    [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public override void AddThese(T item1, T item2, params T[] items)
     {
         lock (Sync)
         {
-            base.Add(item1);
-            base.Add(item2);
+            AssertIsAlive();
+            AddInternal(in item1);
+            AddInternal(in item2);
             foreach (T? i in items)
-                base.Add(i);
+                AddInternal(in i);
         }
     }
 
@@ -152,8 +159,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>
 	{
 		lock (Sync)
 		{
-            if (!InternalSource.Contains(item)) return false;
-            action(InternalSource);
+            var source = InternalSource;
+            if (!source.Contains(item)) return false;
+            action(source);
             return true;
 		}
 	}
@@ -163,8 +171,9 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>
 	{
 		lock (Sync)
 		{
-            if (InternalSource.Contains(item)) return false;
-            action(InternalSource);
+            var source = InternalSource;
+            if (source.Contains(item)) return false;
+            action(source);
             return true;
         }
     }

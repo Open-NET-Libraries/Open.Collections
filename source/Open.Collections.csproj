@@ -17,7 +17,7 @@
 		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>2.14.0</Version>
+		<Version>3.0.0</Version>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -45,7 +45,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Open.Text" Version="6.2.0" />
-		<PackageReference Include="Open.Threading" Version="2.1.1" />
+		<PackageReference Include="Open.Threading" Version="2.1.2" />
 		<PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
 	</ItemGroup>
 

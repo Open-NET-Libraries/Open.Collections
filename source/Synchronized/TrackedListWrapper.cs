@@ -104,8 +104,9 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
             && Sync!.Modifying(
             () =>
             {
+                var source = InternalUnsafeSource;
                 AssertIsAlive();
-                index = InternalSource.IndexOf(target);
+                index = source!.IndexOf(target);
                 return index != -1 || (throwIfNotFound ? throw new ArgumentException("Not found.", nameof(target)) : false);
             },
             () => SetValueInternal(index, replacement),

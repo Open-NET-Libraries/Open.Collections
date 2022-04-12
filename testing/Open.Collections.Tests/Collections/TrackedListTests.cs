@@ -30,7 +30,7 @@ public class TrackedListTests : BasicListTests<TrackedList<int>>
 
         void OnChanged(object source, ItemChangedEventArgs<int> args)
         {
-            switch(args.Change)
+            switch (args.Change)
             {
                 case ItemChange.Added:
                     count++;
@@ -48,7 +48,7 @@ public class TrackedListTests : BasicListTests<TrackedList<int>>
         Collection.Changed += OnChanged;
         try
         {
-            for(int i = 0; i < 20; i++)
+            for (int i = 0; i < 20; i++)
             {
                 Collection.Add(i);
             }
@@ -73,5 +73,21 @@ public class TrackedListTests : BasicListTests<TrackedList<int>>
             Collection.Changed -= OnChanged;
             Collection.Cleared -= OnCleared;
         }
+    }
+
+    [Fact]
+    public void Replace()
+    {
+        Collection.Clear();
+        Collection.Replace(888, 777).Should().BeFalse();
+        Collection.Add(888);
+        Collection.Replace(888, 777).Should().BeTrue();
+        Collection.Contains(888).Should().BeFalse();
+        Collection.Contains(777).Should().BeTrue();
+        Assert.Throws<ArgumentException>(() => Collection.Replace(888, 777, true));
+
+        TrackedList<int> list = new();
+        list.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => list.Replace(888, 777));
     }
 }

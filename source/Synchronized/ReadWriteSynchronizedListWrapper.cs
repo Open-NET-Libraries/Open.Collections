@@ -28,7 +28,7 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
     public virtual int IndexOf(T item)
     {
         using var read = RWLock.ReadLock();
-        return InternalSource.IndexOf(item);
+        return InternalUnsafeSource!.IndexOf(item);
     }
 
     /// <inheritdoc />
@@ -36,7 +36,7 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
     public virtual void Insert(int index, T item)
     {
         using var write = RWLock.WriteLock();
-        InternalSource.Insert(index, item);
+        InternalUnsafeSource!.Insert(index, item);
     }
 
     /// <inheritdoc />
@@ -44,14 +44,14 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
     public virtual void RemoveAt(int index)
     {
         using var write = RWLock.WriteLock();
-        InternalSource.RemoveAt(index);
+        InternalUnsafeSource!.RemoveAt(index);
     }
 
     /// <inheritdoc />
     public override bool Remove(T item)
     {
         using var upgradable = RWLock.UpgradableReadLock();
-        int i = InternalSource.IndexOf(item);
+        int i = InternalUnsafeSource!.IndexOf(item);
         if (i == -1) return false;
         RemoveAt(i);
         return true;

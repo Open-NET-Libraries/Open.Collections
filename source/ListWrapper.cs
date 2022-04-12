@@ -7,6 +7,7 @@ public class ListWrapper<T, TList>
     : CollectionWrapper<T, TList>, IList<T>
     where TList : class, IList<T>
 {
+    [ExcludeFromCodeCoverage]
     public ListWrapper(TList source, bool owner = false)
         : base(source, owner)
     {

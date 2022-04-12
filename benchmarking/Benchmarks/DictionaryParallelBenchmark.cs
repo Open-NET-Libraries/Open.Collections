@@ -65,6 +65,9 @@ public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValueP
                 Debug.Assert(has == (n < testSize));
             }));
 
+        yield return TimedResult.Measure("Pure Read",
+            () => Parallel.For(0, testSize, i => _ = c[i]));
+
         object[] items = Enumerable.Range(0, mixSize).Select(_ => new object()).ToArray();
         yield return TimedResult.Measure("50/50 Set/Get (In Parallel)", () =>
         {

@@ -10,7 +10,7 @@ namespace Open.Collections.Synchronized;
 
 public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     : CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
-        where TCollection : class, ICollection<T>
+    where TCollection : class, ICollection<T>
 {
     protected ReaderWriterLockSlim RWLock = new(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
 
@@ -27,18 +27,17 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
 
     {
         using var write = RWLock.WriteLock();
-        base.Add(item);
+        AddInternal(item);
     }
 
     /// <inheritdoc />
-    [SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public override void AddThese(T item1, T item2, params T[] items)
     {
         using var write = RWLock.WriteLock();
-        base.Add(item1);
-        base.Add(item2);
+        AddInternal(item1);
+        AddInternal(item2);
         foreach (var i in items)
-            base.Add(i);
+            AddInternal(i);
     }
 
     /// <inheritdoc />
@@ -92,14 +91,14 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     public T[] Snapshot()
     {
         using var read = RWLock.ReadLock();
-        return InternalSource.ToArray();
+        return InternalUnsafeSource!.ToArray();
     }
 
     /// <inheritdoc />
     public override void Export(ICollection<T> to)
     {
         using var read = RWLock.ReadLock();
-        to.AddRange(InternalSource);
+        to.AddRange(InternalUnsafeSource!);
     }
 
     /// <inheritdoc />
@@ -119,6 +118,10 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
     #endregion
 
     #region Dispose
+    protected override void OnBeforeDispose() =>
+        // Give everything else a chance to finish up.
+        RWLock.TryWrite(1000, () => { });
+
     protected override void OnDispose()
     {
         RWLock.Dispose();

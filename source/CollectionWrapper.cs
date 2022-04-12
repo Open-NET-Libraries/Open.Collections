@@ -26,7 +26,7 @@ public class CollectionWrapper<T, TCollection>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected virtual void AddInternal(in T item)
-        => InternalSource.Add(item);
+        => InternalUnsafeSource!.Add(item);
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -39,10 +39,11 @@ public class CollectionWrapper<T, TCollection>
     /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])"/>
     public virtual void AddThese(T item1, T item2, params T[] items)
     {
-        AddInternal(item1);
-        AddInternal(item2);
+        AssertIsAlive();
+        AddInternal(in item1);
+        AddInternal(in item2);
         foreach (T? i in items)
-            AddInternal(i);
+            AddInternal(in i);
     }
 
     /// <summary>
@@ -54,8 +55,9 @@ public class CollectionWrapper<T, TCollection>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void AddRange(IEnumerable<T> items)
 	{
+        AssertIsAlive();
         foreach (var i in items)
-			AddInternal(i);
+			AddInternal(in i);
 	}
 
     /// <inheritdoc />

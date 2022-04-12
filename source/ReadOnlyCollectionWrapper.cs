@@ -12,12 +12,11 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     : DisposableBase, IReadOnlyCollection<T>
 	where TCollection : class, ICollection<T>
 {
-    [SuppressMessage("Roslynator", "RCS1169:Make field read-only.")]
-    private TCollection? _source;
+    protected TCollection? InternalUnsafeSource;
     protected readonly bool SourceOwned;
 
     protected TCollection InternalSource
-        => _source ?? throw new ObjectDisposedException(GetType().ToString());
+        => InternalUnsafeSource ?? throw new ObjectDisposedException(GetType().ToString());
 
     /// <summary>
     /// Constructs a wrapper for read-only access to a collection.
@@ -31,7 +30,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     [ExcludeFromCodeCoverage]
     public ReadOnlyCollectionWrapper(TCollection source, bool owner = false)
     {
-        _source = source ?? throw new ArgumentNullException(nameof(source));
+        InternalUnsafeSource = source ?? throw new ArgumentNullException(nameof(source));
         SourceOwned = owner;
     }
 
@@ -102,7 +101,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     [ExcludeFromCodeCoverage]
     protected override void OnDispose()
     {
-        var source = Nullify(ref _source!);
+        var source = Nullify(ref InternalUnsafeSource!);
         if (SourceOwned && source is IDisposable d) d.Dispose();
     }
 
@@ -117,7 +116,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
         if (SourceOwned) throw new NotSupportedException("The underlying collection is owned by this wrapper.");
 		using (this)
 		{
-			return Nullify(ref _source!);
+			return Nullify(ref InternalUnsafeSource!);
 		}
 	}
 	#endregion
