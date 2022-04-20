@@ -62,11 +62,11 @@ public class TrackedCollectionWrapper<T, TCollection>
         Cleared = null;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool AssertIsAlive() => base.AssertIsAlive();
+    private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void ThrowIfDisposed() => base.AssertIsAlive();
+    private Action? _throwIfDisposed;
+    protected Action ThrowIfDisposedDelegate
+        => _throwIfDisposed ??= ThrowIfDisposedInternal;
 
     /// <inheritdoc />
     public int Count
@@ -107,7 +107,7 @@ public class TrackedCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     public void Add(T item)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 AddInternal(item);
@@ -117,7 +117,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
     public void AddThese(T item1, T item2, params T[] items)
-        => Sync!.Modifying(AssertIsAlive,
+        => Sync!.Modifying(AssertIsAliveDelegate,
             () =>
             {
                 AddInternal(item1);
@@ -150,7 +150,7 @@ public class TrackedCollectionWrapper<T, TCollection>
         if (enumerable.Count == 0)
             return;
 
-        Sync!.Modifying(AssertIsAlive, () =>
+        Sync!.Modifying(AssertIsAliveDelegate, () =>
         {
             foreach (var item in enumerable)
                 AddInternal(item);
@@ -190,13 +190,13 @@ public class TrackedCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     public virtual bool Remove(T item)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () => InternalUnsafeSource!.Remove(item),
             version => OnRemoved(item, version));
 
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator()
-        => InternalSource.GetEnumerator().Preflight(ThrowIfDisposed);
+        => InternalSource.GetEnumerator().Preflight(ThrowIfDisposedDelegate);
 
     [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -219,7 +219,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     public void Modify(Action<TCollection> action)
-         => Sync!.Modifying(AssertIsAlive, () =>
+         => Sync!.Modifying(AssertIsAliveDelegate, () =>
          {
              action(InternalUnsafeSource!);
              return true;
@@ -241,7 +241,7 @@ public class TrackedCollectionWrapper<T, TCollection>
     public TResult Modify<TResult>(Func<TCollection, TResult> action)
     {
         TResult result = default!;
-        Sync!.Modifying(AssertIsAlive, () =>
+        Sync!.Modifying(AssertIsAliveDelegate, () =>
         {
             result = action(InternalUnsafeSource!);
             return true;

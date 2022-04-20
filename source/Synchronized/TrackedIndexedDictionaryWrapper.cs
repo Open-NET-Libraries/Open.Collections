@@ -35,7 +35,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
     /// <inheritdoc />
     public void Insert(int index, TKey key, TValue value)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 InternalUnsafeSource!.Insert(index, key, value);
@@ -53,7 +53,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
         TKey key = default!;
         TValue value = default!;
         Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 var source = InternalUnsafeSource!;
@@ -81,7 +81,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
     {
         int i = -1;
         bool result = Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () => InternalUnsafeSource!.SetValue(key, value, out i),
             version =>
             {
@@ -97,7 +97,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
     {
         TKey k = default!;
         bool result = Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () => InternalUnsafeSource!.SetValueAt(index, value, out k),
             version =>
             {
@@ -112,7 +112,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
     {
         int index = -1;
         Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 index = InternalUnsafeSource!.Add(key, value);

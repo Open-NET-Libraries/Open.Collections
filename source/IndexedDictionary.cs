@@ -44,7 +44,7 @@ public class IndexedDictionary<TKey, TValue>
 
     /// <inheritdoc />
     public override IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        => _entries.GetEnumerator().Preflight(ThrowIfDisposed);
+        => _entries.GetEnumerator().Preflight(ThrowIfDisposedDelegate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override ICollection<TKey> GetKeys()

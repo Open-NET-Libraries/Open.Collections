@@ -193,7 +193,7 @@ public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollectio
     public override IEnumerator<T> GetEnumerator()
     {
         DumpBuffer();
-        return base.GetEnumerator().Preflight(ThrowIfDisposed);
+        return base.GetEnumerator().Preflight(ThrowIfDisposedDelegate);
     }
 
     /// <inheritdoc />

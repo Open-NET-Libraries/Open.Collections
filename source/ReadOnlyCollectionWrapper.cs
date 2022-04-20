@@ -34,15 +34,15 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
         SourceOwned = owner;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected bool AssertIsAlive() => base.AssertIsAlive();
+    private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected void ThrowIfDisposed() => base.AssertIsAlive();
+    private Action? _throwIfDisposed;
+    protected Action ThrowIfDisposedDelegate
+        => _throwIfDisposed ??= ThrowIfDisposedInternal;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected IEnumerable<T2> ThrowIfDisposed<T2>(IEnumerable<T2> source)
-        => source.Preflight(ThrowIfDisposed).BeforeGetEnumerator(ThrowIfDisposed);
+        => source.Preflight(ThrowIfDisposedDelegate).BeforeGetEnumerator(ThrowIfDisposedDelegate);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected T2 ThrowIfDisposed<T2>(T2 source)
@@ -73,7 +73,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     /// <returns>An enumerator from the underlying collection.</returns>
     [ExcludeFromCodeCoverage]
     public virtual IEnumerator<T> GetEnumerator()
-        => InternalSource.Preflight(ThrowIfDisposed).GetEnumerator();
+        => InternalSource.Preflight(ThrowIfDisposedDelegate).GetEnumerator();
 
     [ExcludeFromCodeCoverage]
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

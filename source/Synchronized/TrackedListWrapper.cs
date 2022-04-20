@@ -26,7 +26,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 
     public bool SetValue(int index, T value)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () => SetValueInternal(index, value),
             version => OnChanged(ItemChange.Modified, index, value, version));
 
@@ -50,7 +50,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
     /// <inheritdoc />
     public void Insert(int index, T item)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 InternalSource.Insert(index, item);
@@ -79,7 +79,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
     {
         T removed = default!;
         Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 removed = InternalSource[index];

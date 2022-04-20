@@ -47,7 +47,7 @@ public class TrackedDictionaryWrapper<TKey, TValue, TDictionary>
 
     public bool SetValue(TKey key, TValue value)
         => Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () => SetValueInternal(key, value),
             version =>
             {
@@ -74,7 +74,7 @@ public class TrackedDictionaryWrapper<TKey, TValue, TDictionary>
     protected virtual int AddSynchronized(TKey key, TValue value)
     {
         Sync!.Modifying(
-            AssertIsAlive,
+            AssertIsAliveDelegate,
             () =>
             {
                 InternalSource.Add(key, value);
