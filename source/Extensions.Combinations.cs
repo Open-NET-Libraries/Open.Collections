@@ -4,91 +4,93 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
 public static partial class Extensions
 {
-	static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet, T[] buffer)
-	{
-		Debug.Assert(length != 0);
+    static IEnumerable<ArraySegment<T>> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet, T[]? buffer = null)
+    {
+        Debug.Assert(length != 0);
+        Debug.Assert(buffer is null || buffer.Length >= length);
+        buffer ??= new T[length];
+        var bufferSegment = new ArraySegment<T>(buffer, 0, length);
+
+        return CombinationsCore(source, distinctSet, bufferSegment);
+    }
+
+    static IEnumerable<ArraySegment<T>> CombinationsCore<T>(IReadOnlyList<T> source, bool distinctSet, ArraySegment<T> buffer)
+    {
+        Debug.Assert(buffer.Count != 0);
         int count = source.Count;
-		Debug.Assert(count != 0);
+        Debug.Assert(count != 0);
 
-		{
-            T? value = source[0];
-            T[]? result = buffer ?? new T[length];
-			for (int i = 0; i < length; i++) result[i] = value;
-			yield return result;
-			if (count == 1) yield break;
-		}
+        int length = buffer.Count;
+        {
+            var value = source[0];
+            Span<T> span = buffer;
+            for (int i = 0; i < length; i++) span[i] = value;
+        }
 
-        ArrayPool<int>? pool = length > 128 ? ArrayPool<int>.Shared : null;
-        int[]? indexes = pool?.Rent(length) ?? new int[length];
-		try
-		{
-			for (int i = 0; i < length; i++) indexes[i] = 0;
+        yield return buffer;
+        if (count == 1) yield break;
 
-            int lastIndex = length - 1;
-			bool GetNext()
-			{
-				int i;
-				for (i = lastIndex; i >= 0; --i)
-				{
-                    int e = ++indexes[i];
-					if (count == e)
-					{
-						if (i == 0) return false;
-					}
-					else
-					{
-						if (i == lastIndex) return true;
-						else break;
-					}
-				}
+        using var indexesOwner = new ArrayPoolSegment<int>(length, length > 128 ? ArrayPool<int>.Shared : null);
+        var indexes = indexesOwner.Segment;
+        if (indexesOwner.Pool is null)
+        {
+            Span<int> span = indexes;
+            for (int i = 0; i < length; i++) span[i] = 0;
+        }
 
-				for (++i; i < length; ++i)
-				{
-					if (indexes[i] == count)
-						indexes[i] = distinctSet ? indexes[i - 1] : 0;
-				}
+        int lastIndex = length - 1;
+        while (GetNext(distinctSet, count, indexes, lastIndex))
+        {
+            {
+                Span<T> span = buffer;
+                ReadOnlySpan<int> inxs = indexes;
+                for (int i = 0; i < length; i++)
+                {
+                    span[i] = source[inxs[i]];
+                }
+            }
 
-				return true;
-			}
+            yield return buffer;
+        }
+    }
 
-			while (GetNext())
-			{
-				for (int i = 0; i < length; i++)
-				{
-					buffer![i] = source[indexes[i]];
-				}
-				yield return buffer!;
-			}
-		}
-		finally
-		{
-			pool?.Return(indexes);
-		}
-	}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static bool GetNext(bool distinctSet, int count, Span<int> indexes, int lastIndex)
+    {
+        int i;
+        for (i = lastIndex; i >= 0; --i)
+        {
+            int e = ++indexes[i];
+            if (count == e)
+            {
+                if (i == 0) return false;
+            }
+            else
+            {
+                if (i == lastIndex) return true;
+                else break;
+            }
+        }
 
-	static IEnumerable<T[]> CombinationsCore<T>(IReadOnlyList<T> source, int length, bool distinctSet)
-	{
-        ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
-        T[]? buffer = pool?.Rent(length) ?? new T[length];
-		try
-		{
-			foreach (T[]? b in CombinationsCore(source, length, distinctSet, buffer))
-				yield return b;
-		}
-		finally
-		{
-			pool?.Return(buffer, true);
-		}
-	}
+        int length = indexes.Length;
+        for (++i; i < length; ++i)
+        {
+            if (indexes[i] == count)
+                indexes[i] = distinctSet ? indexes[i - 1] : 0;
+        }
+
+        return true;
+    }
 
 	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
 	/// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
-	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, T[] buffer)
+	public static IEnumerable<ArraySegment<T>> Combinations<T>(this IEnumerable<T> elements, int length, T[] buffer)
 	{
 		if (elements is null)
 			throw new ArgumentNullException(nameof(elements));
@@ -96,14 +98,27 @@ public static partial class Extensions
 			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
 		Contract.EndContractBlock();
 
-		if (length == 0) return Enumerable.Empty<T[]>();
+		if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsCore(source, length, false, buffer);
+		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, false, buffer);
 	}
 
-	/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
-	/// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
-	public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[] buffer)
+    /// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
+    /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
+    public static IEnumerable<ArraySegment<T>> Combinations<T>(this IEnumerable<T> elements, ArraySegment<T> buffer)
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        Contract.EndContractBlock();
+
+        if (buffer.Count == 0) return Enumerable.Empty<ArraySegment<T>>();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, false, buffer);
+    }
+
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+    /// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
+    public static IEnumerable<ArraySegment<T>> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[] buffer)
 	{
 		if (elements is null)
 			throw new ArgumentNullException(nameof(elements));
@@ -111,12 +126,25 @@ public static partial class Extensions
 			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
 		Contract.EndContractBlock();
 
-		if (length == 0) return Enumerable.Empty<T[]>();
+		if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsCore(source, length, true, buffer);
+		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, true, buffer);
 	}
 
-	[Obsolete("Deprecated in favor of using .Subsets(length) or .Combinations(length) depending on intent.")]
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+    /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array</param>
+    public static IEnumerable<ArraySegment<T>> CombinationsDistinct<T>(this IEnumerable<T> elements, ArraySegment<T> buffer)
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        Contract.EndContractBlock();
+
+        if (buffer.Count == 0) return Enumerable.Empty<ArraySegment<T>>();
+        IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
+        return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, true, buffer);
+    }
+
+    [Obsolete("Deprecated in favor of using .Subsets(length) or .Combinations(length) depending on intent.")]
 	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, bool uniqueOnly)
 	{
 		if (elements is null)
@@ -132,7 +160,7 @@ public static partial class Extensions
 			? Enumerable.Empty<T[]>()
 			: uniqueOnly
 			? source.Subsets(length)
-			: CombinationsCore(source, length, true).Select(e => e.AsCopy(length));
+			: CombinationsCore(source, length, true).Select(e => e.Array.AsCopy(length));
 	}
 
 	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
@@ -152,18 +180,11 @@ public static partial class Extensions
 		{
 			if (length == 0) yield break;
 
-            ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
-            T[]? buffer = pool?.Rent(length) ?? new T[length];
-			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
-			try
-			{
-				foreach (T[]? _ in Combinations(elements, length, buffer))
-					yield return readBuffer;
-			}
-			finally
-			{
-				pool?.Return(buffer, true);
-			}
+            using var owner = new ArrayPoolSegment<T>(length, length > 128 ? ArrayPool<T>.Shared : null);
+            var segment = owner.Segment;
+            ReadOnlyMemory<T> readBuffer = segment;
+            foreach (var _ in Combinations(elements, segment))
+                yield return readBuffer;
 		}
 	}
 
@@ -184,18 +205,11 @@ public static partial class Extensions
 		{
 			if (length == 0) yield break;
 
-            ArrayPool<T>? pool = length > 128 ? ArrayPool<T>.Shared : null;
-            T[]? buffer = pool?.Rent(length) ?? new T[length];
-			var readBuffer = new ReadOnlyMemory<T>(buffer, 0, length);
-			try
-			{
-				foreach (T[]? _ in CombinationsDistinct(elements, length, buffer))
-					yield return readBuffer;
-			}
-			finally
-			{
-				pool?.Return(buffer, true);
-			}
+            using var owner = new ArrayPoolSegment<T>(length, length > 128 ? ArrayPool<T>.Shared : null);
+            var segment = owner.Segment;
+            ReadOnlyMemory<T> readBuffer = segment;
+			foreach (var _ in CombinationsDistinct(elements, segment))
+				yield return readBuffer;
 		}
 	}
 
