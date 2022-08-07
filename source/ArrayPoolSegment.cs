@@ -29,6 +29,10 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
     public static implicit operator Memory<T> (ArrayPoolSegment<T> segment) => segment.Segment;
     [ExcludeFromCodeCoverage]
     public static implicit operator ReadOnlyMemory<T>(ArrayPoolSegment<T> segment) => segment.Segment;
+    [ExcludeFromCodeCoverage]
+    public static implicit operator ReadOnlySpan<T>(ArrayPoolSegment<T> segment) => segment.Segment;
+    [ExcludeFromCodeCoverage]
+    public static implicit operator Span<T>(ArrayPoolSegment<T> segment) => segment.Segment;
 }
 
 public static class ArrayPoolExtensions
