@@ -88,8 +88,10 @@ public static partial class Extensions
         return true;
     }
 
-	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
+    /// <param name="elements">The elements to draw from.</param>
+    /// <param name="length">The length of each result.</param>
 	/// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
+	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
 	public static IEnumerable<ArraySegment<T>> Combinations<T>(this IEnumerable<T> elements, int length, T[] buffer)
 	{
 		if (elements is null)
@@ -103,8 +105,9 @@ public static partial class Extensions
 		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, false, buffer);
 	}
 
+    /// <param name="elements">The elements to draw from.</param>
+    /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array</param>
     /// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
-    /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
     public static IEnumerable<ArraySegment<T>> Combinations<T>(this IEnumerable<T> elements, ArraySegment<T> buffer)
     {
         if (elements is null)
@@ -116,8 +119,10 @@ public static partial class Extensions
         return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, false, buffer);
     }
 
-    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+    /// <param name="elements">The elements to draw from.</param>
+    /// <param name="length">The length of each result.</param>
     /// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
     public static IEnumerable<ArraySegment<T>> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[] buffer)
 	{
 		if (elements is null)
@@ -131,8 +136,9 @@ public static partial class Extensions
 		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, true, buffer);
 	}
 
-    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+    /// <param name="elements">The elements to draw from.</param>
     /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array</param>
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
     public static IEnumerable<ArraySegment<T>> CombinationsDistinct<T>(this IEnumerable<T> elements, ArraySegment<T> buffer)
     {
         if (elements is null)
@@ -213,17 +219,19 @@ public static partial class Extensions
 		}
 	}
 
-	/// <inheritdoc cref="Combinations{T}(IEnumerable{T})"/>
-	/// <param name="length">The length of each result.</param>
-	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length)
+    /// <param name="elements">The elements to draw from.</param>
+    /// <param name="length">The length of each result.</param>
+    /// <inheritdoc cref="Combinations{T}(IEnumerable{T})"/>
+    public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length)
 	{
 		foreach (ReadOnlyMemory<T> c in CombinationsBuffered(elements, length))
 			yield return c.ToArray();
 	}
 
-	/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T})"/>
-	/// <param name="length">The length of each result.</param>
-	public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length)
+    /// <param name="elements">The elements to draw from.</param>
+    /// <param name="length">The length of each result.</param>
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T})"/>
+    public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length)
 	{
 		foreach (ReadOnlyMemory<T> c in CombinationsDistinctBuffered(elements, length))
 			yield return c.ToArray();

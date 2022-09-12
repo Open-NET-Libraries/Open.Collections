@@ -69,6 +69,6 @@ public interface IIndexedDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     /// <param name="index">The zero-based index of the entry to remove.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
     /// -or-<br/>
-    /// index is equal to or greater than <see cref="Count"/>.</exception>
+    /// index is equal to or greater than <see cref="ICollection{T}.Count"/>.</exception>
     void RemoveAt(int index);
 }

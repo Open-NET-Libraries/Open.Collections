@@ -46,12 +46,14 @@ public static class Subsets
 		goto loop;
 	}
 
-	/// <param name="buffer">
-	/// A buffer to use instead of returning new arrays for each iteration.
-	/// It must be at least the length of the count.
-	/// </param>
-	/// <inheritdoc cref="Indexes(int, int)"/>
-	public static IEnumerable<int[]> Indexes(int sourceLength, int subsetLength, int[] buffer)
+    /// <param name="sourceLength">The length of the source set.</param>
+    /// <param name="subsetLength">The size of the desired subsets.</param>
+    /// <param name="buffer">
+    /// A buffer to use instead of returning new arrays for each iteration.
+    /// It must be at least the length of the count.
+    /// </param>
+    /// <inheritdoc cref="Indexes(int, int)"/>
+    public static IEnumerable<int[]> Indexes(int sourceLength, int subsetLength, int[] buffer)
 	{
 		if (subsetLength < 1)
 			throw new ArgumentOutOfRangeException(nameof(subsetLength), subsetLength, "Must greater than zero.");
@@ -88,7 +90,7 @@ public static class Subsets
 	/// Enumerates all the possible subset indexes for a given source set length and subset length.
 	/// </summary>
 	/// <param name="sourceLength">The length of the source set.</param>
-	/// <param name="subsetLength">The size of the desired subsets.</param>s
+	/// <param name="subsetLength">The size of the desired subsets.</param>
 	public static IEnumerable<int[]> Indexes(int sourceLength, int subsetLength)
 	{
 		foreach (ReadOnlyMemory<int> i in IndexesBuffered(sourceLength, subsetLength))

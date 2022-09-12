@@ -908,6 +908,7 @@ retry:
     /// <summary>
     /// Copies the results to the provided span up to its length or until the end of the results.
     /// </summary>
+    /// <param name="source">The source enumerable.</param>
     /// <param name="target">The span to copy to.</param>
     /// <returns>
     /// A span representing the results.
@@ -932,7 +933,6 @@ retry:
     /// <summary>
     /// Builds an immutable array using the contents of the span.
     /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
     {
         ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
@@ -942,7 +942,6 @@ retry:
     }
 
     /// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1235:Optimize method call.")]
     public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
     {
         ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);

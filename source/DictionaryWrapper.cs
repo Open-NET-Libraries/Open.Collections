@@ -23,13 +23,13 @@ public class DictionaryWrapper<TKey, TValue>
     {
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     /// <inheritdoc />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override TValue GetValueInternal(TKey key)
         => InternalSource[key];
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     /// <inheritdoc />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected override void SetValueInternal(TKey key, TValue value)
         => InternalSource[key] = value;
 

@@ -4,7 +4,7 @@ namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage] // Nothing worth covering here yet.
-public class LockSynchronizedIndexedDictionary<TKey, TValue>
+public sealed class LockSynchronizedIndexedDictionary<TKey, TValue>
     : LockSynchronizedDictionaryWrapper<TKey, TValue, IndexedDictionary<TKey, TValue>>, IIndexedDictionary<TKey, TValue>
 {
     /// <inheritdoc />

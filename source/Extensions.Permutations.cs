@@ -49,8 +49,9 @@ public static partial class Extensions
 		}
 	}
 
-	/// <inheritdoc cref="Permutations{T}(IEnumerable{T})"/>
+    /// <param name="elements">The elements to draw from.</param>
 	/// <param name="buffer">The buffer array that is filled with the values and returned as the yielded value instead of a new array</param>
+	/// <inheritdoc cref="Permutations{T}(IEnumerable{T})"/>
 	public static IEnumerable<T[]> Permutations<T>(this IReadOnlyCollection<T> elements, T[] buffer)
 	{
 		if (elements is null) throw new ArgumentNullException(nameof(elements));

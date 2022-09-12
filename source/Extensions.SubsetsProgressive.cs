@@ -7,12 +7,14 @@ namespace Open.Collections;
 
 public static partial class Extensions
 {
-	/// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)"/>
-	/// <param name="buffer">
-	/// A buffer to use instead of returning new arrays for each iteration.
-	/// It must be at least the length of the count.
-	/// </param>
-	public static IEnumerable<T[]> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, T[] buffer)
+    /// <param name="buffer">
+    /// A buffer to use instead of returning new arrays for each iteration.
+    /// It must be at least the length of the count.
+    /// </param>
+    /// <param name="source">The source list to derive from.</param>
+    /// <param name="count">The maximum number of items in the result sets.</param>
+    /// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)"/>
+    public static IEnumerable<T[]> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, T[] buffer)
 	{
 		if (count < 1)
 			throw new ArgumentOutOfRangeException(nameof(count), count, "Must greater than zero.");
@@ -120,11 +122,12 @@ public static partial class Extensions
 		}
 	}
 
-	/// <param name="source">The source list to derive from.</param>
-	/// <param name="count">The maximum number of items in the result sets.</param>
-	/// <param name="pool">The array pool to get result arrays from.</param>
-	/// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)" />
-	public static IEnumerable<ArrayPoolSegment<T>> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, ArrayPool<T>? pool, bool clearArray = false)
+    /// <param name="source">The source list to derive from.</param>
+    /// <param name="count">The maximum number of items in the result sets.</param>
+    /// <param name="pool">The array pool to get result arrays from.</param>
+    /// <param name="clearArray"><see langword="true"/>, clears the pooled array when finished; otherwise is left alone.</param>
+    /// <inheritdoc cref="SubsetsProgressive{T}(IReadOnlyList{T}, int)" />
+    public static IEnumerable<ArrayPoolSegment<T>> SubsetsProgressive<T>(this IReadOnlyList<T> source, int count, ArrayPool<T>? pool, bool clearArray = false)
 	{
 		foreach (ReadOnlyMemory<T> subset in SubsetsProgressiveBuffered(source, count))
 		{

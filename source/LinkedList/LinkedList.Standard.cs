@@ -5,7 +5,7 @@ namespace Open.Collections;
 
 public static class LinkedList
 {
-	public class Standard<T> : LinkedList<T>, ILinkedList<T>
+	public sealed class Standard<T> : LinkedList<T>, ILinkedList<T>
 	{
         [ExcludeFromCodeCoverage]
 		public Standard()

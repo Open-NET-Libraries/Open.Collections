@@ -4,7 +4,7 @@ namespace Open.Collections.Synchronized;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage]
-public class LockSynchronizedOrderedDictionary<TKey, TValue>
+public sealed class LockSynchronizedOrderedDictionary<TKey, TValue>
     : LockSynchronizedDictionaryWrapper<TKey, TValue, OrderedDictionary<TKey, TValue>>
 {
     /// <inheritdoc />

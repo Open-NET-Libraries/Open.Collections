@@ -13,7 +13,7 @@ namespace Open.Collections.Synchronized;
 /// Buffers additions to the list using a <see cref="ConcurrentQueue{T}"/>
 /// and defers synchronization until needed.
 /// </summary>
-public class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollection<T>
+public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollection<T>
 {
     int _count;
     [ExcludeFromCodeCoverage]

@@ -15,7 +15,7 @@ namespace Open.Collections;
 /// A a thread-safe list for caching the results of an enumerable.
 /// Note: should be disposed manually whenever possible as the locking mechanism is a ReaderWriterLockSlim.
 /// </summary>
-public class LazyList<T> : LazyListUnsafe<T>
+public sealed class LazyList<T> : LazyListUnsafe<T>
 {
 	ReaderWriterLockSlim Sync;
 	int _safeCount;

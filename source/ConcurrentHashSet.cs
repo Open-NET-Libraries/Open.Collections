@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Open.Collections;
 
 [ExcludeFromCodeCoverage]
-public class ConcurrentHashSet<T> : DictionaryToHashSetWrapper<T>
+public sealed class ConcurrentHashSet<T> : DictionaryToHashSetWrapper<T>
 {
 	public ConcurrentHashSet(IEnumerable<T>? intialValues = null)
 		: base(new ConcurrentDictionary<T, bool>())
