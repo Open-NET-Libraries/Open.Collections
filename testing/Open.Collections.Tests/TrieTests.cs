@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Open.Collections.Trie;
 using Xunit;
 
 namespace Open.Collections.Tests;
@@ -49,10 +50,24 @@ public static class TrieTests
                 trie.ContainsKeyFromPath(e).Should().BeTrue();
                 trie.TryGetValueFromPath(e, out _).Should().BeTrue();
                 trie.ContainsKey(e).Should().BeTrue();
-                trie.TryGetValue(e, out _).Should().BeTrue();
+                trie.TryGetValue(e, out string v).Should().BeTrue();
+                trie.Get(e).Should().Be(v);
             }
         }
 
         trie.Clear();
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(",")]
+    [InlineData("||")]
+    public static void StrinJoinPoolTest(string sep)
+    {
+        var pool = new StringJoinPool(sep);
+        string ex = pool.Get(Examples);
+        ex.Should().Be(string.Join(sep, ex));
+        string ex2 = pool.Get(Examples);
+        object.ReferenceEquals(ex, ex2).Should().BeTrue();
     }
 }

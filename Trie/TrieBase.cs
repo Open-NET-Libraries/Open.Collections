@@ -10,7 +10,7 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
     /// <summary>
     /// Initializes this.
     /// </summary>
-    protected TrieBase(Func<NodeBase> rootFactory, ISet<int> lookup)
+    internal TrieBase(Func<NodeBase> rootFactory, ISet<int> lookup)
     {
         _root = rootFactory();
         _rootFactory = rootFactory;
@@ -23,7 +23,7 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
     private readonly Func<TrieBase<TKey, TValue>.NodeBase> _rootFactory;
     private readonly ISet<int> _lookup;
 
-    protected NodeBase EnsureNode(ReadOnlySpan<TKey> key)
+    internal NodeBase EnsureNode(ReadOnlySpan<TKey> key)
     {
         int length = key.Length;
         var node = _root;
@@ -34,7 +34,7 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
         return node;
     }
 
-    protected NodeBase EnsureNode(IEnumerable<TKey> key, out int length)
+    internal NodeBase EnsureNode(IEnumerable<TKey> key, out int length)
     {
         if (key is null) throw new ArgumentNullException(nameof(key));
 
@@ -49,6 +49,10 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
 
         return node;
     }
+
+    TrieBase<TKey, TValue>.NodeBase ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
+        => EnsureNode(key);
+
 
     /// <inheritdoc />
     public bool Add(ReadOnlySpan<TKey> key, in TValue value)
@@ -217,7 +221,7 @@ NotFound:
     }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-    protected abstract class NodeBase
+    internal abstract class NodeBase
     {
         protected abstract IDictionary<TKey, NodeBase>? Children { get; }
 

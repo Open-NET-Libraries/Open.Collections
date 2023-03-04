@@ -10,6 +10,8 @@ public interface ITrie<TKey, TValue>
 {
     // NOTE: Path suffixed methods are provided to avoid ambiguity.
 
+    internal TrieBase<TKey, TValue>.NodeBase EnsureNodes(ReadOnlySpan<TKey> key);
+
     /// <summary>
     /// Adds an entry to the Trie.
     /// </summary>
@@ -90,4 +92,18 @@ public static class TrieExtensions
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool ContainsKey<T>(this ITrie<char, T> target, string key)
         => target.ContainsKey(key.AsSpan());
+
+    /// <summary>
+    /// Gets the string instance representing the key.
+    /// </summary>
+    /// <remarks>Useful for using as a string pool.</remarks>
+    public static string Get(this ITrie<char, string> target, ReadOnlySpan<char> key)
+    {
+        var node = target.EnsureNodes(key);
+        if (node.TryGetValue(out string? v))
+            return v;
+
+        string value = key.ToString();
+        return node.GetOrAdd(in value);
+    }
 }
