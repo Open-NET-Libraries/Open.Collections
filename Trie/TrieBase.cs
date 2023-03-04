@@ -169,7 +169,7 @@ NotFound:
         => EnsureNode(key).GetOrAdd(in value);
 
     /// <inheritdoc />
-    public virtual TValue GetOrAdd(ReadOnlySpan<TKey> key, Func<TValue> factory)
+    public TValue GetOrAdd(ReadOnlySpan<TKey> key, Func<TValue> factory)
     {
         var node = EnsureNode(key);
         if (node.TryGetValue(out var v))
@@ -184,7 +184,7 @@ NotFound:
         => EnsureNode(key, out _).GetOrAdd(in value);
 
     /// <inheritdoc />
-    public virtual TValue GetOrAddFromPath(IEnumerable<TKey> key, Func<TValue> factory)
+    public TValue GetOrAddFromPath(IEnumerable<TKey> key, Func<TValue> factory)
     {
         var node = EnsureNode(key, out _);
         if (node.TryGetValue(out var v))
@@ -195,11 +195,11 @@ NotFound:
     }
 
     /// <inheritdoc />
-    public virtual TValue GetOrAddFromPath(ICollection<TKey> key, in TValue value)
+    public TValue GetOrAddFromPath(ICollection<TKey> key, in TValue value)
         => EnsureNode(key, out _).GetOrAdd(in value);
 
     /// <inheritdoc />
-    public virtual TValue GetOrAddFromPath(ICollection<TKey> key, Func<TValue> factory)
+    public TValue GetOrAddFromPath(ICollection<TKey> key, Func<TValue> factory)
     {
         var node = EnsureNode(key, out _);
         if (node.TryGetValue(out var v))
