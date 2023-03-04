@@ -627,14 +627,12 @@ retry:
         if (source is IReadOnlyCollection<T> sC && target is IReadOnlyCollection<T> tC && sC.Count != tC.Count)
             return false;
 
-        using (IEnumerator<T>? enumSource = source.GetEnumerator())
-        using (IEnumerator<T>? enumTarget = target.GetEnumerator())
+        using IEnumerator<T>? enumSource = source.GetEnumerator();
+        using IEnumerator<T>? enumTarget = target.GetEnumerator();
+        while (enumSource.MoveNext() && enumTarget.MoveNext())
         {
-            while (enumSource.MoveNext() && enumTarget.MoveNext())
-            {
-                if (!enumSource.Current.Equals(enumTarget.Current))
-                    return false;
-            }
+            if (!enumSource.Current.Equals(enumTarget.Current))
+                return false;
         }
 
         return true;

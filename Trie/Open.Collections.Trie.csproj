@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<Authors>electricessence</Authors>
+		<Description>
+			A generic trie and concurrent trie implementation.
+
+			Part of the "Open" set of libraries.
+		</Description>
+		<PackageTags>trie;concurrent trie</PackageTags>
+		<Copyright>© electricessence (Oren F.) All rights reserved.</Copyright>
+		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Version>1.0.0</Version>
+		<PackageReleaseNotes></PackageReleaseNotes>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PackageIcon>logo.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\source\logo.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+		<PackageReference Include="System.Memory" Version="4.5.1" />
+	</ItemGroup>
+
+</Project>

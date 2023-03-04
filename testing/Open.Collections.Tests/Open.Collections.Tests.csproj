@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\source\Open.Collections.csproj" />
+    <ProjectReference Include="..\..\Trie\Open.Collections.Trie.csproj" />
   </ItemGroup>
 
 </Project>

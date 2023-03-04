@@ -1,24 +1,28 @@
 ﻿using FluentAssertions;
-using System;
 using Xunit;
 
 namespace Open.Collections.Tests;
 public static class TrieTests
 {
-    [Fact]
-    public static void ValidateExists()
+    static readonly string[] Examples = new[]
     {
-        string[] examples = new[]
-        {
-            "abcd",
-            "dcba",
-            "abcdef",
-            "the brown fox",
-            "xxx"
-        };
+        "abcd",
+        "dcba",
+        "abcdef",
+        "the brown fox",
+        "xxx"
+    };
 
-        var trie = new Trie<char, string>();
+    [Fact]
+    public static void TrieValidate()
+        => Test(Examples, new Trie<char, string>());
 
+    [Fact]
+    public static void ConcurrentTrieValidate()
+        => Test(Examples, new ConcurrentTrie<char, string>());
+
+    static void Test(string[] examples, ITrie<char, string> trie)
+    {
         trie.TryGetValueFromPath(default, out _).Should().BeFalse();
 
         for (int i = 0; i < examples.Length; i++)
@@ -35,8 +39,8 @@ public static class TrieTests
             {
                 string e = examples[i];
                 trie.AddPath(e, e);
-                Assert.Throws<ArgumentException>(() => trie.Add(e, e));
-                Assert.Throws<ArgumentException>(() => trie.AddPath(e, e));
+                trie.Add(e, e).Should().BeFalse();
+                trie.AddPath(e, e).Should().BeFalse();
             }
 
             for (int j = 0; j <= i; j++)
@@ -50,7 +54,5 @@ public static class TrieTests
         }
 
         trie.Clear();
-
-
     }
 }
