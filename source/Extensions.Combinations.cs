@@ -93,17 +93,17 @@ public static partial class Extensions
 	/// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array.</param>
 	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
 	public static IEnumerable<ArraySegment<T>> Combinations<T>(this IEnumerable<T> elements, int length, T[] buffer)
-	{
-		if (elements is null)
-			throw new ArgumentNullException(nameof(elements));
-		if (length < 0)
-			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
-		Contract.EndContractBlock();
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+        Contract.EndContractBlock();
 
-		if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
+        if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, false, buffer);
-	}
+        return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, false, buffer);
+    }
 
     /// <param name="elements">The elements to draw from.</param>
     /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array</param>
@@ -124,17 +124,17 @@ public static partial class Extensions
     /// <param name="buffer">An optional buffer that is filled with the values and returned as the yielded value instead of a new array</param>
     /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
     public static IEnumerable<ArraySegment<T>> CombinationsDistinct<T>(this IEnumerable<T> elements, int length, T[] buffer)
-	{
-		if (elements is null)
-			throw new ArgumentNullException(nameof(elements));
-		if (length < 0)
-			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
-		Contract.EndContractBlock();
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+        Contract.EndContractBlock();
 
-		if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
+        if (length == 0) return Enumerable.Empty<ArraySegment<T>>();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, true, buffer);
-	}
+        return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, length, true, buffer);
+    }
 
     /// <param name="elements">The elements to draw from.</param>
     /// <param name="buffer">A buffer that is filled with the values and returned as the yielded value instead of a new array</param>
@@ -151,117 +151,117 @@ public static partial class Extensions
     }
 
     [Obsolete("Deprecated in favor of using .Subsets(length) or .Combinations(length) depending on intent.")]
-	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, bool uniqueOnly)
-	{
-		if (elements is null)
-			throw new ArgumentNullException(nameof(elements));
-		if (length < 0)
-			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
-		Contract.EndContractBlock();
+    public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, bool uniqueOnly)
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+        Contract.EndContractBlock();
 
-		if (length == 0) return Enumerable.Empty<T[]>();
+        if (length == 0) return Enumerable.Empty<T[]>();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
         int count = source.Count;
-		return count == 0
-			? Enumerable.Empty<T[]>()
-			: uniqueOnly
-			? source.Subsets(length)
-			: CombinationsCore(source, length, true).Select(e => e.Array.AsCopy(length));
-	}
+        return count == 0
+            ? Enumerable.Empty<T[]>()
+            : uniqueOnly
+            ? source.Subsets(length)
+            : CombinationsCore(source, length, true).Select(e => e.Array.AsCopy(length));
+    }
 
-	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
-	/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
-	/// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
-	public static IEnumerable<ReadOnlyMemory<T>> CombinationsBuffered<T>(this IEnumerable<T> elements, int length)
-	{
-		if (elements is null)
-			throw new ArgumentNullException(nameof(elements));
-		if (length < 0)
-			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
-		Contract.EndContractBlock();
+    /// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>
+    /// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+    /// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
+    public static IEnumerable<ReadOnlyMemory<T>> CombinationsBuffered<T>(this IEnumerable<T> elements, int length)
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+        Contract.EndContractBlock();
 
-		return CombinationsBufferedCore(elements, length);
+        return CombinationsBufferedCore(elements, length);
 
-		static IEnumerable<ReadOnlyMemory<T>> CombinationsBufferedCore(IEnumerable<T> elements, int length)
-		{
-			if (length == 0) yield break;
+        static IEnumerable<ReadOnlyMemory<T>> CombinationsBufferedCore(IEnumerable<T> elements, int length)
+        {
+            if (length == 0) yield break;
 
             using var owner = new ArrayPoolSegment<T>(length, length > 128 ? ArrayPool<T>.Shared : null);
             var segment = owner.Segment;
             ReadOnlyMemory<T> readBuffer = segment;
             foreach (var _ in Combinations(elements, segment))
                 yield return readBuffer;
-		}
-	}
+        }
+    }
 
-	/// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
-	/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
-	/// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
-	public static IEnumerable<ReadOnlyMemory<T>> CombinationsDistinctBuffered<T>(this IEnumerable<T> elements, int length)
-	{
-		if (elements is null)
-			throw new ArgumentNullException(nameof(elements));
-		if (length < 0)
-			throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
-		Contract.EndContractBlock();
+    /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T}, int)"/>
+    /// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
+    /// <returns>An enumerable the yields as read only memory buffer that should not be retained as its array is returned to pool afterwards.</returns>
+    public static IEnumerable<ReadOnlyMemory<T>> CombinationsDistinctBuffered<T>(this IEnumerable<T> elements, int length)
+    {
+        if (elements is null)
+            throw new ArgumentNullException(nameof(elements));
+        if (length < 0)
+            throw new ArgumentOutOfRangeException(nameof(length), length, "Cannot be less than zero.");
+        Contract.EndContractBlock();
 
-		return CombinationsDistinctBufferedCore(elements, length);
+        return CombinationsDistinctBufferedCore(elements, length);
 
-		static IEnumerable<ReadOnlyMemory<T>> CombinationsDistinctBufferedCore(IEnumerable<T> elements, int length)
-		{
-			if (length == 0) yield break;
+        static IEnumerable<ReadOnlyMemory<T>> CombinationsDistinctBufferedCore(IEnumerable<T> elements, int length)
+        {
+            if (length == 0) yield break;
 
             using var owner = new ArrayPoolSegment<T>(length, length > 128 ? ArrayPool<T>.Shared : null);
             var segment = owner.Segment;
             ReadOnlyMemory<T> readBuffer = segment;
-			foreach (var _ in CombinationsDistinct(elements, segment))
-				yield return readBuffer;
-		}
-	}
+            foreach (var _ in CombinationsDistinct(elements, segment))
+                yield return readBuffer;
+        }
+    }
 
     /// <param name="elements">The elements to draw from.</param>
     /// <param name="length">The length of each result.</param>
     /// <inheritdoc cref="Combinations{T}(IEnumerable{T})"/>
     public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length)
-	{
-		foreach (ReadOnlyMemory<T> c in CombinationsBuffered(elements, length))
-			yield return c.ToArray();
-	}
+    {
+        foreach (ReadOnlyMemory<T> c in CombinationsBuffered(elements, length))
+            yield return c.ToArray();
+    }
 
     /// <param name="elements">The elements to draw from.</param>
     /// <param name="length">The length of each result.</param>
     /// <inheritdoc cref="CombinationsDistinct{T}(IEnumerable{T})"/>
     public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements, int length)
-	{
-		foreach (ReadOnlyMemory<T> c in CombinationsDistinctBuffered(elements, length))
-			yield return c.ToArray();
-	}
+    {
+        foreach (ReadOnlyMemory<T> c in CombinationsDistinctBuffered(elements, length))
+            yield return c.ToArray();
+    }
 
-	/// <summary>
-	/// Enumerates all possible combinations of values.
-	/// Results can be different permutations of another set.
-	/// </summary>
-	/// <example>[0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.</example>
-	/// <param name="elements">The elements to draw from.</param>
-	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
-	{
-		if (elements is null) throw new ArgumentNullException(nameof(elements));
-		Contract.EndContractBlock();
+    /// <summary>
+    /// Enumerates all possible combinations of values.
+    /// Results can be different permutations of another set.
+    /// </summary>
+    /// <example>[0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.</example>
+    /// <param name="elements">The elements to draw from.</param>
+    public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
+    {
+        if (elements is null) throw new ArgumentNullException(nameof(elements));
+        Contract.EndContractBlock();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<T[]>() : Combinations(source, source.Count);
-	}
+        return source.Count == 0 ? Enumerable.Empty<T[]>() : Combinations(source, source.Count);
+    }
 
-	/// <summary>
-	/// Enumerates all possible distinct set combinations.
-	/// In contrast a set that has its items reordered is not distinct from the original.
-	/// </summary>
-	/// <example>[0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].</example>
-	/// <param name="elements">The elements to draw from.</param>
-	public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements)
-	{
-		if (elements is null) throw new ArgumentNullException(nameof(elements));
-		Contract.EndContractBlock();
+    /// <summary>
+    /// Enumerates all possible distinct set combinations.
+    /// In contrast a set that has its items reordered is not distinct from the original.
+    /// </summary>
+    /// <example>[0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].</example>
+    /// <param name="elements">The elements to draw from.</param>
+    public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements)
+    {
+        if (elements is null) throw new ArgumentNullException(nameof(elements));
+        Contract.EndContractBlock();
         IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
-		return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsDistinct(source, source.Count);
-	}
+        return source.Count == 0 ? Enumerable.Empty<T[]>() : CombinationsDistinct(source, source.Count);
+    }
 }

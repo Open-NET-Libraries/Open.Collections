@@ -13,15 +13,15 @@ public static partial class Extensions
 
     [ExcludeFromCodeCoverage]
     public static IEnumerable<T> AsDequeueingEnumerable<T>(this ConcurrentQueue<T> source)
-	{
-		while (source.TryDequeue(out T? entry))
-			yield return entry;
-	}
+    {
+        while (source.TryDequeue(out T? entry))
+            yield return entry;
+    }
 
     [ExcludeFromCodeCoverage]
     public static IEnumerable<T> AsDequeueingEnumerable<T>(this Queue<T> source)
-	{
-		while (source.Count != 0)
-			yield return source.Dequeue();
-	}
+    {
+        while (source.Count != 0)
+            yield return source.Dequeue();
+    }
 }

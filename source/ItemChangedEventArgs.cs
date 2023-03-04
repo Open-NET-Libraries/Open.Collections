@@ -7,23 +7,23 @@ namespace Open.Collections;
 
 public enum ItemChange
 {
-	None,
-	Added,
-	Removed,
-	Inserted,
-	Modified
+    None,
+    Added,
+    Removed,
+    Inserted,
+    Modified
 }
 
 public class ItemChangedEventArgs<T> : EventArgs
 {
-	public readonly ItemChange Change;
-	public readonly T Value;
+    public readonly ItemChange Change;
+    public readonly T Value;
     public readonly int Version;
 
     public ItemChangedEventArgs(ItemChange action, T value, int version)
-	{
-		Change = action;
-		Value = value;
+    {
+        Change = action;
+        Value = value;
         Version = version;
     }
 }

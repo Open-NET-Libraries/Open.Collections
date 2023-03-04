@@ -24,7 +24,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
             // With a dictionary, setting can be like adding.
             // Collection size might change.  Gotta be careful.
             using var upgradable = RWLock.UpgradableReadLock();
-            if(InternalSource.ContainsKey(key))
+            if (InternalSource.ContainsKey(key))
             {
                 InternalSource[key] = value;
                 return;

@@ -132,10 +132,10 @@ public class IndexedDictionary<TKey, TValue>
 
         // Partial index rebuild.
         int i = 0;
-        foreach(var kvp in _entries)
+        foreach (var kvp in _entries)
         {
             var k = kvp.Key;
-            if(key!.Equals(k))
+            if (key!.Equals(k))
             {
                 if (addToIndex) _indexes[k] = i;
                 return i;
@@ -216,7 +216,7 @@ public class IndexedDictionary<TKey, TValue>
             throw new Exception(OUTOFSYNC);
 
         if (previous?.Equals(value) ?? value is null)
-           return false;
+            return false;
 
         InternalSource[key] = value;
         _entries[index] = KeyValuePair.Create(key, value);

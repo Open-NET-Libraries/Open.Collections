@@ -67,7 +67,7 @@ public class OrderedDictionary<TKey, TValue>
             () => InternalSource.Count);
 
     protected override ICollection<TValue> GetValues()
-        =>  new ReadOnlyCollectionAdapter<TValue>(
+        => new ReadOnlyCollectionAdapter<TValue>(
             ThrowIfDisposed(InternalSource.Select(e => e.Value)),
             () => InternalSource.Count);
 
@@ -79,7 +79,7 @@ public class OrderedDictionary<TKey, TValue>
 #if NETSTANDARD2_0
     [SuppressMessage("Roslynator", "RCS1242:Do not pass non-read-only struct by read-only reference.", Justification = "KeyValuePairs are not truly readonly until NET Standard 2.1.")]
 #endif
-    protected virtual LinkedListNode<KeyValuePair<TKey,TValue>> AddNode(
+    protected virtual LinkedListNode<KeyValuePair<TKey, TValue>> AddNode(
         in KeyValuePair<TKey, TValue> kvp)
     {
         AssertIsAlive();
@@ -112,7 +112,7 @@ public class OrderedDictionary<TKey, TValue>
     /// <inheritdoc />
     public override bool TryGetValue(TKey key, out TValue value)
     {
-        if(Lookup.TryGetValue(key, out var node))
+        if (Lookup.TryGetValue(key, out var node))
         {
             value = node.Value.Value;
             return true;

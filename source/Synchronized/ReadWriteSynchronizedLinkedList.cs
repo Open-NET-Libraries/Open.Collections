@@ -80,35 +80,35 @@ public sealed class ReadWriteSynchronizedLinkedList<T>
     public void RemoveLast() => RWLock.Write(()
         => InternalSource.RemoveLast());
 
-	/// <inheritdoc />
-	public bool TryTakeFirst(out T item)
-	{
-		LinkedListNode<T>? node = null;
-		T result = default!;
+    /// <inheritdoc />
+    public bool TryTakeFirst(out T item)
+    {
+        LinkedListNode<T>? node = null;
+        T result = default!;
         bool success = RWLock.ReadWriteConditional(
-			_ => (node = InternalSource.First) is not null,
-			() =>
-			{
-				result = node!.Value;
+            _ => (node = InternalSource.First) is not null,
+            () =>
+            {
+                result = node!.Value;
                 InternalUnsafeSource!.RemoveFirst();
-			});
-		item = result;
-		return success;
-	}
+            });
+        item = result;
+        return success;
+    }
 
-	/// <inheritdoc />
-	public bool TryTakeLast(out T item)
-	{
-		LinkedListNode<T>? node = null;
-		T result = default!;
+    /// <inheritdoc />
+    public bool TryTakeLast(out T item)
+    {
+        LinkedListNode<T>? node = null;
+        T result = default!;
         bool success = RWLock.ReadWriteConditional(
-			_ => (node = InternalSource.Last) is not null,
-			() =>
-			{
-				result = node!.Value;
+            _ => (node = InternalSource.Last) is not null,
+            () =>
+            {
+                result = node!.Value;
                 InternalUnsafeSource!.RemoveLast();
-			});
-		item = result;
-		return success;
-	}
+            });
+        item = result;
+        return success;
+    }
 }

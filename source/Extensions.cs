@@ -717,9 +717,8 @@ retry:
         foreach (string? prop in props)
         {
             // use reflection (not ComponentModel) to mirror LINQ
-            System.Reflection.PropertyInfo? pi = type.GetProperty(prop);
-            if (pi is null)
-                throw new ArgumentException("'" + prop + "' does not exist as a property of " + type);
+            System.Reflection.PropertyInfo? pi
+                = type.GetProperty(prop) ?? throw new ArgumentException("'" + prop + "' does not exist as a property of " + type);
             expr = Expression.Property(expr, pi);
             type = pi.PropertyType;
         }

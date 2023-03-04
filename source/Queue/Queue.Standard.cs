@@ -5,34 +5,34 @@ namespace Open.Collections;
 
 public static partial class Queue
 {
-	public class Standard<T> : Queue<T>, IQueue<T>
-	{
+    public class Standard<T> : Queue<T>, IQueue<T>
+    {
         [ExcludeFromCodeCoverage]
         protected Standard()
-		{
-		}
+        {
+        }
 
         [ExcludeFromCodeCoverage]
         public Standard(IEnumerable<T> initial) : base(initial)
-		{
-		}
+        {
+        }
 
 #if NETSTANDARD2_0
-		/// <inheritdoc />
-		public virtual bool TryDequeue(out T item)
-		{
+        /// <inheritdoc />
+        public virtual bool TryDequeue(out T item)
+        {
             bool ok = Count != 0;
-			item = ok ? Dequeue() : default!;
-			return ok;
-		}
+            item = ok ? Dequeue() : default!;
+            return ok;
+        }
 
-		/// <inheritdoc />
-		public virtual bool TryPeek(out T item)
-		{
+        /// <inheritdoc />
+        public virtual bool TryPeek(out T item)
+        {
             bool ok = Count != 0;
-			item = ok ? Peek() : default!;
-			return ok;
-		}
+            item = ok ? Peek() : default!;
+            return ok;
+        }
 #else
         /* Allow for overriding. */
 
@@ -47,5 +47,5 @@ public static partial class Queue
             => base.TryPeek(out item);
 #endif
 
-	}
+    }
 }

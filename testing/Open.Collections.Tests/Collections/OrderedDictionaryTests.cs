@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
-using System.Linq;
 using Xunit;
 
-namespace Open.Collections.Tests.Collections;
+namespace Open.Collections.Tests;
 
 public class OrderedDictionaryTests : OrderedDictionaryTests<OrderedDictionary<int, int>>
 {

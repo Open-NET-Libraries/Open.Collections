@@ -18,10 +18,10 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public T this[int index]
-	{
-		get => InternalSource[index];
-		set => InternalSource[index] = value;
-	}
+    {
+        get => InternalSource[index];
+        set => InternalSource[index] = value;
+    }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]

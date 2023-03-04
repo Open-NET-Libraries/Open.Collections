@@ -7,7 +7,7 @@ namespace Open.Collections;
 
 public class DictionaryToHashSetWrapper<T> : ISet<T>
 {
-	protected readonly IDictionary<T, bool> InternalSource;
+    protected readonly IDictionary<T, bool> InternalSource;
 
     [ExcludeFromCodeCoverage]
     public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
@@ -16,30 +16,30 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public int Count
-		=> InternalSource.Count;
+        => InternalSource.Count;
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public bool IsReadOnly
-		=> InternalSource.IsReadOnly;
+        => InternalSource.IsReadOnly;
 
-	/// <inheritdoc />
-	public virtual bool Add(T item)
-	{
+    /// <inheritdoc />
+    public virtual bool Add(T item)
+    {
         var source = InternalSource;
-		if (source.ContainsKey(item))
-			return false;
+        if (source.ContainsKey(item))
+            return false;
 
-		try
-		{
+        try
+        {
             source.Add(item, true);
-		}
-		catch
-		{
-			return false;
-		}
-		return true;
-	}
+        }
+        catch
+        {
+            return false;
+        }
+        return true;
+    }
 
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
@@ -74,57 +74,57 @@ public class DictionaryToHashSetWrapper<T> : ISet<T>
 
     /// <inheritdoc />
     public void ExceptWith(IEnumerable<T> other)
-	{
-		foreach (T? e in other) Remove(e);
-	}
+    {
+        foreach (T? e in other) Remove(e);
+    }
 
-	/// <inheritdoc />
-	public void IntersectWith(IEnumerable<T> other)
-	{
-        var source = InternalSource;
-		foreach (T? e in other)
-		{
-			if (!source.ContainsKey(e))
-				Remove(e);
-		}
-	}
-
-	/// <inheritdoc />
-	public bool IsProperSubsetOf(IEnumerable<T> other) => ToHashSet().IsProperSubsetOf(other);
-
-	/// <inheritdoc />
-	public bool IsProperSupersetOf(IEnumerable<T> other) => ToHashSet().IsProperSupersetOf(other);
-
-	/// <inheritdoc />
-	public bool IsSubsetOf(IEnumerable<T> other) => ToHashSet().IsSubsetOf(other);
-
-	/// <inheritdoc />
-	public bool IsSupersetOf(IEnumerable<T> other) => ToHashSet().IsSupersetOf(other);
-
-	/// <inheritdoc />
-	public bool Overlaps(IEnumerable<T> other) => ToHashSet().Overlaps(other);
-
-	/// <inheritdoc />
-	public bool SetEquals(IEnumerable<T> other) => ToHashSet().SetEquals(other);
-
-	/// <inheritdoc />
-	public void SymmetricExceptWith(IEnumerable<T> other)
-	{
+    /// <inheritdoc />
+    public void IntersectWith(IEnumerable<T> other)
+    {
         var source = InternalSource;
         foreach (T? e in other)
-		{
-			if (source.ContainsKey(e))
-				Add(e);
-			else
-				Remove(e);
-		}
-	}
+        {
+            if (!source.ContainsKey(e))
+                Remove(e);
+        }
+    }
+
+    /// <inheritdoc />
+    public bool IsProperSubsetOf(IEnumerable<T> other) => ToHashSet().IsProperSubsetOf(other);
+
+    /// <inheritdoc />
+    public bool IsProperSupersetOf(IEnumerable<T> other) => ToHashSet().IsProperSupersetOf(other);
+
+    /// <inheritdoc />
+    public bool IsSubsetOf(IEnumerable<T> other) => ToHashSet().IsSubsetOf(other);
+
+    /// <inheritdoc />
+    public bool IsSupersetOf(IEnumerable<T> other) => ToHashSet().IsSupersetOf(other);
+
+    /// <inheritdoc />
+    public bool Overlaps(IEnumerable<T> other) => ToHashSet().Overlaps(other);
+
+    /// <inheritdoc />
+    public bool SetEquals(IEnumerable<T> other) => ToHashSet().SetEquals(other);
+
+    /// <inheritdoc />
+    public void SymmetricExceptWith(IEnumerable<T> other)
+    {
+        var source = InternalSource;
+        foreach (T? e in other)
+        {
+            if (source.ContainsKey(e))
+                Add(e);
+            else
+                Remove(e);
+        }
+    }
 
     /// <inheritdoc />
     public void UnionWith(IEnumerable<T> other)
-	{
-		foreach (T? e in other) Add(e);
-	}
+    {
+        foreach (T? e in other) Add(e);
+    }
 
     [ExcludeFromCodeCoverage]
     void ICollection<T>.Add(T item) => Add(item);

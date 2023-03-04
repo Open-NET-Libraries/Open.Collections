@@ -3,7 +3,7 @@ using Open.Collections.Synchronized;
 using System;
 using Xunit;
 
-namespace Open.Collections.Tests.Collections;
+namespace Open.Collections.Tests;
 public class TrackedListTests : BasicListTests<TrackedList<int>>
 {
     [Fact]

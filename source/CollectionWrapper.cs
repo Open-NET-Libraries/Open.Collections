@@ -7,12 +7,12 @@ namespace Open.Collections;
 [ExcludeFromCodeCoverage]
 public class CollectionWrapper<T, TCollection>
     : ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>, IAddMultiple<T>
-	where TCollection : class, ICollection<T>
+    where TCollection : class, ICollection<T>
 {
     public CollectionWrapper(TCollection source, bool owner = false)
         : base(source, owner)
-	{
-	}
+    {
+    }
 
     protected readonly object Sync = new(); // Could possibly override..
 
@@ -54,11 +54,11 @@ public class CollectionWrapper<T, TCollection>
     /// <param name="items">The items to add.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public virtual void AddRange(IEnumerable<T> items)
-	{
+    {
         AssertIsAlive();
         foreach (var i in items)
-			AddInternal(in i);
-	}
+            AddInternal(in i);
+    }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -72,6 +72,6 @@ public class CollectionWrapper<T, TCollection>
 
     /// <inheritdoc />
     public override bool IsReadOnly
-		=> InternalSource.IsReadOnly;
-	#endregion
+        => InternalSource.IsReadOnly;
+    #endregion
 }

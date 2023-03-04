@@ -20,7 +20,7 @@ public sealed class LockSynchronizedIndexedDictionary<TKey, TValue>
     /// <inheritdoc />
     public void Insert(int index, TKey key, TValue value)
     {
-        lock(Sync) InternalSource.Insert(index, key, value);
+        lock (Sync) InternalSource.Insert(index, key, value);
     }
 
     /// <inheritdoc />

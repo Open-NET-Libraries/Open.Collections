@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Open.Collections.Tests.Collections;
+namespace Open.Collections.Tests;
 public abstract class OrderedDictionaryTests<TDictionary> : BasicDictionaryTests<TDictionary>
     where TDictionary : IDictionary<int, int>, new()
 {
@@ -17,7 +17,7 @@ public abstract class OrderedDictionaryTests<TDictionary> : BasicDictionaryTests
     public virtual void EnsureOrdered()
     {
         const int count = 1000000;
-        for(int i = count; i>0; i--)
+        for (int i = count; i > 0; i--)
         {
             Dictionary.Add(i, i);
         }

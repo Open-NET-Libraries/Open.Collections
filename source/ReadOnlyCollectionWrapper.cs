@@ -3,14 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
 public class ReadOnlyCollectionWrapper<T, TCollection>
     : DisposableBase, IReadOnlyCollection<T>
-	where TCollection : class, ICollection<T>
+    where TCollection : class, ICollection<T>
 {
     protected TCollection? InternalUnsafeSource;
     protected readonly bool SourceOwned;
@@ -61,7 +60,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     /// <inheritdoc />
     [ExcludeFromCodeCoverage]
     public virtual int Count
-		=> InternalSource.Count;
+        => InternalSource.Count;
 
     /// <inheritdoc cref="ICollection{T}.IsReadOnly" />
     [ExcludeFromCodeCoverage]
@@ -111,13 +110,13 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
     /// <returns>The extracted underlying collection.</returns>
     /// <exception cref="NotSupportedException">If the underlying collection is owned by this wrapper.</exception>
     public TCollection ExtractAndDispose()
-	{
+    {
         AssertIsAlive();
         if (SourceOwned) throw new NotSupportedException("The underlying collection is owned by this wrapper.");
-		using (this)
-		{
-			return Nullify(ref InternalUnsafeSource!);
-		}
-	}
-	#endregion
+        using (this)
+        {
+            return Nullify(ref InternalUnsafeSource!);
+        }
+    }
+    #endregion
 }
