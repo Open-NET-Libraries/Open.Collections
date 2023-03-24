@@ -30,22 +30,18 @@ public class StringJoinPool
     /// <inheritdoc cref="StringJoinPool(ITrie{string, string}, ReadOnlyMemory{char})"/>
     public StringJoinPool(ITrie<string, string> pool, string? separator = null)
         : this(pool, separator is null ? ReadOnlyMemory<char>.Empty : separator.AsMemory())
-    {
-
-    }
+    { }
 
     /// <inheritdoc cref="StringJoinPool(ITrie{string, string}, ReadOnlyMemory{char})"/>
     /// <remarks>Uses <see cref="ConcurrentTrie{TKey, TValue}"/> as the default underlying pool.</remarks>
     public StringJoinPool(string? separator = null)
         :this(new ConcurrentTrie<string, string>(), separator)
-    {
-    }
+    { }
 
     /// <inheritdoc cref="StringJoinPool(string?)"/>
     public StringJoinPool(ReadOnlyMemory<char> separator)
         : this(new ConcurrentTrie<string, string>(), separator)
-    {
-    }
+    { }
 
     public string Get(ReadOnlySpan<string> segments)
     {

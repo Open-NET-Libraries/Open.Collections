@@ -53,7 +53,6 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
     TrieBase<TKey, TValue>.NodeBase ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
         => EnsureNode(key);
 
-
     /// <inheritdoc />
     public bool Add(ReadOnlySpan<TKey> key, in TValue value)
     {
@@ -220,7 +219,6 @@ NotFound:
         _root = _rootFactory();
     }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     internal abstract class NodeBase
     {
         protected abstract IDictionary<TKey, NodeBase>? Children { get; }
@@ -271,5 +269,4 @@ NotFound:
             return children.TryGetValue(key, out child);
         }
     }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

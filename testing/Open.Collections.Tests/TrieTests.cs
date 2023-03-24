@@ -7,6 +7,7 @@ public static class TrieTests
 {
     static readonly string[] Examples = new[]
     {
+        "",
         "abcd",
         "dcba",
         "abcdef",
@@ -52,8 +53,13 @@ public static class TrieTests
                 trie.ContainsKey(e).Should().BeTrue();
                 trie.TryGetValue(e, out string v).Should().BeTrue();
                 trie.Get(e).Should().Be(v);
+                trie.GetOrAdd(e, e).Should().Be(v);
             }
         }
+
+        // Test negative case.
+        trie.Get("x").Should().Be("x");
+        trie.GetOrAdd("y", "y").Should().Be("y");
 
         trie.Clear();
     }
@@ -62,12 +68,12 @@ public static class TrieTests
     [InlineData("")]
     [InlineData(",")]
     [InlineData("||")]
-    public static void StrinJoinPoolTest(string sep)
+    public static void StringJoinPoolTest(string sep)
     {
         var pool = new StringJoinPool(sep);
         string ex = pool.Get(Examples);
         ex.Should().Be(string.Join(sep, ex));
         string ex2 = pool.Get(Examples);
-        object.ReferenceEquals(ex, ex2).Should().BeTrue();
+        ReferenceEquals(ex, ex2).Should().BeTrue();
     }
 }

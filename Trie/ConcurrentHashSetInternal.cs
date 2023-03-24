@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
+
+[ExcludeFromCodeCoverage]
 internal sealed class ConcurrentHashSetInternal<TKey>
     : ConcurrentDictionary<TKey, bool>, ISet<TKey>
 {

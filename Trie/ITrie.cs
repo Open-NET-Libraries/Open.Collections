@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
@@ -80,16 +81,19 @@ public static class TrieExtensions
 {
     /// <inheritdoc cref="ITrie{TKey, TValue}.Add(ReadOnlySpan{TKey}, in TValue)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [ExcludeFromCodeCoverage]
     public static bool Add<T>(this ITrie<char, T> target, string key, T value)
         => target.Add(key.AsSpan(), value);
 
     /// <inheritdoc cref="ITrie{TKey, TValue}.TryGetValue(ReadOnlySpan{TKey}, out TValue)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [ExcludeFromCodeCoverage]
     public static bool TryGetValue<T>(this ITrie<char, T> target, string key, out T value)
         => target.TryGetValue(key.AsSpan(), out value);
 
     /// <inheritdoc cref="ITrie{TKey, TValue}.ContainsKey(ReadOnlySpan{TKey})"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [ExcludeFromCodeCoverage]
     public static bool ContainsKey<T>(this ITrie<char, T> target, string key)
         => target.ContainsKey(key.AsSpan());
 
