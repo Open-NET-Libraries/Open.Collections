@@ -1,4 +1,5 @@
-﻿using Open.Collections.Synchronized;
+﻿using BenchmarkDotNet.Running;
+using Open.Collections.Synchronized;
 using Open.Diagnostics;
 using System;
 using System.Collections.Concurrent;
@@ -20,9 +21,11 @@ internal static class Program
         //TestEntry.Test2();
         //QueueTests();
         //ListTests();
-        DictionaryTests();
+        //DictionaryTests();
 
-        Console.Beep();
+        BenchmarkRunner.Run<TrieBenchmark>();
+
+        //Console.Beep();
     }
 
     static void OutputList(int[][] list)

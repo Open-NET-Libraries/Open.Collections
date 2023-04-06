@@ -43,6 +43,9 @@ public class StringJoinPool
         : this(new ConcurrentTrie<string, string>(), separator)
     { }
 
+    /// <summary>
+    /// Gets the string from the pool at the specified path.
+    /// </summary>
     public string Get(ReadOnlySpan<string> segments)
     {
         if (segments.IsEmpty)

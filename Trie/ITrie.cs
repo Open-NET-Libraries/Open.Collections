@@ -11,7 +11,7 @@ public interface ITrie<TKey, TValue>
 {
     // NOTE: Path suffixed methods are provided to avoid ambiguity.
 
-    internal TrieBase<TKey, TValue>.NodeBase EnsureNodes(ReadOnlySpan<TKey> key);
+    internal ITrieNode<TKey, TValue> EnsureNodes(ReadOnlySpan<TKey> key);
 
     /// <summary>
     /// Adds an entry to the Trie.

@@ -1,29 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 /// <summary>
 /// A generic Trie collection.
 /// </summary>
-public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
+public abstract class TrieBase<TKey, TValue>
+    : ITrie<TKey, TValue>, ITrieNode<TKey, TValue>
 {
     /// <summary>
     /// Initializes this.
     /// </summary>
-    internal TrieBase(Func<NodeBase> rootFactory, ISet<int> lookup)
+    internal TrieBase(Func<ITrieNode<TKey, TValue>> rootFactory)
     {
         _root = rootFactory();
         _rootFactory = rootFactory;
-        _lookup = lookup;
     }
 
     // NOTE: Path suffixed methods are provided to avoid ambiguity.
 
-    private NodeBase _root;
-    private readonly Func<TrieBase<TKey, TValue>.NodeBase> _rootFactory;
-    private readonly ISet<int> _lookup;
+    private ITrieNode<TKey, TValue> _root;
+    private readonly Func<ITrieNode<TKey, TValue>> _rootFactory;
 
-    internal NodeBase EnsureNode(ReadOnlySpan<TKey> key)
+    internal ITrieNode<TKey, TValue> EnsureNode(ReadOnlySpan<TKey> key)
     {
         int length = key.Length;
         var node = _root;
@@ -34,52 +34,32 @@ public abstract class TrieBase<TKey, TValue> : ITrie<TKey, TValue>
         return node;
     }
 
-    internal NodeBase EnsureNode(IEnumerable<TKey> key, out int length)
+    internal ITrieNode<TKey, TValue> EnsureNode(IEnumerable<TKey> key)
     {
         if (key is null) throw new ArgumentNullException(nameof(key));
 
-        length = 0;
         var node = _root;
-
         foreach (var k in key)
-        {
             node = node.GetOrAddChild(k);
-            length++;
-        }
 
         return node;
     }
 
-    TrieBase<TKey, TValue>.NodeBase ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
+    ITrieNode<TKey, TValue> ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
         => EnsureNode(key);
 
     /// <inheritdoc />
     public bool Add(ReadOnlySpan<TKey> key, in TValue value)
-    {
-        if (!EnsureNode(key).TrySetValue(in value))
-            return false;
-
-        _lookup.Add(key.Length);
-        return true;
-    }
+        => EnsureNode(key).TrySetValue(in value);
 
     /// <inheritdoc />
     public bool AddPath(IEnumerable<TKey> key, in TValue value)
-    {
-        if (!EnsureNode(key, out int length).TrySetValue(in value))
-            return false;
-
-        _lookup.Add(length);
-        return true;
-    }
+        => EnsureNode(key).TrySetValue(in value);
 
     /// <inheritdoc />
     public bool TryGetValue(ReadOnlySpan<TKey> key, out TValue value)
     {
         int length = key.Length;
-        if (!_lookup.Contains(length))
-            goto NotFound;
-
         var node = _root;
 
         for (int i = 0; i < length; i++)
@@ -118,24 +98,14 @@ NotFound:
     }
 
     /// <inheritdoc />
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryGetValueFromPath(ICollection<TKey> key, out TValue value)
-    {
-        if (key is null || !_lookup.Contains(key.Count))
-        {
-            value = default!;
-            return false;
-        }
-
-        return TryGetValueFromPath((IEnumerable<TKey>)key!, out value);
-    }
+        => TryGetValueFromPath((IEnumerable<TKey>)key, out value);
 
     /// <inheritdoc />
     public bool ContainsKey(ReadOnlySpan<TKey> key)
     {
         int length = key.Length;
-        if (!_lookup.Contains(length))
-            return false;
-
         var node = _root;
 
         for (int i = 0; i < length; i++)
@@ -164,8 +134,7 @@ NotFound:
 
     /// <inheritdoc />
     public bool ContainsKeyFromPath(ICollection<TKey> key)
-        => key is not null && _lookup.Contains(key.Count)
-        && ContainsKeyFromPath((IEnumerable<TKey>)key);
+        => key is not null && ContainsKeyFromPath((IEnumerable<TKey>)key);
 
     /// <inheritdoc />
     public TValue GetOrAdd(ReadOnlySpan<TKey> key, in TValue value)
@@ -184,12 +153,12 @@ NotFound:
 
     /// <inheritdoc />
     public TValue GetOrAddFromPath(IEnumerable<TKey> key, in TValue value)
-        => EnsureNode(key, out _).GetOrAdd(in value);
+        => EnsureNode(key).GetOrAdd(in value);
 
     /// <inheritdoc />
     public TValue GetOrAddFromPath(IEnumerable<TKey> key, Func<TValue> factory)
     {
-        var node = EnsureNode(key, out _);
+        var node = EnsureNode(key);
         if (node.TryGetValue(out var v))
             return v;
 
@@ -199,12 +168,12 @@ NotFound:
 
     /// <inheritdoc />
     public TValue GetOrAddFromPath(ICollection<TKey> key, in TValue value)
-        => EnsureNode(key, out _).GetOrAdd(in value);
+        => EnsureNode(key).GetOrAdd(in value);
 
     /// <inheritdoc />
     public TValue GetOrAddFromPath(ICollection<TKey> key, Func<TValue> factory)
     {
-        var node = EnsureNode(key, out _);
+        var node = EnsureNode(key);
         if (node.TryGetValue(out var v))
             return v;
 
@@ -214,14 +183,41 @@ NotFound:
 
     /// <inheritdoc />
     public void Clear()
-    {
-        _lookup.Clear();
-        _root = _rootFactory();
-    }
+        => _root = _rootFactory();
 
-    internal abstract class NodeBase
+    /// <inheritdoc />
+    public bool IsSet => _root.IsSet;
+
+    /// <inheritdoc />
+    public TValue? Value => _root.Value;
+
+    /// <inheritdoc />
+    public ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
+        => _root.GetOrAddChild(key);
+
+    /// <inheritdoc />
+    bool ITrieNode<TKey, TValue>.TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
+        => _root.TryGetChild(key, out child);
+
+    /// <inheritdoc />
+    public ITrieNode<TKey, TValue> GetChild(TKey key)
+        => _root.GetChild(key);
+
+    /// <inheritdoc />
+    public bool TryGetValue(out TValue value)
+        => _root.TryGetValue(out value);
+
+    /// <inheritdoc />
+    public bool TrySetValue(in TValue value)
+        => _root.TrySetValue(value);
+
+    /// <inheritdoc />
+    public TValue GetOrAdd(in TValue value)
+        => _root.GetOrAdd(value);
+
+    internal abstract class NodeBase : ITrieNode<TKey, TValue>
     {
-        protected abstract IDictionary<TKey, NodeBase>? Children { get; }
+        protected IDictionary<TKey, ITrieNode<TKey, TValue>>? Children;
 
         private (bool isSet, TValue? value) _value;
 
@@ -255,18 +251,25 @@ NotFound:
             return true;
         }
 
-        public abstract NodeBase GetOrAddChild(TKey key);
+        public abstract ITrieNode<TKey, TValue> GetOrAddChild(TKey key);
 
-        public bool TryGetChild(TKey key, out NodeBase child)
+        public bool TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
         {
-            var children = Children;
-            if (children is null)
+            if(Children is null)
             {
                 child = default!;
                 return false;
             }
 
-            return children.TryGetValue(key, out child);
+            return Children!.TryGetValue(key, out child);
         }
+
+        public ITrieNode<TKey, TValue> GetChild(TKey key)
+        {
+            var children = Children ?? throw new KeyNotFoundException();
+            return children[key];
+        }
+
+        public TValue? Value => _value.value;
     }
 }
