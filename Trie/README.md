@@ -8,7 +8,7 @@ The name "Trie" comes from the word re**trie**val, which refers to the process o
 
 ## Implementation
 
-`Trie<TKey, TValue` and `ConcurrentTrie<TKey, TValue>` are simple implementations that when possible use a length optimization when initially the looking up the value. These implementations do not support deletion or modification.
+`Trie<TKey, TValue` and `ConcurrentTrie<TKey, TValue>` are simple implementations. These implementations do not support deletion or modification.
 
 ## Structure
 
