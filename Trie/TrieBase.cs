@@ -221,6 +221,10 @@ NotFound:
 
         private (bool isSet, TValue? value) _value;
 
+        // It's not uncommon to have a 'hot path' that will be requested frequently.
+        // This facilitates that by caching the last child that was requested.
+        private (bool exists, TKey key, ITrieNode<TKey, TValue> child) _recentChild;
+
         public bool IsSet => _value.isSet;
 
         internal TValue GetValueOrThrow()
@@ -261,7 +265,16 @@ NotFound:
                 return false;
             }
 
-            return Children!.TryGetValue(key, out child);
+            var recent = _recentChild;
+            if(recent.exists && recent.key!.Equals(key))
+            {
+                child = recent.child;
+                return true;
+            }
+
+            bool found = Children!.TryGetValue(key, out child);
+            _recentChild = (true, key, child);
+            return found;
         }
 
         public ITrieNode<TKey, TValue> GetChild(TKey key)

@@ -28,7 +28,7 @@ public class TrieBenchmark
 
     private Trie<string, int> trie;
     private Dictionary<string, int> dictionary;
-    private List<(string[], string)> keys;
+    private (string[], string)[] keys;
 
     [GlobalSetup]
     public void GlobalSetup()
@@ -38,20 +38,19 @@ public class TrieBenchmark
         dictionary = new();
         ctrie = new();
         cdictionary = new();
-        keys = new();
+        keys = GenerateTree(Depth, NodeSize)
+            .Select(key=>
+            {
+                x++;
+                trie.Add(key, x);
+                ctrie.Add(key, x);
 
-        foreach (string[] key in GenerateTree(Depth, NodeSize))
-        {
-            x++;
-            trie.Add(key, x);
-            ctrie.Add(key, x);
+                string keyString = string.Join('/', key);
+                dictionary.Add(keyString, x);
+                cdictionary.TryAdd(keyString, x);
 
-            string keyString = string.Join('/', key);
-            dictionary.Add(keyString, x);
-            cdictionary.TryAdd(keyString, x);
-
-            keys.Add((key, keyString));
-        }
+                return (key, keyString);
+            }).ToArray();
     }
 
     public static IEnumerable<string[]> GenerateTree(int depth, int nodeCount, Stack<string> stack = null)
@@ -79,7 +78,7 @@ public class TrieBenchmark
     public int TrieLookup()
     {
         int result = 0;
-        foreach(var key in keys)
+        foreach(var key in keys.AsSpan())
         {
             trie.TryGetValue(key.Item1, out result);
         }
@@ -90,7 +89,7 @@ public class TrieBenchmark
     public int TrieWalkLookup()
     {
         int result = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.AsSpan())
         {
             string[] k = key.Item1;
             result = trie.GetChild(k[0]).GetChild(k[1]).GetChild(k[2]).GetChild(k[3]).Value;
@@ -102,7 +101,7 @@ public class TrieBenchmark
     public int TrieLookupWithToArray()
     {
         int result = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.AsSpan())
         {
             trie.TryGetValue(key.Item1.ToArray(), out result);
         }
@@ -113,7 +112,7 @@ public class TrieBenchmark
     public int DictionaryLookup()
     {
         int result = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.AsSpan())
         {
             result = dictionary[key.Item2];
 
@@ -125,7 +124,7 @@ public class TrieBenchmark
     public int DictionaryLookupKeyConcat()
     {
         int result = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.AsSpan())
         {
             string[] k = key.Item1;
             result = dictionary[$"{k[0]}/{k[1]}/{k[2]}/{k[3]}"];
@@ -137,7 +136,7 @@ public class TrieBenchmark
     public int DictionaryLookupWithJoin()
     {
         int result = 0;
-        foreach (var key in keys)
+        foreach (var key in keys.AsSpan())
         {
             result = dictionary[string.Join("/", key.Item1)];
         }
