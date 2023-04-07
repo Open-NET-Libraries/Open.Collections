@@ -29,6 +29,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="HybridDictionary.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Include="..\source\logo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
