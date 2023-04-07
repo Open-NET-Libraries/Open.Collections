@@ -115,7 +115,6 @@ public class TrieBenchmark
         foreach (var key in keys.AsSpan())
         {
             result = dictionary[key.Item2];
-
         }
         return result;
     }
@@ -142,7 +141,6 @@ public class TrieBenchmark
         }
         return result;
     }
-
 
     //[Benchmark]
     //public void CTrieLookup()
