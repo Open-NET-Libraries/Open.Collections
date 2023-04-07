@@ -9,12 +9,12 @@ namespace Open.Collections.Benchmarks;
 /*
 |                    Method |     Mean |     Error |    StdDev |     Gen 0 |   Allocated |
 |-------------------------- |---------:|----------:|----------:|----------:|------------:|
-|                TrieLookup | 2.161 ms | 0.0424 ms | 0.0471 ms |         - |           - |
-|            TrieWalkLookup | 1.925 ms | 0.0062 ms | 0.0058 ms |         - |           - |
-|     TrieLookupWithToArray | 2.522 ms | 0.0165 ms | 0.0138 ms |  265.6250 |   560,002 B |
-|          DictionaryLookup | 1.064 ms | 0.0065 ms | 0.0057 ms |         - |           - |
-| DictionaryLookupKeyConcat | 1.977 ms | 0.0063 ms | 0.0056 ms | 1527.3438 | 3,200,002 B |
-|  DictionaryLookupWithJoin | 1.870 ms | 0.0045 ms | 0.0042 ms | 1529.2969 | 3,200,001 B |
+|                TrieLookup | 1.672 ms | 0.0317 ms | 0.0325 ms |         - |           - |
+|            TrieWalkLookup | 1.866 ms | 0.0366 ms | 0.0697 ms |         - |           - |
+|     TrieLookupWithToArray | 2.243 ms | 0.0340 ms | 0.0391 ms |  265.6250 |   560,002 B |
+|          DictionaryLookup | 1.330 ms | 0.0140 ms | 0.0124 ms |         - |           - |
+| DictionaryLookupKeyConcat | 2.033 ms | 0.0244 ms | 0.0228 ms | 1527.3438 | 3,200,004 B |
+|  DictionaryLookupWithJoin | 2.007 ms | 0.0052 ms | 0.0046 ms | 1527.3438 | 3,200,002 B |
 */
 
 [MemoryDiagnoser]

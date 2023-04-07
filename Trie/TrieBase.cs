@@ -273,7 +273,7 @@ NotFound:
             }
 
             bool found = Children!.TryGetValue(key, out child);
-            _recentChild = (true, key, child);
+            if(found) _recentChild = (true, key, child);
             return found;
         }
 
