@@ -5,40 +5,40 @@ namespace Open.Collections.Synchronized;
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 {
-    /// <summary>
-    /// The underlying object used for synchronization.  This is exposed to allow for more complex synchronization operations.
-    /// </summary>
-    public object SyncRoot { get; } = new();
+	/// <summary>
+	/// The underlying object used for synchronization.  This is exposed to allow for more complex synchronization operations.
+	/// </summary>
+	public object SyncRoot { get; } = new();
 
-    /// <inheritdoc />
-    public new void Enqueue(T item)
-    {
-        lock (SyncRoot) base.Enqueue(item);
-    }
+	/// <inheritdoc />
+	public new void Enqueue(T item)
+	{
+		lock (SyncRoot) base.Enqueue(item);
+	}
 
-    /// <inheritdoc />
-    public override bool TryDequeue(out T item)
-    {
-        if (Count == 0)
-        {
-            item = default!;
-            return false;
-        }
+	/// <inheritdoc />
+	public override bool TryDequeue(out T item)
+	{
+		if (Count == 0)
+		{
+			item = default!;
+			return false;
+		}
 
-        lock (SyncRoot)
-            return base.TryDequeue(out item);
-    }
+		lock (SyncRoot)
+			return base.TryDequeue(out item);
+	}
 
-    /// <inheritdoc />
-    public override bool TryPeek(out T item)
-    {
-        if (Count == 0)
-        {
-            item = default!;
-            return false;
-        }
+	/// <inheritdoc />
+	public override bool TryPeek(out T item)
+	{
+		if (Count == 0)
+		{
+			item = default!;
+			return false;
+		}
 
-        lock (SyncRoot)
-            return base.TryPeek(out item);
-    }
+		lock (SyncRoot)
+			return base.TryPeek(out item);
+	}
 }

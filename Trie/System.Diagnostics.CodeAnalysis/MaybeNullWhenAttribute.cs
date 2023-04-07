@@ -9,15 +9,15 @@ namespace System.Diagnostics.CodeAnalysis;
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
 internal sealed class MaybeNullWhenAttribute : Attribute
 {
-    /// <summary>
-    /// Constructs a <see cref="MaybeNullWhenAttribute"/>.
-    /// </summary>
-    public MaybeNullWhenAttribute(bool returnValue)
-        => ReturnValue = returnValue;
+	/// <summary>
+	/// Constructs a <see cref="MaybeNullWhenAttribute"/>.
+	/// </summary>
+	public MaybeNullWhenAttribute(bool returnValue)
+		=> ReturnValue = returnValue;
 
-    /// <summary>
-    /// The return value condition.
-    /// </summary>
-    public bool ReturnValue { get; }
+	/// <summary>
+	/// The return value condition.
+	/// </summary>
+	public bool ReturnValue { get; }
 }
 #endif
