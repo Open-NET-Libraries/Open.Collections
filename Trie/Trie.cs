@@ -6,6 +6,7 @@ namespace Open.Collections;
 /// </summary>
 public sealed class Trie<TKey, TValue>
     : TrieBase<TKey, TValue>
+    where TKey : notnull
 {
     /// <summary>
     /// Constructs a <see cref="Trie{TKey, TValue}"/>.
@@ -23,7 +24,7 @@ public sealed class Trie<TKey, TValue>
             var children = _children;
             if (children is null)
                 Children = _children = children = new();
-            else if(children.TryGetValue(key, out var c))
+            else if(TryGetChildFrom(children, key, out var c))
                 return c;
 
             var child = new Node();

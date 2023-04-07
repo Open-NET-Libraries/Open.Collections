@@ -9,7 +9,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections.Benchmarking", "benchmarking\Open.Collections.Benchmarking.csproj", "{A3EA31B7-6E9B-4780-808A-BBDF116521EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Open.Collections.Trie", "Trie\Open.Collections.Trie.csproj", "{A93C5840-7258-48C6-A223-AADCC29B838B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Open.Collections.Trie", "Trie\Open.Collections.Trie.csproj", "{A93C5840-7258-48C6-A223-AADCC29B838B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EDF93B9B-F566-4ED3-8E50-3BCF1DA520FD}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

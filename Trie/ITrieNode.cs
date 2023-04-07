@@ -1,9 +1,12 @@
-﻿namespace Open.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Open.Collections;
 
 /// <summary>
 /// A node within a <see cref="ITrie{TKey, TValue}"/>.
 /// </summary>
 public interface ITrieNode<TKey, TValue>
+    where TKey : notnull
 {
     /// <summary>
     /// <see langword="true"/> if the value is set; otherwise <see langword="false"/>.
@@ -18,7 +21,7 @@ public interface ITrieNode<TKey, TValue>
     /// <summary>
     /// Tries to get the child node for the specified key.
     /// </summary>
-    bool TryGetChild(TKey key, out ITrieNode<TKey, TValue> child);
+    bool TryGetChild(TKey key, [MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child);
 
     /// <summary>
     /// Gets the child node for the specified key or throws if not found
@@ -28,7 +31,7 @@ public interface ITrieNode<TKey, TValue>
     /// <summary>
     /// Tries to get the value if it is set.
     /// </summary>
-    bool TryGetValue(out TValue value);
+    bool TryGetValue([MaybeNullWhen(false)] out TValue value);
 
     /// <summary>
     /// Tries to set the value if it is not already set.

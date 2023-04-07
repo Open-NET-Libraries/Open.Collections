@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
@@ -8,6 +9,7 @@ namespace Open.Collections;
 /// </summary>
 public abstract class TrieBase<TKey, TValue>
     : ITrie<TKey, TValue>, ITrieNode<TKey, TValue>
+    where TKey : notnull
 {
     /// <summary>
     /// Initializes this.
@@ -57,7 +59,7 @@ public abstract class TrieBase<TKey, TValue>
         => EnsureNode(key).TrySetValue(in value);
 
     /// <inheritdoc />
-    public bool TryGetValue(ReadOnlySpan<TKey> key, out TValue value)
+    public bool TryGetValue(ReadOnlySpan<TKey> key, [MaybeNullWhen(false)] out TValue value)
     {
         int length = key.Length;
         var node = _root;
@@ -77,7 +79,7 @@ NotFound:
     }
 
     /// <inheritdoc />
-    public bool TryGetValueFromPath(IEnumerable<TKey> key, out TValue value)
+    public bool TryGetValueFromPath(IEnumerable<TKey> key, [MaybeNullWhen(false)] out TValue value)
     {
         if (key is null)
             goto NotFound;
@@ -99,7 +101,7 @@ NotFound:
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetValueFromPath(ICollection<TKey> key, out TValue value)
+    public bool TryGetValueFromPath(ICollection<TKey> key, [MaybeNullWhen(false)] out TValue value)
         => TryGetValueFromPath((IEnumerable<TKey>)key, out value);
 
     /// <inheritdoc />
@@ -196,7 +198,7 @@ NotFound:
         => _root.GetOrAddChild(key);
 
     /// <inheritdoc />
-    bool ITrieNode<TKey, TValue>.TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
+    bool ITrieNode<TKey, TValue>.TryGetChild(TKey key, [MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
         => _root.TryGetChild(key, out child);
 
     /// <inheritdoc />
@@ -204,7 +206,7 @@ NotFound:
         => _root.GetChild(key);
 
     /// <inheritdoc />
-    public bool TryGetValue(out TValue value)
+    public bool TryGetValue([MaybeNullWhen(false)] out TValue value)
         => _root.TryGetValue(out value);
 
     /// <inheritdoc />
@@ -219,24 +221,58 @@ NotFound:
     {
         protected IDictionary<TKey, ITrieNode<TKey, TValue>>? Children;
 
-        private (bool isSet, TValue? value) _value;
+        private readonly struct ValueContainer
+        {
+            public ValueContainer(bool isSet, TValue value)
+            {
+                IsSet = isSet;
+                Value = value;
+            }
+
+            public ValueContainer(TValue value)
+                : this(true, value) { }
+
+            public bool IsSet { get; }
+            public TValue Value { get; }
+        }
+
+        private ValueContainer _value;
+
+        private readonly struct Recent
+        {
+            public Recent(bool exists, TKey key, ITrieNode<TKey, TValue> child)
+            {
+                Exists = exists;
+                Key = key;
+                Child = child;
+            }
+            public bool Exists { get; }
+            public TKey Key { get; }
+            public ITrieNode<TKey, TValue> Child { get; }
+        }
 
         // It's not uncommon to have a 'hot path' that will be requested frequently.
         // This facilitates that by caching the last child that was requested.
-        private (bool exists, TKey key, ITrieNode<TKey, TValue> child) _recentChild;
+        private Recent _recentChild;
 
-        public bool IsSet => _value.isSet;
+        public bool IsSet => _value.IsSet;
 
         internal TValue GetValueOrThrow()
             => TryGetValue(out var value)
                 ? value
                 : throw new Exception("Unexpected concurrency condition. Value was set, but then not available.");
 
-        public bool TryGetValue(out TValue value)
+        public bool TryGetValue([MaybeNullWhen(false)] out TValue value)
         {
-            var (isSet, v) = _value;
-            value = isSet ? v! : default!;
-            return isSet;
+            var v = _value;
+            if(v.IsSet)
+            {
+                value = v.Value;
+                return true;
+            }
+
+            value = default!;
+            return false;
         }
 
         public TValue GetOrAdd(in TValue value)
@@ -246,18 +282,40 @@ NotFound:
                 ? value
                 : GetValueOrThrow();
 
-        // Optimistic concurrency wins here. No locking.
         public bool TrySetValue(in TValue value)
         {
-            var (isSet, _) = _value;
-            if (isSet) return false;
-            _value = (true, value);
+            var v = _value;
+            if (v.IsSet) return false;
+            SetValue(value);
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void SetValue(TValue value)
+            => _value = new(value);
+
         public abstract ITrieNode<TKey, TValue> GetOrAddChild(TKey key);
 
-        public bool TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
+        protected bool TryGetChildFrom(
+            IDictionary<TKey, ITrieNode<TKey, TValue>> children,
+            TKey key,
+            [MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
+        {
+            var recent = _recentChild;
+            if (recent.Exists && recent.Key!.Equals(key))
+            {
+                child = recent.Child;
+                return true;
+            }
+
+            bool found = children.TryGetValue(key, out child!);
+            if (found) UpdateRecent(key, child!);
+            return found;
+        }
+
+        public bool TryGetChild(
+            TKey key,
+            [MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
         {
             if(Children is null)
             {
@@ -265,24 +323,19 @@ NotFound:
                 return false;
             }
 
-            var recent = _recentChild;
-            if(recent.exists && recent.key!.Equals(key))
-            {
-                child = recent.child;
-                return true;
-            }
-
-            bool found = Children!.TryGetValue(key, out child);
-            if(found) _recentChild = (true, key, child);
-            return found;
+            return TryGetChildFrom(Children, key, out child);
         }
 
-        public ITrieNode<TKey, TValue> GetChild(TKey key)
-        {
-            var children = Children ?? throw new KeyNotFoundException();
-            return children[key];
-        }
+        // Facilitate subclasses synchronizing writes to avoid torn reads.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected virtual void UpdateRecent(TKey key, ITrieNode<TKey, TValue> child)
+            => _recentChild = new(true, key, child);
 
-        public TValue? Value => _value.value;
+		public ITrieNode<TKey, TValue> GetChild(TKey key)
+            => TryGetChild(key, out var child)
+            ? child
+            : throw new KeyNotFoundException();
+
+		public TValue? Value => _value.Value;
     }
 }

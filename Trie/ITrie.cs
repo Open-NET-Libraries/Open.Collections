@@ -8,6 +8,7 @@ namespace Open.Collections;
 /// Interface for implementing a Trie.
 /// </summary>
 public interface ITrie<TKey, TValue>
+    where TKey : notnull
 {
     // NOTE: Path suffixed methods are provided to avoid ambiguity.
 
@@ -65,13 +66,13 @@ public interface ITrie<TKey, TValue>
     /// Tries to get a value using the key and sets the <paramref name="value"/> with it if found.
     /// </summary>
     /// <returns><see langword="true"/> if found; otherwise <see langword="false"/>.</returns>
-    bool TryGetValue(ReadOnlySpan<TKey> key, out TValue value);
+    bool TryGetValue(ReadOnlySpan<TKey> key, [MaybeNullWhen(false)] out TValue value);
 
     /// <inheritdoc cref="TryGetValue(ReadOnlySpan{TKey}, out TValue)"/>
-    bool TryGetValueFromPath(ICollection<TKey> key, out TValue value);
+    bool TryGetValueFromPath(ICollection<TKey> key, [MaybeNullWhen(false)] out TValue value);
 
     /// <inheritdoc cref="TryGetValue(ReadOnlySpan{TKey}, out TValue)"/>
-    bool TryGetValueFromPath(IEnumerable<TKey> key, out TValue value);
+    bool TryGetValueFromPath(IEnumerable<TKey> key, [MaybeNullWhen(false)] out TValue value);
 }
 
 /// <summary>
@@ -88,7 +89,7 @@ public static class TrieExtensions
     /// <inheritdoc cref="ITrie{TKey, TValue}.TryGetValue(ReadOnlySpan{TKey}, out TValue)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [ExcludeFromCodeCoverage]
-    public static bool TryGetValue<T>(this ITrie<char, T> target, string key, out T value)
+    public static bool TryGetValue<T>(this ITrie<char, T> target, string key, [MaybeNullWhen(false)] out T value)
         => target.TryGetValue(key.AsSpan(), out value);
 
     /// <inheritdoc cref="ITrie{TKey, TValue}.ContainsKey(ReadOnlySpan{TKey})"/>
