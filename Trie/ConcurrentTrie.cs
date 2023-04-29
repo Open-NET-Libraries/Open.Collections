@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace Open.Collections;
 
@@ -12,12 +13,15 @@ public sealed class ConcurrentTrie<TKey, TValue>
 	/// <summary>
 	/// Constructs a <see cref="ConcurrentTrie{TKey, TValue}"/>.
 	/// </summary>
-	public ConcurrentTrie()
-		: base(() => new Node())
+	public ConcurrentTrie(IEqualityComparer<TKey>? equalityComparer = null)
+		: base(() => new Node(equalityComparer))
 	{ }
 
 	private sealed class Node : NodeBase
 	{
+		public Node(IEqualityComparer<TKey>? equalityComparer)
+			=> _equalityComparer = equalityComparer;
+
 		private readonly object _valueSync = new();
 
 		protected override void SetValue(TValue value)
@@ -27,6 +31,7 @@ public sealed class ConcurrentTrie<TKey, TValue>
 
 		private readonly object _childSync = new();
 
+		private readonly IEqualityComparer<TKey>? _equalityComparer;
 		private ConcurrentDictionary<TKey, ITrieNode<TKey, TValue>>? _children;
 
 		protected override void UpdateRecent(TKey key, ITrieNode<TKey, TValue> child)
@@ -42,11 +47,11 @@ public sealed class ConcurrentTrie<TKey, TValue>
 				lock (_childSync)
 				{
 					if (children is null)
-						Children = _children = children = new();
+						Children = _children = children = _equalityComparer is null ? new() : new(_equalityComparer);
 				}
 			}
 
-			return children.GetOrAdd(key, _ => new Node());
+			return children.GetOrAdd(key, _ => new Node(_equalityComparer));
 		}
 	}
 }
