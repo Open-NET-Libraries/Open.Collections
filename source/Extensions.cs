@@ -44,7 +44,7 @@ public static partial class Extensions
 					break;
 
 				case ICollection collection:
-					// iterate through the collection and convert any strin-object dictionaries
+					// iterate through the collection and convert any string-object dictionaries
 					// along the way into expando objects
 					var itemList = new List<object>();
 					foreach (object? item in collection)
@@ -418,7 +418,7 @@ retry:
 	}
 
 	/// <summary>
-	/// Concatentates any enumerable into a string using an optional separator.
+	/// Concatenates any enumerable into a string using an optional separator.
 	/// </summary>
 	public static string ToConcatenatedString<T>(this IEnumerable<T> source, Func<T, string> selector, string separator = "")
 	{
@@ -466,7 +466,7 @@ retry:
 	}
 
 	/// <summary>
-	/// Concatentates a set of values into a single string using a character as a separator.
+	/// Concatenates a set of values into a single string using a character as a separator.
 	/// </summary>
 	public static string JoinToString<T>(this IEnumerable<T> source, char separator)
 	{
@@ -486,7 +486,7 @@ retry:
 	}
 
 	/// <summary>
-	/// Concatentates set of values into a single string using another string as a separator.
+	/// Concatenates set of values into a single string using another string as a separator.
 	/// </summary>
 	public static string JoinToString<T>(this IEnumerable<T> source, string separator)
 	{

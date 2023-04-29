@@ -21,7 +21,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 		=> InternalUnsafeSource ?? throw new ObjectDisposedException(GetType().ToString());
 
 	/// <summary>
-	/// Event fired after a chnage or group of changes has been made.
+	/// Event fired after a change or group of changes has been made.
 	/// </summary>
 	public event EventHandler? Modified;
 
