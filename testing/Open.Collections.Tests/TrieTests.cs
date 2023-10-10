@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Open.Collections.Trie;
 using Xunit;
 
 namespace Open.Collections.Tests;

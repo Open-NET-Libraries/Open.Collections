@@ -802,10 +802,6 @@ retry:
 	}
 	#endregion
 
-	#region Nested type: SortDirection
-
-	#endregion
-
 	public static T? NullableFirstOrDefault<T>(this IEnumerable<T> source)
 		where T : struct
 	{

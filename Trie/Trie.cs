@@ -8,8 +8,6 @@ public sealed class Trie<TKey, TValue>
 	: TrieBase<TKey, TValue>
 	where TKey : notnull
 {
-
-
 	/// <summary>
 	/// Constructs a <see cref="Trie{TKey, TValue}"/>.
 	/// </summary>

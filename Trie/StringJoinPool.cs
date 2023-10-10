@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 
-namespace Open.Collections.Trie;
+namespace Open.Collections;
 
 /// <summary>
 /// Allows for consistent retrieval of the same string when joining strings together.
