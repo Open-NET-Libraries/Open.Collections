@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
@@ -44,6 +45,13 @@ public class StringJoinPool
 	{ }
 
 	/// <summary>
+	/// Allows for applying a custom transform in sub-classed to segments.
+	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	protected virtual string SegmentTransform(string segment)
+		=> segment;
+
+	/// <summary>
 	/// Gets the string from the pool at the specified path.
 	/// </summary>
 	public string Get(ReadOnlySpan<string> segments)
@@ -67,13 +75,13 @@ public class StringJoinPool
 				if (_separator.IsEmpty)
 				{
 					for (int i = 0; i < len; i++)
-						sb.Append(segments[i] ?? string.Empty);
+						sb.Append(SegmentTransform(segments[i]) ?? string.Empty);
 					return sb.ToString();
 				}
 
 				Debug.Assert(segments.Length != 0);
 
-				sb.Append(segments[0]);
+				sb.Append(SegmentTransform(segments[0]));
 				var sepSpan = _separator.Span;
 				int sLen = sepSpan.Length;
 
@@ -82,7 +90,7 @@ public class StringJoinPool
 					for (int s = 0; s < sLen; s++)
 						sb.Append(sepSpan[s]);
 
-					sb.Append(segments[i] ?? string.Empty);
+					sb.Append(SegmentTransform(segments[i]) ?? string.Empty);
 				}
 
 				return sb.ToString();
