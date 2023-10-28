@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Xunit;
 
@@ -7,7 +8,7 @@ namespace Open.Collections.Tests;
 public class PermutationTests
 {
 	static readonly ImmutableArray<int> Set1 = ImmutableArray.Create(1, 2);
-	static readonly ImmutableArray<char> Set2 = ImmutableArray.Create('A', 'B', 'C');
+	static readonly ReadOnlyMemory<char> Set2 = new char[] { 'A', 'B', 'C' };
 
 	[Fact]
 	public void TestPermutation1()
