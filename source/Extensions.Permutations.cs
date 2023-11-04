@@ -162,7 +162,6 @@ public static partial class Extensions
 		}
 	}
 
-
 	/// <inheritdoc cref="Permutations{T}(IEnumerable{T})"/>
 	/// <remarks>Values are yielded as read only memory buffer that should not be retained as its array is returned to pool afterwards.</remarks>
 	public static IEnumerable<ReadOnlyMemory<T>> PermutationsBuffered<T>(this IEnumerable<T> elements)

@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 
 namespace Open.Collections;
 
+/// <summary>
+/// Various extension methods for operating on enumerables, collections, and spans.
+/// </summary>
 public static partial class Extensions
 {
 	// Original Source: http://theburningmonk.com/2011/05/idictionarystring-object-to-expandoobject-extension-method/

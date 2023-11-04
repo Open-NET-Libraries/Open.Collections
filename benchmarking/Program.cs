@@ -23,7 +23,7 @@ internal static class Program
 		//ListTests();
 		//DictionaryTests();
 
-		BenchmarkRunner.Run<TrieBenchmark>();
+		BenchmarkRunner.Run<SubsetBufferedBench>();
 
 		//Console.Beep();
 	}

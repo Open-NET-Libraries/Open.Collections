@@ -50,7 +50,7 @@ public class StringJoinPool
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected virtual void AppendSegment(StringBuilder sb, string segment)
 	{
-		if(string.IsNullOrEmpty(segment)) return;
+		if (string.IsNullOrEmpty(segment)) return;
 		sb.Append(segment);
 	}
 

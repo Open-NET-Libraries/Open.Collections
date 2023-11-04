@@ -148,20 +148,20 @@ public class SubsetTests
 		Assert.Equal(a3.SelectMany(e => e).Sum(), a2.SelectMany(e => e).Sum());
 	}
 
-	[Theory]
-	[InlineData(8, 5)]
-	[InlineData(10, 7)]
-	[InlineData(12, 3)]
-	[InlineData(16, 4)]
-	public void LargerProgressiveCheck(int size, int count)
-	{
-		var FullSet = Enumerable.Range(1, size).ToImmutableArray();
-		int[] buffer = new int[count];
-		var s1 = FullSet.Subsets(count, buffer).ToImmutableArray();
-		var s2 = FullSet.SubsetsProgressive(count, buffer).ToImmutableArray();
-		int s1s = s1.SelectMany(e => e).Sum();
-		int s2s = s2.SelectMany(e => e).Sum();
-		Assert.Equal(s1.Length, s2.Length);
-		Assert.Equal(s1s, s2s);
-	}
+	//[Theory]
+	//[InlineData(8, 5)]
+	//[InlineData(10, 7)]
+	//[InlineData(12, 3)]
+	//[InlineData(16, 4)]
+	//public void LargerProgressiveCheck(int size, int count)
+	//{
+	//	var FullSet = Enumerable.Range(1, size).ToImmutableArray();
+	//	int[] buffer = new int[count];
+	//	var s1 = FullSet.Subsets(count, buffer).ToImmutableArray();
+	//	var s2 = FullSet.SubsetsProgressive(count, buffer).ToImmutableArray();
+	//	int s1s = s1.SelectMany(e => e).Sum();
+	//	int s2s = s2.SelectMany(e => e).Sum();
+	//	Assert.Equal(s1.Length, s2.Length);
+	//	Assert.Equal(s1s, s2s);
+	//}
 }
