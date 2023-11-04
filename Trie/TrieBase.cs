@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
@@ -7,282 +8,334 @@ namespace Open.Collections;
 /// A generic Trie collection.
 /// </summary>
 public abstract class TrieBase<TKey, TValue>
-    : ITrie<TKey, TValue>, ITrieNode<TKey, TValue>
+	: ITrie<TKey, TValue>, ITrieNode<TKey, TValue>
+	where TKey : notnull
 {
-    /// <summary>
-    /// Initializes this.
-    /// </summary>
-    internal TrieBase(Func<ITrieNode<TKey, TValue>> rootFactory)
-    {
-        _root = rootFactory();
-        _rootFactory = rootFactory;
-    }
+	/// <summary>
+	/// Initializes this.
+	/// </summary>
+	internal TrieBase(Func<ITrieNode<TKey, TValue>> rootFactory)
+	{
+		_root = rootFactory();
+		_rootFactory = rootFactory;
+	}
 
-    // NOTE: Path suffixed methods are provided to avoid ambiguity.
+	// NOTE: Path suffixed methods are provided to avoid ambiguity.
 
-    private ITrieNode<TKey, TValue> _root;
-    private readonly Func<ITrieNode<TKey, TValue>> _rootFactory;
+	private ITrieNode<TKey, TValue> _root;
+	private readonly Func<ITrieNode<TKey, TValue>> _rootFactory;
 
-    internal ITrieNode<TKey, TValue> EnsureNode(ReadOnlySpan<TKey> key)
-    {
-        int length = key.Length;
-        var node = _root;
+	internal ITrieNode<TKey, TValue> EnsureNode(ReadOnlySpan<TKey> key)
+	{
+		int length = key.Length;
+		var node = _root;
 
-        for (int i = 0; i < length; i++)
-            node = node.GetOrAddChild(key[i]);
+		for (int i = 0; i < length; i++)
+			node = node.GetOrAddChild(key[i]);
 
-        return node;
-    }
+		return node;
+	}
 
-    internal ITrieNode<TKey, TValue> EnsureNode(IEnumerable<TKey> key)
-    {
-        if (key is null) throw new ArgumentNullException(nameof(key));
+	internal ITrieNode<TKey, TValue> EnsureNode(IEnumerable<TKey> key)
+	{
+		if (key is null) throw new ArgumentNullException(nameof(key));
 
-        var node = _root;
-        foreach (var k in key)
-            node = node.GetOrAddChild(k);
+		var node = _root;
+		foreach (var k in key)
+			node = node.GetOrAddChild(k);
 
-        return node;
-    }
+		return node;
+	}
 
-    ITrieNode<TKey, TValue> ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
-        => EnsureNode(key);
+	ITrieNode<TKey, TValue> ITrie<TKey, TValue>.EnsureNodes(ReadOnlySpan<TKey> key)
+		=> EnsureNode(key);
 
-    /// <inheritdoc />
-    public bool Add(ReadOnlySpan<TKey> key, in TValue value)
-        => EnsureNode(key).TrySetValue(in value);
+	/// <inheritdoc />
+	public bool Add(ReadOnlySpan<TKey> key, in TValue value)
+		=> EnsureNode(key).TrySetValue(in value);
 
-    /// <inheritdoc />
-    public bool AddPath(IEnumerable<TKey> key, in TValue value)
-        => EnsureNode(key).TrySetValue(in value);
+	/// <inheritdoc />
+	public bool AddPath(IEnumerable<TKey> key, in TValue value)
+		=> EnsureNode(key).TrySetValue(in value);
 
-    /// <inheritdoc />
-    public bool TryGetValue(ReadOnlySpan<TKey> key, out TValue value)
-    {
-        int length = key.Length;
-        var node = _root;
+	/// <inheritdoc />
+	public bool TryGetValue(ReadOnlySpan<TKey> key, [MaybeNullWhen(false)] out TValue value)
+	{
+		int length = key.Length;
+		var node = _root;
 
-        for (int i = 0; i < length; i++)
-        {
-            if (!node.TryGetChild(key[i], out node))
-                goto NotFound;
-        }
+		for (int i = 0; i < length; i++)
+		{
+			if (!node.TryGetChild(key[i], out node))
+				goto NotFound;
+		}
 
-        if (node.TryGetValue(out value))
-            return true;
-
-NotFound:
-        value = default!;
-        return false;
-    }
-
-    /// <inheritdoc />
-    public bool TryGetValueFromPath(IEnumerable<TKey> key, out TValue value)
-    {
-        if (key is null)
-            goto NotFound;
-
-        var node = _root;
-        foreach (var k in key)
-        {
-            if (!node.TryGetChild(k, out node))
-                goto NotFound;
-        }
-
-        if (node.TryGetValue(out value))
-            return true;
+		if (node.TryGetValue(out value))
+			return true;
 
 NotFound:
-        value = default!;
-        return false;
-    }
+		value = default!;
+		return false;
+	}
 
-    /// <inheritdoc />
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool TryGetValueFromPath(ICollection<TKey> key, out TValue value)
-        => TryGetValueFromPath((IEnumerable<TKey>)key, out value);
+	/// <inheritdoc />
+	public bool TryGetValueFromPath(IEnumerable<TKey> key, [MaybeNullWhen(false)] out TValue value)
+	{
+		if (key is null)
+			goto NotFound;
 
-    /// <inheritdoc />
-    public bool ContainsKey(ReadOnlySpan<TKey> key)
-    {
-        int length = key.Length;
-        var node = _root;
+		var node = _root;
+		foreach (var k in key)
+		{
+			if (!node.TryGetChild(k, out node))
+				goto NotFound;
+		}
 
-        for (int i = 0; i < length; i++)
-        {
-            if (!node.TryGetChild(key[i], out node))
-                return false;
-        }
+		if (node.TryGetValue(out value))
+			return true;
 
-        return node.IsSet;
-    }
+NotFound:
+		value = default!;
+		return false;
+	}
 
-    /// <inheritdoc />
-    public bool ContainsKeyFromPath(IEnumerable<TKey> key)
-    {
-        if (key is null) return false;
+	/// <inheritdoc />
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public bool TryGetValueFromPath(ICollection<TKey> key, [MaybeNullWhen(false)] out TValue value)
+		=> TryGetValueFromPath((IEnumerable<TKey>)key, out value);
 
-        var node = _root;
-        foreach (var k in key)
-        {
-            if (!node.TryGetChild(k, out node))
-                return false;
-        }
+	/// <inheritdoc />
+	public bool ContainsKey(ReadOnlySpan<TKey> key)
+	{
+		int length = key.Length;
+		var node = _root;
 
-        return node.IsSet;
-    }
+		for (int i = 0; i < length; i++)
+		{
+			if (!node.TryGetChild(key[i], out node))
+				return false;
+		}
 
-    /// <inheritdoc />
-    public bool ContainsKeyFromPath(ICollection<TKey> key)
-        => key is not null && ContainsKeyFromPath((IEnumerable<TKey>)key);
+		return node.IsSet;
+	}
 
-    /// <inheritdoc />
-    public TValue GetOrAdd(ReadOnlySpan<TKey> key, in TValue value)
-        => EnsureNode(key).GetOrAdd(in value);
+	/// <inheritdoc />
+	public bool ContainsKeyFromPath(IEnumerable<TKey> key)
+	{
+		if (key is null) return false;
 
-    /// <inheritdoc />
-    public TValue GetOrAdd(ReadOnlySpan<TKey> key, Func<TValue> factory)
-    {
-        var node = EnsureNode(key);
-        if (node.TryGetValue(out var v))
-            return v;
+		var node = _root;
+		foreach (var k in key)
+		{
+			if (!node.TryGetChild(k, out node))
+				return false;
+		}
 
-        var value = factory();
-        return node.GetOrAdd(in value);
-    }
+		return node.IsSet;
+	}
 
-    /// <inheritdoc />
-    public TValue GetOrAddFromPath(IEnumerable<TKey> key, in TValue value)
-        => EnsureNode(key).GetOrAdd(in value);
+	/// <inheritdoc />
+	public bool ContainsKeyFromPath(ICollection<TKey> key)
+		=> key is not null && ContainsKeyFromPath((IEnumerable<TKey>)key);
 
-    /// <inheritdoc />
-    public TValue GetOrAddFromPath(IEnumerable<TKey> key, Func<TValue> factory)
-    {
-        var node = EnsureNode(key);
-        if (node.TryGetValue(out var v))
-            return v;
+	/// <inheritdoc />
+	public TValue GetOrAdd(ReadOnlySpan<TKey> key, in TValue value)
+		=> EnsureNode(key).GetOrAdd(in value);
 
-        var value = factory();
-        return node.GetOrAdd(in value);
-    }
+	/// <inheritdoc />
+	public TValue GetOrAdd(ReadOnlySpan<TKey> key, Func<TValue> factory)
+	{
+		var node = EnsureNode(key);
+		if (node.TryGetValue(out var v))
+			return v;
 
-    /// <inheritdoc />
-    public TValue GetOrAddFromPath(ICollection<TKey> key, in TValue value)
-        => EnsureNode(key).GetOrAdd(in value);
+		var value = factory();
+		return node.GetOrAdd(in value);
+	}
 
-    /// <inheritdoc />
-    public TValue GetOrAddFromPath(ICollection<TKey> key, Func<TValue> factory)
-    {
-        var node = EnsureNode(key);
-        if (node.TryGetValue(out var v))
-            return v;
+	/// <inheritdoc />
+	public TValue GetOrAddFromPath(IEnumerable<TKey> key, in TValue value)
+		=> EnsureNode(key).GetOrAdd(in value);
 
-        var value = factory();
-        return node.GetOrAdd(in value);
-    }
+	/// <inheritdoc />
+	public TValue GetOrAddFromPath(IEnumerable<TKey> key, Func<TValue> factory)
+	{
+		var node = EnsureNode(key);
+		if (node.TryGetValue(out var v))
+			return v;
 
-    /// <inheritdoc />
-    public void Clear()
-        => _root = _rootFactory();
+		var value = factory();
+		return node.GetOrAdd(in value);
+	}
 
-    /// <inheritdoc />
-    public bool IsSet => _root.IsSet;
+	/// <inheritdoc />
+	public TValue GetOrAddFromPath(ICollection<TKey> key, in TValue value)
+		=> EnsureNode(key).GetOrAdd(in value);
 
-    /// <inheritdoc />
-    public TValue? Value => _root.Value;
+	/// <inheritdoc />
+	public TValue GetOrAddFromPath(ICollection<TKey> key, Func<TValue> factory)
+	{
+		var node = EnsureNode(key);
+		if (node.TryGetValue(out var v))
+			return v;
 
-    /// <inheritdoc />
-    public ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
-        => _root.GetOrAddChild(key);
+		var value = factory();
+		return node.GetOrAdd(in value);
+	}
 
-    /// <inheritdoc />
-    bool ITrieNode<TKey, TValue>.TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
-        => _root.TryGetChild(key, out child);
+	/// <inheritdoc />
+	public void Clear()
+		=> _root = _rootFactory();
 
-    /// <inheritdoc />
-    public ITrieNode<TKey, TValue> GetChild(TKey key)
-        => _root.GetChild(key);
+	/// <inheritdoc />
+	public bool IsSet => _root.IsSet;
 
-    /// <inheritdoc />
-    public bool TryGetValue(out TValue value)
-        => _root.TryGetValue(out value);
+	/// <inheritdoc />
+	public TValue? Value => _root.Value;
 
-    /// <inheritdoc />
-    public bool TrySetValue(in TValue value)
-        => _root.TrySetValue(value);
+	/// <inheritdoc />
+	public ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
+		=> _root.GetOrAddChild(key);
 
-    /// <inheritdoc />
-    public TValue GetOrAdd(in TValue value)
-        => _root.GetOrAdd(value);
+	/// <inheritdoc />
+	bool ITrieNode<TKey, TValue>.TryGetChild(TKey key, [MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
+		=> _root.TryGetChild(key, out child);
 
-    internal abstract class NodeBase : ITrieNode<TKey, TValue>
-    {
-        protected IDictionary<TKey, ITrieNode<TKey, TValue>>? Children;
+	/// <inheritdoc />
+	public ITrieNode<TKey, TValue> GetChild(TKey key)
+		=> _root.GetChild(key);
 
-        private (bool isSet, TValue? value) _value;
+	/// <inheritdoc />
+	public bool TryGetValue([MaybeNullWhen(false)] out TValue value)
+		=> _root.TryGetValue(out value);
 
-        // It's not uncommon to have a 'hot path' that will be requested frequently.
-        // This facilitates that by caching the last child that was requested.
-        private (bool exists, TKey key, ITrieNode<TKey, TValue> child) _recentChild;
+	/// <inheritdoc />
+	public bool TrySetValue(in TValue value)
+		=> _root.TrySetValue(value);
 
-        public bool IsSet => _value.isSet;
+	/// <inheritdoc />
+	public TValue GetOrAdd(in TValue value)
+		=> _root.GetOrAdd(value);
 
-        internal TValue GetValueOrThrow()
-            => TryGetValue(out var value)
-                ? value
-                : throw new Exception("Unexpected concurrency condition. Value was set, but then not available.");
+	internal abstract class NodeBase : ITrieNode<TKey, TValue>
+	{
+		protected IDictionary<TKey, ITrieNode<TKey, TValue>>? Children;
 
-        public bool TryGetValue(out TValue value)
-        {
-            var (isSet, v) = _value;
-            value = isSet ? v! : default!;
-            return isSet;
-        }
+		private readonly struct ValueContainer
+		{
+			public ValueContainer(bool isSet, TValue value)
+			{
+				IsSet = isSet;
+				Value = value;
+			}
 
-        public TValue GetOrAdd(in TValue value)
-            => TryGetValue(out var v)
-                ? v
-                : TrySetValue(in value)
-                ? value
-                : GetValueOrThrow();
+			public ValueContainer(TValue value)
+				: this(true, value) { }
 
-        // Optimistic concurrency wins here. No locking.
-        public bool TrySetValue(in TValue value)
-        {
-            var (isSet, _) = _value;
-            if (isSet) return false;
-            _value = (true, value);
-            return true;
-        }
+			public bool IsSet { get; }
+			public TValue Value { get; }
+		}
 
-        public abstract ITrieNode<TKey, TValue> GetOrAddChild(TKey key);
+		private ValueContainer _value;
 
-        public bool TryGetChild(TKey key, out ITrieNode<TKey, TValue> child)
-        {
-            if(Children is null)
-            {
-                child = default!;
-                return false;
-            }
+		private readonly struct Recent
+		{
+			public Recent(bool exists, TKey key, ITrieNode<TKey, TValue> child)
+			{
+				Exists = exists;
+				Key = key;
+				Child = child;
+			}
+			public bool Exists { get; }
+			public TKey Key { get; }
+			public ITrieNode<TKey, TValue> Child { get; }
+		}
 
-            var recent = _recentChild;
-            if(recent.exists && recent.key!.Equals(key))
-            {
-                child = recent.child;
-                return true;
-            }
+		// It's not uncommon to have a 'hot path' that will be requested frequently.
+		// This facilitates that by caching the last child that was requested.
+		private Recent _recentChild;
 
-            bool found = Children!.TryGetValue(key, out child);
-            _recentChild = (true, key, child);
-            return found;
-        }
+		public bool IsSet => _value.IsSet;
 
-        public ITrieNode<TKey, TValue> GetChild(TKey key)
-        {
-            var children = Children ?? throw new KeyNotFoundException();
-            return children[key];
-        }
+		internal TValue GetValueOrThrow()
+			=> TryGetValue(out var value)
+				? value
+				: throw new Exception("Unexpected concurrency condition. Value was set, but then not available.");
 
-        public TValue? Value => _value.value;
-    }
+		public bool TryGetValue([MaybeNullWhen(false)] out TValue value)
+		{
+			var v = _value;
+			if (v.IsSet)
+			{
+				value = v.Value;
+				return true;
+			}
+
+			value = default!;
+			return false;
+		}
+
+		public TValue GetOrAdd(in TValue value)
+			=> TryGetValue(out var v)
+				? v
+				: TrySetValue(in value)
+				? value
+				: GetValueOrThrow();
+
+		public bool TrySetValue(in TValue value)
+		{
+			var v = _value;
+			if (v.IsSet) return false;
+			SetValue(value);
+			return true;
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected virtual void SetValue(TValue value)
+			=> _value = new(value);
+
+		public abstract ITrieNode<TKey, TValue> GetOrAddChild(TKey key);
+
+		protected bool TryGetChildFrom(
+			IDictionary<TKey, ITrieNode<TKey, TValue>> children,
+			TKey key,
+			[MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
+		{
+			var recent = _recentChild;
+			if (recent.Exists && recent.Key!.Equals(key))
+			{
+				child = recent.Child;
+				return true;
+			}
+
+			bool found = children.TryGetValue(key, out child!);
+			if (found) UpdateRecent(key, child!);
+			return found;
+		}
+
+		public bool TryGetChild(
+			TKey key,
+			[MaybeNullWhen(false)] out ITrieNode<TKey, TValue> child)
+		{
+			if (Children is null)
+			{
+				child = default!;
+				return false;
+			}
+
+			return TryGetChildFrom(Children, key, out child);
+		}
+
+		// Facilitate subclasses synchronizing writes to avoid torn reads.
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		protected virtual void UpdateRecent(TKey key, ITrieNode<TKey, TValue> child)
+			=> _recentChild = new(true, key, child);
+
+		public ITrieNode<TKey, TValue> GetChild(TKey key)
+			=> TryGetChild(key, out var child)
+			? child
+			: throw new KeyNotFoundException();
+
+		public TValue? Value => _value.Value;
+	}
 }

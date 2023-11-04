@@ -6,28 +6,28 @@ namespace Open.Collections;
 
 public class QueueBenchmark : BenchmarkBase<Func<IQueue<object>>>
 {
-    public QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory)
-        : base(size, repeat, queueFactory)
-    {
-    }
+	public QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory)
+		: base(size, repeat, queueFactory)
+	{
+	}
 
-    protected readonly object _item = new();
+	protected readonly object _item = new();
 
-    protected override IEnumerable<TimedResult> TestOnceInternal()
-    {
-        IQueue<object> queue = Param();
+	protected override IEnumerable<TimedResult> TestOnceInternal()
+	{
+		IQueue<object> queue = Param();
 
-        yield return TimedResult.Measure("Fill", () =>
-        {
-            for (int i = 0; i < TestSize; i++) queue.Enqueue(_item);
-        });
+		yield return TimedResult.Measure("Fill", () =>
+		{
+			for (int i = 0; i < TestSize; i++) queue.Enqueue(_item);
+		});
 
-        yield return TimedResult.Measure("Empty", () =>
-        {
-            for (int i = 0; i < TestSize; i++) queue.TryDequeue(out object _);
-        });
-    }
+		yield return TimedResult.Measure("Empty", () =>
+		{
+			for (int i = 0; i < TestSize; i++) queue.TryDequeue(out object _);
+		});
+	}
 
-    public static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> queueFactory)
-        => new QueueBenchmark(size, repeat, queueFactory).Result;
+	public static TimedResult[] Results(uint size, uint repeat, Func<IQueue<object>> queueFactory)
+		=> new QueueBenchmark(size, repeat, queueFactory).Result;
 }

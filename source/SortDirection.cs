@@ -2,6 +2,6 @@
 
 public enum SortDirection : sbyte
 {
-    Ascending = +1,
-    Descending = -1
+	Ascending = +1,
+	Descending = -1
 }

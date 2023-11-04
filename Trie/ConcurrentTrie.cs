@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Open.Collections;
 
@@ -8,29 +7,51 @@ namespace Open.Collections;
 /// A generic Trie collection.
 /// </summary>
 public sealed class ConcurrentTrie<TKey, TValue>
-    : TrieBase<TKey, TValue>
+	: TrieBase<TKey, TValue>
+	where TKey : notnull
 {
-    /// <summary>
-    /// Constructs a <see cref="ConcurrentTrie{TKey, TValue}"/>.
-    /// </summary>
-    public ConcurrentTrie()
-        : base(() => new Node())
-    { }
+	/// <summary>
+	/// Constructs a <see cref="ConcurrentTrie{TKey, TValue}"/>.
+	/// </summary>
+	public ConcurrentTrie(IEqualityComparer<TKey>? equalityComparer = null)
+		: base(() => new Node(equalityComparer))
+	{ }
 
-    private sealed class Node : NodeBase
-    {
-        private ConcurrentDictionary<TKey, ITrieNode<TKey, TValue>>? _children;
+	private sealed class Node : NodeBase
+	{
+		public Node(IEqualityComparer<TKey>? equalityComparer)
+			=> _equalityComparer = equalityComparer;
 
-        public override ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
-        {
-            var children = LazyInitializer.EnsureInitialized(ref _children, ()=>
-            {
-                var c = new ConcurrentDictionary<TKey, ITrieNode<TKey, TValue>>();
-                Children = c;
-                return c;
-            })!;
+		private readonly object _valueSync = new();
 
-            return children.GetOrAdd(key, _ => new Node());
-        }
-    }
+		protected override void SetValue(TValue value)
+		{
+			lock (_valueSync) base.SetValue(value);
+		}
+
+		private readonly object _childSync = new();
+
+		private readonly IEqualityComparer<TKey>? _equalityComparer;
+		private ConcurrentDictionary<TKey, ITrieNode<TKey, TValue>>? _children;
+
+		protected override void UpdateRecent(TKey key, ITrieNode<TKey, TValue> child)
+		{
+			lock (_childSync) base.UpdateRecent(key, child);
+		}
+
+		public override ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
+		{
+			var children = _children;
+			if (children is null)
+			{
+				lock (_childSync)
+				{
+					if (children is null)
+						Children = _children = children = _equalityComparer is null ? new() : new(_equalityComparer);
+				}
+			}
+
+			return children.GetOrAdd(key, _ => new Node(_equalityComparer));
+		}
+	}
 }
