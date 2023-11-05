@@ -1,3 +1,4 @@
+using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.Linq;
@@ -23,6 +24,9 @@ public class SubsetTests
 		};
 		int[][] actual = Set1.Subsets(2).ToArray();
 		Assert.Equal(expected, actual);
+
+		ReadOnlyMemory<int> mem = Set1.ToArray();
+		Assert.Equal(expected, mem.Subsets(2).ToArray());
 
 		int[][] progressive = Set1.SubsetsProgressive(2).ToArray();
 		Assert.Equal(expected, progressive);
