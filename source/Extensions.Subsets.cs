@@ -84,7 +84,7 @@ loop:
 	public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this IReadOnlyList<T> source, int count)
 	{
 		using var lease = MemoryPool<T>.Shared.Rent(count);
-		Memory<T> buffer = lease.Memory;
+		Memory<T> buffer = lease.Memory.Slice(0, count);
 		ReadOnlyMemory<T> readBuffer = buffer;
 		foreach (Memory<T> _ in Subsets(source, count, buffer))
 			yield return readBuffer;
@@ -99,7 +99,7 @@ loop:
 	public static IEnumerable<T[]> Subsets<T>(this IReadOnlyList<T> source, int count)
 	{
 		using var lease = MemoryPool<T>.Shared.Rent(count);
-		Memory<T> buffer = lease.Memory;
+		Memory<T> buffer = lease.Memory.Slice(0, count);
 		foreach (Memory<T> _ in Subsets(source, count, buffer))
 		{
 			var a = new T[count];
@@ -192,7 +192,7 @@ loop:
 	public static IEnumerable<ReadOnlyMemory<T>> SubsetsBuffered<T>(this ReadOnlyMemory<T> source, int count)
 	{
 		using var lease = MemoryPool<T>.Shared.Rent(count);
-		Memory<T> buffer = lease.Memory;
+		Memory<T> buffer = lease.Memory.Slice(0, count);
 		ReadOnlyMemory<T> readBuffer = buffer;
 		foreach (Memory<T> _ in Subsets(source, count, buffer))
 			yield return readBuffer;
@@ -202,7 +202,7 @@ loop:
 	public static IEnumerable<T[]> Subsets<T>(this ReadOnlyMemory<T> source, int count)
 	{
 		using var lease = MemoryPool<T>.Shared.Rent(count);
-		Memory<T> buffer = lease.Memory;
+		Memory<T> buffer = lease.Memory.Slice(0, count);
 		foreach (Memory<T> _ in Subsets(source, count, buffer))
 		{
 			var a = new T[count];
