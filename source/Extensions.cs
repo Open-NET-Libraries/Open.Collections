@@ -902,6 +902,33 @@ retry:
 	}
 
 	/// <summary>
+	/// Optimized method for getting a node by index
+	/// </summary>
+	public static LinkedListNode<T> GetNodeAt<T>(this LinkedList<T> list, int index)
+	{
+		LinkedListNode<T> current;
+
+		// Determine whether to start from the beginning or the end.
+		int count = list.Count;
+		if (index < count / 2)
+		{
+			// Start from the beginning
+			current = list.First;
+			for (int i = 0; i < index; i++)
+				current = current.Next;
+
+			return current;
+		}
+
+		// Start from the end
+		current = list.Last;
+		for (int i = count - 1; i > index; i--)
+			current = current.Previous;
+
+		return current;
+	}
+
+	/// <summary>
 	/// Copies the results to the provided span up to its length or until the end of the results.
 	/// </summary>
 	/// <param name="source">The source enumerable.</param>
@@ -913,17 +940,30 @@ retry:
 	/// </returns>
 	public static Span<T> CopyToSpan<T>(this IEnumerable<T> source, Span<T> target)
 	{
-		int len = target.Length;
-		if (len == 0) return target;
+		int tLen = target.Length;
+		if (tLen == 0) return target;
+
+		if (source is T[] a)
+		{
+			int sLen = a.Length;
+			if (tLen < sLen)
+			{
+				a.AsSpan(0, tLen).CopyTo(target);
+				return target;
+			}
+
+			a.CopyTo(target);
+			return tLen == sLen ? target : target.Slice(0, sLen);
+		}
 
 		int count = 0;
 		foreach (T? e in source)
 		{
 			target[count] = e;
-			if (len == ++count) return target;
+			if (tLen == ++count) return target;
 		}
 
-		return target.Slice(0, count);
+		return tLen == count ? target : target.Slice(0, count);
 	}
 
 	/// <summary>
