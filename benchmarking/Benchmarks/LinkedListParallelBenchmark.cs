@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 
 namespace Open.Collections;
 
-public class LinkedListParallelBenchmark : LinkedListBenchmark
+public class LinkedListParallelBenchmark(
+	uint size, uint repeat, Func<ILinkedList<object>> factory)
+	: LinkedListBenchmark(size, repeat, factory)
 {
-	public LinkedListParallelBenchmark(uint size, uint repeat, Func<ILinkedList<object>> factory) : base(size, repeat, factory)
-	{
-	}
-
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
 		ILinkedList<object> c = Param();

@@ -4,15 +4,11 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
-/// <inheritdoc />
 [ExcludeFromCodeCoverage]
-public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
-	: LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>, IDictionary<TKey, TValue>
+public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(TDictionary dictionary)
+	: LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>(dictionary), IDictionary<TKey, TValue>
 	where TDictionary : class, IDictionary<TKey, TValue>
 {
-	/// <inheritdoc />
-	public LockSynchronizedDictionaryWrapper(TDictionary dictionary) : base(dictionary) { }
-
 	/// <inheritdoc />
 	public virtual TValue this[TKey key]
 	{
@@ -64,22 +60,25 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryGetValue(TKey key, out TValue value)
+	public bool TryGetValue(TKey key,
+#if NET9_0_OR_GREATER
+		[MaybeNullWhen(false)]
+#endif
+		out TValue value)
 		=> InternalSource.TryGetValue(key, out value);
 }
 
 [ExcludeFromCodeCoverage]
-public class LockSynchronizedDictionaryWrapper<TKey, TValue>
-	: LockSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
+public class LockSynchronizedDictionaryWrapper<TKey, TValue>(
+	IDictionary<TKey, TValue> dictionary)
+	: LockSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>(dictionary)
 {
-	public LockSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary) : base(dictionary)
-	{
-	}
 }
 
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedDictionary<TKey, TValue>
 	: LockSynchronizedDictionaryWrapper<TKey, TValue>
+	where TKey : notnull
 {
 	public LockSynchronizedDictionary(int capacity) : base(new Dictionary<TKey, TValue>(capacity)) { }
 	public LockSynchronizedDictionary() : base(new Dictionary<TKey, TValue>()) { }

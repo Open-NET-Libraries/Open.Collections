@@ -14,6 +14,9 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 	public readonly ArrayPool<T>? Pool;
 	private readonly bool _clear;
 
+	/// <summary>
+	/// Constructs a new <see cref="ArrayPoolSegment{T}"/> from the <see cref="ArrayPool{T}"/>.
+	/// </summary>
 	public ArrayPoolSegment(
 		int length,
 		ArrayPool<T>? pool = null,
@@ -29,7 +32,7 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 	/// Returns the array to the pool.
 	/// </summary>
 	/// <inheritdoc />
-	public void Dispose() => Pool?.Return(Segment.Array, _clear);
+	public void Dispose() => Pool?.Return(Segment.Array!, _clear);
 
 	/// <summary>
 	/// Implicitly converts the <see cref="ArrayPoolSegment{T}"/> to an <see cref="ArraySegment{T}"/>.

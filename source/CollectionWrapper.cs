@@ -5,15 +5,11 @@ using System.Runtime.CompilerServices;
 namespace Open.Collections;
 
 [ExcludeFromCodeCoverage]
-public class CollectionWrapper<T, TCollection>
-	: ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>, IAddMultiple<T>
+public class CollectionWrapper<T, TCollection>(
+	TCollection source, bool owner = false)
+	: ReadOnlyCollectionWrapper<T, TCollection>(source, owner), ICollection<T>, IAddMultiple<T>
 	where TCollection : class, ICollection<T>
 {
-	public CollectionWrapper(TCollection source, bool owner = false)
-		: base(source, owner)
-	{
-	}
-
 	protected readonly object Sync = new(); // Could possibly override..
 
 	/// <summary>

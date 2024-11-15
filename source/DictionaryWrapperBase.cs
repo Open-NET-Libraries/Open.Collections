@@ -4,16 +4,16 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+///<summary>
+/// A base class for wrapping a collection as a dictionary.
+///</summary>
 [ExcludeFromCodeCoverage]
-public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>
-	: CollectionWrapper<KeyValuePair<TKey, TValue>, TCollection>, IDictionary<TKey, TValue>
+public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>(
+	TCollection source, bool owner = false)
+	: CollectionWrapper<KeyValuePair<TKey, TValue>, TCollection>(source, owner), IDictionary<TKey, TValue>
+	where TKey : notnull
 	where TCollection : class, ICollection<KeyValuePair<TKey, TValue>>
 {
-	protected DictionaryWrapperBase(TCollection source, bool owner = false)
-		: base(source, owner)
-	{
-	}
-
 	/// <inheritdoc />
 	public TValue this[TKey key]
 	{
@@ -21,13 +21,23 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>
 		set => SetValueInternal(key, value);
 	}
 
+	/// <summary>
+	/// Get the value for the key.
+	/// </summary>
 	protected abstract TValue GetValueInternal(TKey key);
 
+	/// <summary>
+	/// Set the value for the key.
+	/// </summary>
 	protected abstract void SetValueInternal(TKey key, TValue value);
 
 	ICollection<TKey>? _keys;
 	/// <inheritdoc />
 	public ICollection<TKey> Keys => _keys ??= GetKeys();
+
+	/// <summary>
+	/// Get the keys.
+	/// </summary>
 	protected abstract ICollection<TKey> GetKeys();
 
 	ICollection<TValue>? _values;
@@ -35,8 +45,14 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>
 	/// <inheritdoc />
 	public ICollection<TValue> Values => _values ??= GetValues();
 
+	/// <summary>
+	/// Get the values.
+	/// </summary>
 	protected abstract ICollection<TValue> GetValues();
 
+	/// <summary>
+	/// Add a key and value to the dictionary.
+	/// </summary>
 	protected abstract void AddInternal(TKey key, TValue value);
 
 	/// <inheritdoc />
@@ -51,5 +67,10 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>
 	public abstract bool Remove(TKey key);
 
 	/// <inheritdoc />
-	public abstract bool TryGetValue(TKey key, out TValue value);
+	public abstract bool TryGetValue(TKey key,
+#if NET9_0_OR_GREATER
+		[MaybeNullWhen(false)]
+#else
+#endif
+		out TValue value);
 }

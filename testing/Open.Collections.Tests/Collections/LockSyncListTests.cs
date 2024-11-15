@@ -2,6 +2,4 @@
 
 namespace Open.Collections.Tests;
 public class LockSyncListTests
-	: ParallelListTests<LockSynchronizedList<int>>
-{
-}
+	: ParallelListTests<LockSynchronizedList<int>>;

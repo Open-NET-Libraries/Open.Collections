@@ -4,14 +4,26 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A synchronized <see cref="HashSet{T}"/>.
+/// </summary>
 public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
 {
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public LockSynchronizedHashSet() : base(new HashSet<T>()) { }
+	public LockSynchronizedHashSet() : base([]) { }
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public LockSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity and comparer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public LockSynchronizedHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer) : base(new HashSet<T>(collection, comparer)) { }
 

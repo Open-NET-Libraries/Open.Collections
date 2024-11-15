@@ -2,11 +2,7 @@
 
 namespace Open.Collections.Tests;
 public class TrackedDictionaryTests
-	: ParallelDictionaryTests<TrackedDictionary<int, int>>
-{
-}
+	: ParallelDictionaryTests<TrackedDictionary<int, int>>;
 
 public class TrackedIndexedDictionaryTests
-	: ParallelDictionaryTests<TrackedIndexedDictionary<int, int>>
-{
-}
+	: ParallelDictionaryTests<TrackedIndexedDictionary<int, int>>;

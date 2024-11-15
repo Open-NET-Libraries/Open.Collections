@@ -7,18 +7,14 @@ using System.Linq;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class BasicCollectionTests<TCollection>
+public abstract class BasicCollectionTests<TCollection>(TCollection collection)
 	where TCollection : ICollection<int>, new()
 {
-	protected BasicCollectionTests(TCollection collection)
-		=> Collection = collection;
-
 	protected BasicCollectionTests() : this(new()) { }
 
-	protected readonly TCollection Collection;
+	protected readonly TCollection Collection = collection;
 
-	[Fact]
-	public virtual TCollection AssertWhenDisposed()
+	protected virtual TCollection AssertWhenDisposedCore()
 	{
 		// Policy:
 		// Ideally an exception should throw whenever access occurs after disposal.
@@ -39,6 +35,10 @@ public abstract class BasicCollectionTests<TCollection>
 		ThrowsDisposed(() => c.Remove(5));
 		return c;
 	}
+
+	[Fact]
+	public void AssertWhenDisposed()
+		=> AssertWhenDisposedCore();
 
 	protected static void ThrowsDisposed(Action action)
 		=> Assert.Throws<ObjectDisposedException>(action);

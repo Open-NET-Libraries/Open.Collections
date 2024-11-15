@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
@@ -31,8 +32,8 @@ public static partial class Extensions
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
 
-		var expando = new ExpandoObject();
-		var expandoDic = (IDictionary<string, object>)expando;
+		ExpandoObject expando = new();
+		var expandoDic = (IDictionary<string, object>)expando!;
 
 		// go through the items in the dictionary and copy over the key value pairs)
 
@@ -75,6 +76,10 @@ public static partial class Extensions
 		return expando;
 	}
 
+	/// <summary>
+	/// Clones the source 2D array into a new 2D array.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="source"/> is null.</exception>
 	public static T[,] BiClone<T>(this T[,] source)
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
@@ -90,6 +95,10 @@ public static partial class Extensions
 		return newArray;
 	}
 
+	/// <summary>
+	/// Overwrites the target 2D array with the source 2D array.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="source"/> or <paramref name="target"/> is null.</exception>
 	public static void Overwrite<T>(this T[,] source, T[,] target)
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
@@ -99,6 +108,10 @@ public static partial class Extensions
 		source.ForEach((x, y, value) => target[x, y] = value);
 	}
 
+	/// <summary>
+	/// Iterates through the 2D array and executes the closure for each element.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="source"/> or <paramref name="closure"/> is null.</exception>
 	public static void ForEach<T>(this T[,] source, Action<int, int, T> closure)
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
@@ -117,45 +130,35 @@ public static partial class Extensions
 		}
 	}
 
-	public static T[] AsCopy<T>(this T[] source, int? length = null)
+	/// <summary>
+	/// Creates a copy of the source array with a new length.
+	/// </summary>
+	/// <remarks>If the <paramref name="length"/> is less than the <paramref name="source"/> length, the copy will contain all elements up to that length.  If <paramref name="length"/> is greater then there will be untouched elements after that.</remarks>
+	/// <exception cref="ArgumentNullException">The <paramref name="source"/> is null.</exception>
+	public static T[] ToArrayOfLength<T>(this T[] source, int length)
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
 
-		var newArray = new T[length ?? source.Length];
+		var newArray = new T[length];
 		int len = Math.Min(newArray.Length, source.Length);
 		for (int i = 0; i < len; i++)
 			newArray[i] = source[i];
 		return newArray;
 	}
 
-	public static IEnumerable<ArraySegment<T>> CopyEachUsing<T>(
-		this IEnumerable<ReadOnlyMemory<T>> source,
-		ArrayPool<T> pool)
-	{
-		if (source is null) throw new ArgumentNullException(nameof(source));
-		if (pool is null) throw new ArgumentNullException(nameof(pool));
-		Contract.EndContractBlock();
-
-		return CopyUsingCore(source, pool);
-
-		static IEnumerable<ArraySegment<T>> CopyUsingCore(IEnumerable<ReadOnlyMemory<T>> source, ArrayPool<T> pool)
-		{
-			foreach (ReadOnlyMemory<T> item in source)
-			{
-				int len = item.Length;
-				T[]? a = pool.Rent(len);
-				item.CopyTo(a);
-				yield return new ArraySegment<T>(a, 0, len);
-			}
-		}
-	}
-
-	public static ICollection<T> AsCollection<T>(this IEnumerable<T> source)
+	/// <summary>
+	/// Coerces to a collection either by matching the type or by creating a new array.
+	/// </summary>
+	public static ICollection<T> ToCollection<T>(this IEnumerable<T> source)
 		=> source is null
 			? null!
 			: source as ICollection<T> ?? source.ToArray();
 
+	/// <summary>
+	/// Iterates over the source in parallel.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this IEnumerable<T> target, ParallelOptions? parallelOptions, Action<T> closure)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -175,13 +178,21 @@ public static partial class Extensions
 			closure);
 	}
 
-	public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, ushort parallel)
+	/// <summary>
+	/// Iterates over the source in parallel.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
+	public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, ushort maxConcurrency)
 		=> target.ForEach(
-			parallel == 0
+			maxConcurrency == 0
 			? null
-			: new ParallelOptions { MaxDegreeOfParallelism = parallel },
+			: new ParallelOptions { MaxDegreeOfParallelism = maxConcurrency },
 			closure);
 
+	/// <summary>
+	/// Iterates over the source and optionally can do so in parallel.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this IEnumerable<T> target, Action<T> closure, bool allowParallel = false)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -200,6 +211,10 @@ public static partial class Extensions
 			closure(t);
 	}
 
+	/// <summary>
+	/// Iterates over the source in parallel with a lock.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this ISynchronizedCollection<T> target, ParallelOptions? parallelOptions, Action<T> closure)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -222,13 +237,21 @@ public static partial class Extensions
 		});
 	}
 
-	public static void ForEach<T>(this ISynchronizedCollection<T> target, Action<T> closure, ushort parallel)
+	/// <summary>
+	/// Iterates over the source in parallel with a lock.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
+	public static void ForEach<T>(this ISynchronizedCollection<T> target, Action<T> closure, ushort maxConcurrency)
 		=> target.ForEach(
-			parallel == 0
+			maxConcurrency == 0
 			? null
-			: new ParallelOptions { MaxDegreeOfParallelism = parallel },
+			: new ParallelOptions { MaxDegreeOfParallelism = maxConcurrency },
 			closure);
 
+	/// <summary>
+	/// Iterates over the source with a lock and optionally can do so in parallel.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this ISynchronizedCollection<T> target, Action<T> closure, bool allowParallel = false)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -250,7 +273,13 @@ public static partial class Extensions
 		});
 	}
 
+	/// <summary>
+	/// Iterates over the source and can be cancelled.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Allows for simpler implementation. Other methods cover non-cancellable case.")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 	public static void ForEach<T>(this IEnumerable<T> target, CancellationToken token, Action<T> closure)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -264,7 +293,10 @@ public static partial class Extensions
 		}
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Allows for simpler implementation. Other methods cover non-cancellable case.")]
+	/// <summary>
+	/// Iterates over the source with a lock and can be cancelled.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this ISynchronizedCollection<T> target, CancellationToken token, Action<T> closure)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -349,7 +381,7 @@ public static partial class Extensions
 		return false;
 	}
 
-	static async Task PreCacheWorker<T>(IEnumerator<T> e, Channel<T> queue)
+	static async Task PreCacheWorker<T>(IEnumerator<T> e, Channel<T> queue, CancellationToken cancellationToken)
 	{
 		try
 		{
@@ -361,7 +393,7 @@ public static partial class Extensions
 
 retry:
 					if (queue.Writer.TryWrite(value)) continue;
-					if (await queue.Writer.WaitToWriteAsync()) goto retry;
+					if (await queue.Writer.WaitToWriteAsync(cancellationToken).ConfigureAwait(false)) goto retry;
 
 					break;
 				}
@@ -378,14 +410,14 @@ retry:
 	/// <summary>
 	/// Similar to a buffer but is loaded by another thread and attempts keep the buffer full while contents are being pulled.
 	/// </summary>
-	public static IEnumerable<T> PreCache<T>(this IEnumerable<T> source, int count = 1)
+	public static IEnumerable<T> PreCache<T>(this IEnumerable<T> source, int count = 1, CancellationToken cancellationToken = default)
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
 
-		return PreCacheCore(source, count);
+		return PreCacheCore(source, count, cancellationToken);
 
-		static IEnumerable<T> PreCacheCore(IEnumerable<T> source, int count)
+		static IEnumerable<T> PreCacheCore(IEnumerable<T> source, int count, CancellationToken cancellationToken)
 		{
 			if (count <= 0)
 			{
@@ -402,7 +434,7 @@ retry:
 			else yield break;
 
 			// Queue up.
-			PreCacheWorker(e, queue).ConfigureAwait(false);
+			PreCacheWorker(e, queue, cancellationToken).ConfigureAwait(false);
 
 			// Dequeue into the enumerable.
 			do
@@ -410,12 +442,12 @@ retry:
 				while (queue.Reader.TryRead(out T? item))
 					yield return item;
 			}
-			while (queue.Reader.WaitToReadAsync().AsTask().Result);
+			while (queue.Reader.WaitToReadAsync(cancellationToken).AsTask().Result);
 
-			Task? complete = queue.Reader.Completion;
+			Task complete = queue.Reader.Completion;
 			if (complete.IsFaulted)
 			{
-				throw complete.Exception.InnerException;
+				throw complete.Exception.InnerException ?? complete.Exception;
 			}
 		}
 	}
@@ -517,6 +549,7 @@ retry:
 	}*/
 
 	public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this ParallelQuery<KeyValuePair<TKey, TValue>> source)
+		where TKey : notnull
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
@@ -525,6 +558,7 @@ retry:
 	}
 
 	public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+		where TKey : notnull
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
@@ -533,6 +567,7 @@ retry:
 	}
 
 	public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
+		where TKey : notnull
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
@@ -546,6 +581,7 @@ retry:
 
 	public static SortedDictionary<TKey, TValue> ToSortedDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source,
 		Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
+		where TKey : notnull
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		if (keySelector is null) throw new ArgumentNullException(nameof(keySelector));
@@ -560,6 +596,7 @@ retry:
 	}
 
 	public static SortedDictionary<TKey, IEnumerable<TValue>> ToSortedDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> source)
+		where TKey : notnull
 	{
 		if (source is null) throw new ArgumentNullException(nameof(source));
 		Contract.EndContractBlock();
@@ -649,7 +686,7 @@ retry:
 		if (list is null) throw new ArgumentNullException(nameof(list));
 		Contract.EndContractBlock();
 
-		return list.Select(r => r!.ToString()).ToArray();
+		return list.Select(r => r!.ToString() ?? "null").ToArray();
 	}
 
 	/// <summary>
@@ -748,8 +785,9 @@ retry:
 
 		object? result = r1
 			.MakeGenericMethod(typeof(T), type)
-			.Invoke(null, new object[] { collection, lambda });
+			.Invoke(null, [collection, lambda]);
 
+		Debug.Assert(result is not null);
 		return (IOrderedQueryable<T>)result;
 	}
 
@@ -913,17 +951,17 @@ retry:
 		if (index < count / 2)
 		{
 			// Start from the beginning
-			current = list.First;
+			current = list.First!;
 			for (int i = 0; i < index; i++)
-				current = current.Next;
+				current = current.Next!;
 
 			return current;
 		}
 
 		// Start from the end
-		current = list.Last;
+		current = list.Last!;
 		for (int i = count - 1; i > index; i--)
-			current = current.Previous;
+			current = current.Previous!;
 
 		return current;
 	}
@@ -969,22 +1007,11 @@ retry:
 	/// <summary>
 	/// Builds an immutable array using the contents of the span.
 	/// </summary>
-	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span)
-	{
-		ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
-		foreach (T? e in span)
-			builder.Add(e);
-		return builder.MoveToImmutable();
-	}
+	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span) => [.. span];
 
 	/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
 	public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
-	{
-		ImmutableArray<T>.Builder? builder = ImmutableArray.CreateBuilder<T>(span.Length);
-		foreach (T? e in span)
-			builder.Add(e);
-		return builder.MoveToImmutable();
-	}
+		=> [.. span];
 
 	/// <summary>
 	/// Builds an immutable array using the contents of the memory.
@@ -1045,17 +1072,15 @@ retry:
 		Action before)
 		=> new PreflightEnumerable<T>(source, before);
 
-	private class PreflightEnumerable<T> : IEnumerable<T>
+	private class PreflightEnumerable<T>(
+		IEnumerable<T> source, Action before)
+		: IEnumerable<T>
 	{
-		private readonly IEnumerable<T> _source;
-		private readonly Action _before;
+		private readonly IEnumerable<T> _source = source ?? throw new ArgumentNullException(nameof(source));
 
-		public PreflightEnumerable(IEnumerable<T> source, Action before)
-		{
-			_source = source ?? throw new ArgumentNullException(nameof(source));
-			_before = before ?? throw new ArgumentNullException(nameof(before));
-		}
+		private readonly Action _before = before ?? throw new ArgumentNullException(nameof(before));
 
+		/// <inheritdoc/>
 		public IEnumerator<T> GetEnumerator()
 		{
 			_before();

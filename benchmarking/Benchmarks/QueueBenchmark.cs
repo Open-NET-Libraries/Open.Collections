@@ -4,13 +4,8 @@ using System.Collections.Generic;
 
 namespace Open.Collections;
 
-public class QueueBenchmark : BenchmarkBase<Func<IQueue<object>>>
+public class QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory) : BenchmarkBase<Func<IQueue<object>>>(size, repeat, queueFactory)
 {
-	public QueueBenchmark(uint size, uint repeat, Func<IQueue<object>> queueFactory)
-		: base(size, repeat, queueFactory)
-	{
-	}
-
 	protected readonly object _item = new();
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()

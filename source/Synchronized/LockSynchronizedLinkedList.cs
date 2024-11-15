@@ -15,12 +15,12 @@ public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWr
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public LinkedListNode<T> First
+	public LinkedListNode<T>? First
 		=> InternalSource.First;
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public LinkedListNode<T> Last
+	public LinkedListNode<T>? Last
 		=> InternalSource.Last;
 
 	/// <inheritdoc />

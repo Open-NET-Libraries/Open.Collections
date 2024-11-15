@@ -5,13 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
-public class DictionaryToHashSetWrapper<T> : ISet<T>
+[method: ExcludeFromCodeCoverage]
+public class DictionaryToHashSetWrapper<T>(
+	IDictionary<T, bool> source)
+	: ISet<T>
 {
-	protected readonly IDictionary<T, bool> InternalSource;
-
-	[ExcludeFromCodeCoverage]
-	public DictionaryToHashSetWrapper(IDictionary<T, bool> source)
-		=> InternalSource = source;
+	protected readonly IDictionary<T, bool> InternalSource = source;
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]

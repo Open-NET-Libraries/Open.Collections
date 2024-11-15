@@ -6,22 +6,13 @@ namespace Open.Collections;
 /// <summary>
 /// A generic Trie collection.
 /// </summary>
-public sealed class ConcurrentTrie<TKey, TValue>
-	: TrieBase<TKey, TValue>
+public sealed class ConcurrentTrie<TKey, TValue>(
+	IEqualityComparer<TKey>? equalityComparer = null)
+	: TrieBase<TKey, TValue>(() => new Node(equalityComparer))
 	where TKey : notnull
 {
-	/// <summary>
-	/// Constructs a <see cref="ConcurrentTrie{TKey, TValue}"/>.
-	/// </summary>
-	public ConcurrentTrie(IEqualityComparer<TKey>? equalityComparer = null)
-		: base(() => new Node(equalityComparer))
-	{ }
-
-	private sealed class Node : NodeBase
+	private sealed class Node(IEqualityComparer<TKey>? equalityComparer) : NodeBase
 	{
-		public Node(IEqualityComparer<TKey>? equalityComparer)
-			=> _equalityComparer = equalityComparer;
-
 		private readonly object _valueSync = new();
 
 		protected override void SetValue(TValue value)
@@ -31,7 +22,7 @@ public sealed class ConcurrentTrie<TKey, TValue>
 
 		private readonly object _childSync = new();
 
-		private readonly IEqualityComparer<TKey>? _equalityComparer;
+		private readonly IEqualityComparer<TKey>? _equalityComparer = equalityComparer;
 		private ConcurrentDictionary<TKey, ITrieNode<TKey, TValue>>? _children;
 
 		protected override void UpdateRecent(TKey key, ITrieNode<TKey, TValue> child)

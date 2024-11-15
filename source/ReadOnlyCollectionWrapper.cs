@@ -27,6 +27,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 	/// </param>
 	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is <see langword="null"/>.</exception>
 	[ExcludeFromCodeCoverage]
+	[SuppressMessage("Style", "IDE0290:Use primary constructor")]
 	public ReadOnlyCollectionWrapper(TCollection source, bool owner = false)
 	{
 		InternalUnsafeSource = source ?? throw new ArgumentNullException(nameof(source));

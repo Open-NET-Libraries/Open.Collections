@@ -4,12 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace Open.Collections.Synchronized;
 
 [ExcludeFromCodeCoverage]
-public class LockSynchronizedListWrapper<T, TList>
-	: LockSynchronizedCollectionWrapper<T, TList>, IList<T>
+public class LockSynchronizedListWrapper<T, TList>(
+	TList list, bool owner = false)
+	: LockSynchronizedCollectionWrapper<T, TList>(list, owner), IList<T>
 	where TList : class, IList<T>
 {
-	public LockSynchronizedListWrapper(TList list, bool owner = false) : base(list, owner) { }
-
 	// This is a simplified version.
 	// It could be possible to allow indexed values to change independently of one another.
 	// If that fine grained of read-write control is necessary, then use the ThreadSafety utility and extensions.
@@ -41,10 +40,8 @@ public class LockSynchronizedListWrapper<T, TList>
 }
 
 [ExcludeFromCodeCoverage]
-public class LockSynchronizedListWrapper<T>
-	: LockSynchronizedListWrapper<T, IList<T>>
+public class LockSynchronizedListWrapper<T>(
+	IList<T> list, bool owner = false)
+	: LockSynchronizedListWrapper<T, IList<T>>(list, owner)
 {
-	public LockSynchronizedListWrapper(IList<T> list, bool owner = false) : base(list, owner)
-	{
-	}
 }

@@ -7,14 +7,19 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A dictionary that maintains the order of items as they are added
+/// and can be accessed by index.
+/// </summary>
 public class OrderedDictionary<TKey, TValue>
 	: DictionaryWrapperBase<TKey, TValue, LinkedList<KeyValuePair<TKey, TValue>>>, IDictionary<TKey, TValue>
+	where TKey : notnull
 {
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public OrderedDictionary()
 		: base(new LinkedList<KeyValuePair<TKey, TValue>>(), true)
-		=> _lookup = new();
+		=> _lookup = [];
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
@@ -23,9 +28,14 @@ public class OrderedDictionary<TKey, TValue>
 		=> _lookup = new(capacity);
 
 	private Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> _lookup;
+
+	/// <summary>
+	/// The dictionary that can look up the node for a key.
+	/// </summary>
 	protected Dictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> Lookup
 		=> _lookup ?? throw new ObjectDisposedException(GetType().ToString());
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	protected override void OnDispose()
 	{
@@ -34,17 +44,22 @@ public class OrderedDictionary<TKey, TValue>
 		base.OnDispose();
 	}
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override TValue GetValueInternal(TKey key) => Lookup[key].Value.Value;
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void SetValueInternal(TKey key, TValue value) => SetValue(key, value);
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void AddInternal(in KeyValuePair<TKey, TValue> kvp)
 		=> AddNode(in kvp);
 
-	/// <inheritdoc />
+	/// <summary>
+	/// Updates a value by key and returns true if the value changed.
+	/// </summary>
 	public virtual bool SetValue(TKey key, TValue value)
 	{
 		AssertIsAlive();
@@ -61,11 +76,13 @@ public class OrderedDictionary<TKey, TValue>
 		return true;
 	}
 
+	/// <inheritdoc />
 	protected override ICollection<TKey> GetKeys()
 		=> new ReadOnlyCollectionAdapter<TKey>(
 			ThrowIfDisposed(InternalSource.Select(e => e.Key)),
 			() => InternalSource.Count);
 
+	/// <inheritdoc />
 	protected override ICollection<TValue> GetValues()
 		=> new ReadOnlyCollectionAdapter<TValue>(
 			ThrowIfDisposed(InternalSource.Select(e => e.Value)),
@@ -76,6 +93,9 @@ public class OrderedDictionary<TKey, TValue>
 	protected override void AddInternal(TKey key, TValue value)
 		=> AddInternal(KeyValuePair.Create(key, value));
 
+	/// <summary>
+	/// Adds a node to the lookup dictionary.
+	/// </summary>
 #if NETSTANDARD2_0
 	[SuppressMessage("Roslynator", "RCS1242:Do not pass non-read-only struct by read-only reference.", Justification = "KeyValuePairs are not truly readonly until NET Standard 2.1.")]
 #endif
@@ -129,13 +149,14 @@ public class OrderedDictionary<TKey, TValue>
 		base.Clear();
 	}
 
+	/// <inheritdoc />
 	public override bool Remove(KeyValuePair<TKey, TValue> item)
 	{
 		var key = item.Key;
 		if (Lookup.TryGetValue(key, out var node)
 			&& (node.Value.Value?.Equals(item.Value) ?? item.Value is null))
 		{
-			Debug.Assert(key?.Equals(node.Value.Key) ?? node.Value.Key is null);
+			Debug.Assert(key.Equals(node.Value.Key));
 			bool removed = Lookup.Remove(key);
 			Debug.Assert(removed);
 			InternalSource.Remove(node);

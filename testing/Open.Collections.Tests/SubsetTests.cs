@@ -8,20 +8,20 @@ namespace Open.Collections.Tests;
 
 public class SubsetTests
 {
-	static readonly ImmutableArray<int> Set1 = ImmutableArray.Create(1, 2, 3);
-	static readonly ImmutableArray<char> Set2 = ImmutableArray.Create('A', 'C', 'E');
-	static readonly ImmutableArray<char> Set3 = ImmutableArray.Create('A', 'B', 'C', 'D');
+	static readonly ImmutableArray<int> Set1 = [1, 2, 3];
+	static readonly ImmutableArray<char> Set2 = ['A', 'C', 'E'];
+	static readonly ImmutableArray<char> Set3 = ['A', 'B', 'C', 'D'];
 	static readonly ImmutableArray<int> Set4 = Enumerable.Range(1, 5).ToImmutableArray();
 	static readonly ImmutableArray<int> Set5 = Enumerable.Range(1, 11).ToImmutableArray();
 
 	[Fact]
 	public void TestSubset1_2()
 	{
-		int[][] expected = new int[][] {
-			new int[] { 1, 2 },
-			new int[] { 1, 3 },
-			new int[] { 2, 3 },
-		};
+		int[][] expected = [
+			[1, 2],
+			[1, 3],
+			[2, 3],
+		];
 		int[][] actual = Set1.Subsets(2).ToArray();
 		Assert.Equal(expected, actual);
 
@@ -35,11 +35,11 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset2_2()
 	{
-		char[][] expected = new char[][] {
-			new char[] { 'A', 'C' },
-			new char[] { 'A', 'E' },
-			new char[] { 'C', 'E' },
-		};
+		char[][] expected = [
+			['A', 'C'],
+			['A', 'E'],
+			['C', 'E'],
+		];
 		char[][] actual = Set2.Subsets(2).ToArray();
 		Assert.Equal(expected, actual);
 
@@ -50,14 +50,14 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset3_2()
 	{
-		char[][] expected = new char[][] {
-			new char[] { 'A', 'B' },
-			new char[] { 'A', 'C' },
-			new char[] { 'B', 'C' },
-			new char[] { 'A', 'D' },
-			new char[] { 'B', 'D' },
-			new char[] { 'C', 'D' },
-		};
+		char[][] expected = [
+			['A', 'B'],
+			['A', 'C'],
+			['B', 'C'],
+			['A', 'D'],
+			['B', 'D'],
+			['C', 'D'],
+		];
 		Assert.Equal(expected.Length, Set3.Subsets(2).Count());
 
 		char[][] progressive = Set3.SubsetsProgressive(2).ToArray();
@@ -67,12 +67,12 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset3_3()
 	{
-		char[][] expected = new char[][] {
-			new char[] { 'A', 'B', 'C' },
-			new char[] { 'A', 'B', 'D' },
-			new char[] { 'A', 'C', 'D' },
-			new char[] { 'B', 'C', 'D' },
-		};
+		char[][] expected = [
+			['A', 'B', 'C'],
+			['A', 'B', 'D'],
+			['A', 'C', 'D'],
+			['B', 'C', 'D'],
+		];
 		char[][] actual = Set3.Subsets(3).ToArray();
 		Assert.Equal(expected, actual);
 
@@ -100,13 +100,13 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset4_4()
 	{
-		int[][] expected = new int[][] {
-			new int[] { 1, 2, 3, 4 },
-			new int[] { 1, 2, 3, 5 },
-			new int[] { 1, 2, 4, 5 },
-			new int[] { 1, 3, 4, 5 },
-			new int[] { 2, 3, 4, 5 },
-		};
+		int[][] expected = [
+			[1, 2, 3, 4],
+			[1, 2, 3, 5],
+			[1, 2, 4, 5],
+			[1, 3, 4, 5],
+			[2, 3, 4, 5],
+		];
 		int[][] actual = Set4.Subsets(4).ToArray();
 		Assert.Equal(expected, actual);
 
@@ -127,18 +127,18 @@ public class SubsetTests
 	[Fact]
 	public void TestSubset4_3()
 	{
-		int[][] expected = new int[][] {
-			new int[] { 1, 2, 3 },
-			new int[] { 1, 2, 4 },
-			new int[] { 1, 3, 4 },
-			new int[] { 2, 3, 4 },
-			new int[] { 1, 2, 5 },
-			new int[] { 1, 3, 5 },
-			new int[] { 1, 4, 5 },
-			new int[] { 2, 3, 5 },
-			new int[] { 2, 4, 5 },
-			new int[] { 3, 4, 5 },
-		};
+		int[][] expected = [
+			[1, 2, 3],
+			[1, 2, 4],
+			[1, 3, 4],
+			[2, 3, 4],
+			[1, 2, 5],
+			[1, 3, 5],
+			[1, 4, 5],
+			[2, 3, 5],
+			[2, 4, 5],
+			[3, 4, 5],
+		];
 		int[][] actual = Set4.SubsetsProgressive(3).ToArray();
 		Assert.Equal(expected, actual);
 

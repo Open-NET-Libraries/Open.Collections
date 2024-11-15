@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class BasicLinkedListTests<TList> : BasicCollectionTests<TList>
+public abstract class BasicLinkedListTests<TList>(TList collection) : BasicCollectionTests<TList>(collection)
 	where TList : ILinkedList<int>, new()
 {
-	protected BasicLinkedListTests(TList collection)
-		: base(collection) { }
-
 	protected BasicLinkedListTests()
 		: this(new()) { }
 

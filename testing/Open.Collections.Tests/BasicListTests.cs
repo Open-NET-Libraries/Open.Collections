@@ -4,17 +4,15 @@ using System.Collections.Generic;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class BasicListTests<TList>
-	: BasicCollectionTests<TList>
+public abstract class BasicListTests<TList>(TList list)
+	: BasicCollectionTests<TList>(list)
 	where TList : IList<int>, new()
 {
-	protected BasicListTests(TList list) : base(list) { }
-
 	protected BasicListTests() : this(new()) { }
 
-	public override TList AssertWhenDisposed()
+	protected override TList AssertWhenDisposedCore()
 	{
-		var list = base.AssertWhenDisposed();
+		var list = base.AssertWhenDisposedCore();
 		if (list is not IDisposable) return list;
 		ThrowsDisposed(() => list.IndexOf(5));
 		return list;

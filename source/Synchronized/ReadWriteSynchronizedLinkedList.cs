@@ -4,25 +4,36 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A synchronized wrapper for <see cref="LinkedList{T}"/> that uses a <see cref="System.Threading.ReaderWriterLockSlim"/> for thread safety.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public sealed class ReadWriteSynchronizedLinkedList<T>
 	: ReadWriteSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedLinkedList()
 		: base(new LinkedList<T>()) { }
 
+	/// <summary>
+	/// Constructs a new instance with the specified collection.
+	/// </summary>
+	/// <param name="collection"></param>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedLinkedList(IEnumerable<T> collection)
 		: base(new LinkedList<T>(collection)) { }
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public LinkedListNode<T> First
+	public LinkedListNode<T>? First
 		=> InternalSource.First;
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public LinkedListNode<T> Last
+	public LinkedListNode<T>? Last
 		=> InternalSource.Last;
 
 	/// <inheritdoc />

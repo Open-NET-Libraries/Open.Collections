@@ -16,6 +16,8 @@ namespace Open.Collections.Synchronized;
 public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCollection<T>
 {
 	int _count;
+
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public override int Count
 	{
@@ -29,6 +31,7 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 	private readonly Queue.Concurrent<T> _buffer = new();
 	private readonly ReaderWriterLockSlim RWLock = new();
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	protected override void OnDispose()
 	{
@@ -74,6 +77,9 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 		return list;
 	}
 
+	/// <summary>
+	/// Gets or sets the capacity of the list.
+	/// </summary>
 	public int Capacity
 	{
 		get => InternalSource.Capacity;
@@ -84,11 +90,17 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 		}
 	}
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public ConcurrentList(int capacity) : base(new List<T>(capacity)) { }
 
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public ConcurrentList() : base(new List<T>()) { }
+	public ConcurrentList() : base([]) { }
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	private void AssertValidIndex(int index)
@@ -111,6 +123,7 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 		}
 	}
 
+	/// <inheritdoc />
 	protected override void AddInternal(in T item)
 	{
 		_buffer.Enqueue(item);

@@ -4,13 +4,10 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class ParallelDictionaryTests<TDictionary>
-	: BasicDictionaryTests<TDictionary>
+public abstract class ParallelDictionaryTests<TDictionary>(TDictionary dictionary)
+	: BasicDictionaryTests<TDictionary>(dictionary)
 	where TDictionary : IDictionary<int, int>, new()
 {
-	protected ParallelDictionaryTests(TDictionary dictionary)
-		: base(dictionary) { }
-
 	protected ParallelDictionaryTests()
 		: this(new()) { }
 

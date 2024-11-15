@@ -4,13 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
-public class ReadWriteSynchronizedListWrapper<T, TList>
-	: ReadWriteSynchronizedCollectionWrapper<T, TList>, IList<T>
+/// <summary>
+/// A synchronized wrapper for a list that uses a <see cref="System.Threading.ReaderWriterLockSlim"/> for synchronization.
+/// </summary>
+public class ReadWriteSynchronizedListWrapper<T, TList>(
+	TList list, bool owner = false)
+	: ReadWriteSynchronizedCollectionWrapper<T, TList>(list, owner), IList<T>
 	where TList : class, IList<T>
 {
-	[ExcludeFromCodeCoverage]
-	public ReadWriteSynchronizedListWrapper(TList list, bool owner = false) : base(list, owner) { }
-
 	// This is a simplified version.
 	// It could be possible to allow indexed values to change independently of one another.
 	// If that fine grained of read-write control is necessary, then use the ThreadSafety utility and extensions.
@@ -58,12 +59,12 @@ public class ReadWriteSynchronizedListWrapper<T, TList>
 	}
 }
 
+/// <summary>
+/// A synchronized wrapper for a list that uses a <see cref="System.Threading.ReaderWriterLockSlim"/> for synchronization.
+/// </summary>
 [ExcludeFromCodeCoverage]
-public class ReadWriteSynchronizedListWrapper<T>
-	: ReadWriteSynchronizedListWrapper<T, IList<T>>
+public class ReadWriteSynchronizedListWrapper<T>(
+	IList<T> list, bool owner = false)
+	: ReadWriteSynchronizedListWrapper<T, IList<T>>(list, owner)
 {
-	public ReadWriteSynchronizedListWrapper(IList<T> list, bool owner = false)
-		: base(list, owner)
-	{
-	}
 }

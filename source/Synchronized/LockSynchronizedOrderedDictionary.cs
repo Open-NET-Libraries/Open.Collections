@@ -2,12 +2,10 @@
 
 namespace Open.Collections.Synchronized;
 
-/// <inheritdoc />
 [ExcludeFromCodeCoverage]
-public sealed class LockSynchronizedOrderedDictionary<TKey, TValue>
-	: LockSynchronizedDictionaryWrapper<TKey, TValue, OrderedDictionary<TKey, TValue>>
+public sealed class LockSynchronizedOrderedDictionary<TKey, TValue>(
+	int capacity = 0)
+	: LockSynchronizedDictionaryWrapper<TKey, TValue, OrderedDictionary<TKey, TValue>>(new OrderedDictionary<TKey, TValue>(capacity))
+	where TKey : notnull
 {
-	/// <inheritdoc />
-	public LockSynchronizedOrderedDictionary(int capacity = 0)
-		: base(new OrderedDictionary<TKey, TValue>(capacity)) { }
 }

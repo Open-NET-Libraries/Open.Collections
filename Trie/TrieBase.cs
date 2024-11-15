@@ -221,34 +221,23 @@ NotFound:
 	{
 		protected IDictionary<TKey, ITrieNode<TKey, TValue>>? Children;
 
-		private readonly struct ValueContainer
+		private readonly struct ValueContainer(bool isSet, TValue value)
 		{
-			public ValueContainer(bool isSet, TValue value)
-			{
-				IsSet = isSet;
-				Value = value;
-			}
-
 			public ValueContainer(TValue value)
 				: this(true, value) { }
 
-			public bool IsSet { get; }
-			public TValue Value { get; }
+			public bool IsSet { get; } = isSet;
+			public TValue Value { get; } = value;
 		}
 
 		private ValueContainer _value;
 
-		private readonly struct Recent
+		private readonly struct Recent(
+			bool exists, TKey key, ITrieNode<TKey, TValue> child)
 		{
-			public Recent(bool exists, TKey key, ITrieNode<TKey, TValue> child)
-			{
-				Exists = exists;
-				Key = key;
-				Child = child;
-			}
-			public bool Exists { get; }
-			public TKey Key { get; }
-			public ITrieNode<TKey, TValue> Child { get; }
+			public bool Exists { get; } = exists;
+			public TKey Key { get; } = key;
+			public ITrieNode<TKey, TValue> Child { get; } = child;
 		}
 
 		// It's not uncommon to have a 'hot path' that will be requested frequently.

@@ -2,15 +2,11 @@
 
 namespace Open.Collections.Synchronized;
 
-/// <inheritdoc />
 [ExcludeFromCodeCoverage] // Nothing worth covering here yet.
-public sealed class LockSynchronizedIndexedDictionary<TKey, TValue>
-	: LockSynchronizedDictionaryWrapper<TKey, TValue, IndexedDictionary<TKey, TValue>>, IIndexedDictionary<TKey, TValue>
+public sealed class LockSynchronizedIndexedDictionary<TKey, TValue>(int capacity = 0)
+	: LockSynchronizedDictionaryWrapper<TKey, TValue, IndexedDictionary<TKey, TValue>>(new IndexedDictionary<TKey, TValue>(capacity)), IIndexedDictionary<TKey, TValue>
+	where TKey : notnull
 {
-	/// <inheritdoc />
-	public LockSynchronizedIndexedDictionary(int capacity = 0)
-		: base(new IndexedDictionary<TKey, TValue>(capacity)) { }
-
 	/// <inheritdoc />
 	public TKey GetKeyAt(int index) => InternalSource.GetKeyAt(index);
 

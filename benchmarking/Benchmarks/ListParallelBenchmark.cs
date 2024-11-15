@@ -4,13 +4,10 @@ using System.Collections.Generic;
 
 namespace Open.Collections;
 
-public class ListParallelBenchmark : CollectionParallelBenchmark
+public class ListParallelBenchmark(
+	uint size, uint repeat, Func<IList<object>> factory)
+	: CollectionParallelBenchmark(size, repeat, factory)
 {
-	public ListParallelBenchmark(uint size, uint repeat, Func<IList<object>> factory)
-		: base(size, repeat, factory)
-	{
-	}
-
 	// Get/Set (mutating entry) operations have no benefit to synchronization and are inherently thread safe.
 	//protected override IEnumerable<TimedResult> TestOnceInternal()
 	//{

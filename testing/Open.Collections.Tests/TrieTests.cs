@@ -4,15 +4,15 @@ using Xunit;
 namespace Open.Collections.Tests;
 public static class TrieTests
 {
-	static readonly string[] Examples = new[]
-	{
+	static readonly string[] Examples =
+	[
 		"",
 		"abcd",
 		"dcba",
 		"abcdef",
 		"the brown fox",
 		"xxx"
-	};
+	];
 
 	[Fact]
 	public static void TrieValidate()
