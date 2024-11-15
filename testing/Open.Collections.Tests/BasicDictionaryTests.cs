@@ -5,18 +5,14 @@ using System.Linq;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class BasicDictionaryTests<TDictionary>
+public abstract class BasicDictionaryTests<TDictionary>(TDictionary dictionary)
 	where TDictionary : IDictionary<int, int>, new()
 {
-	protected BasicDictionaryTests(TDictionary dictionary)
-		=> Dictionary = dictionary;
-
 	protected BasicDictionaryTests() : this(new()) { }
 
-	protected readonly TDictionary Dictionary;
+	protected readonly TDictionary Dictionary = dictionary;
 
-	[Fact]
-	public TDictionary AssertWhenDisposed()
+	protected TDictionary AssertWhenDisposedCore()
 	{
 		TDictionary d = new();
 		d.Add(5, 10);
@@ -32,6 +28,10 @@ public abstract class BasicDictionaryTests<TDictionary>
 		ThrowsDisposed(() => d.Remove(5));
 		return d;
 	}
+
+	[Fact]
+	public void AssertWhenDisposed()
+		=> AssertWhenDisposedCore();
 
 	static void ThrowsDisposed(Action action)
 		=> Assert.Throws<ObjectDisposedException>(action);

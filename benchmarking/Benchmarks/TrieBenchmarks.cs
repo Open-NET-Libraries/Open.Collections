@@ -35,7 +35,7 @@ public class TrieBenchmark
 	{
 		int x = 0;
 		trie = new();
-		dictionary = new();
+		dictionary = [];
 		ctrie = new();
 		cdictionary = new();
 		keys = GenerateTree(Depth, NodeSize)

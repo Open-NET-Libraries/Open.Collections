@@ -5,12 +5,8 @@ using System.Threading.Tasks;
 
 namespace Open.Collections;
 
-public class QueueParallelBenchmark : QueueBenchmark
+public class QueueParallelBenchmark(uint size, uint repeat, Func<IQueue<object>> factory) : QueueBenchmark(size, repeat, factory)
 {
-	public QueueParallelBenchmark(uint size, uint repeat, Func<IQueue<object>> factory) : base(size, repeat, factory)
-	{
-	}
-
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
 		IQueue<object> queue = Param();

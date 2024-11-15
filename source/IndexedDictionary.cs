@@ -12,11 +12,15 @@ namespace Open.Collections;
 /// </summary>
 public class IndexedDictionary<TKey, TValue>
 	: DictionaryWrapper<TKey, TValue>, IIndexedDictionary<TKey, TValue>
+	where TKey : notnull
 {
 	private const string OUTOFSYNC = "Collection is out of sync possibly due to unsynchronized access by multiple threads.";
 	private readonly List<KeyValuePair<TKey, TValue>> _entries;
 	private readonly Dictionary<TKey, int> _indexes;
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public IndexedDictionary(int capacity)
 		: base(capacity)
@@ -25,13 +29,16 @@ public class IndexedDictionary<TKey, TValue>
 		_indexes = new(capacity);
 	}
 
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	public IndexedDictionary()
-	: base()
 	{
-		_entries = new();
-		_indexes = new();
+		_entries = [];
+		_indexes = [];
 	}
 
+	/// <inheritdoc />
 	protected override void OnDispose()
 	{
 		base.OnDispose();
@@ -39,6 +46,9 @@ public class IndexedDictionary<TKey, TValue>
 		_indexes.Clear();
 	}
 
+	/// <summary>
+	/// Sets the value for the key.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void SetValueInternal(TKey key, TValue value) => SetValue(key, value);
 
@@ -46,12 +56,14 @@ public class IndexedDictionary<TKey, TValue>
 	public override IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 		=> _entries.GetEnumerator().Preflight(ThrowIfDisposedDelegate);
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override ICollection<TKey> GetKeys()
 		=> new ReadOnlyCollectionAdapter<TKey>(
 			ThrowIfDisposed(_entries.Select(e => e.Key)),
 			() => _entries.Count);
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override ICollection<TValue> GetValues()
 		=> new ReadOnlyCollectionAdapter<TValue>(
@@ -82,6 +94,7 @@ public class IndexedDictionary<TKey, TValue>
 		return i;
 	}
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void AddInternal(in KeyValuePair<TKey, TValue> item)
@@ -98,6 +111,7 @@ public class IndexedDictionary<TKey, TValue>
 		return AddToLists(in kvp);
 	}
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void AddInternal(TKey key, TValue value)
 		=> Add(key, value);
@@ -157,6 +171,7 @@ public class IndexedDictionary<TKey, TValue>
 		Debug.Assert(_entries.Count == InternalSource.Count);
 	}
 
+	/// <inheritdoc />
 	public override void Clear()
 	{
 		base.Clear();

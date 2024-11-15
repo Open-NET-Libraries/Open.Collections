@@ -22,7 +22,7 @@ namespace Open.Collections.Benchmarks;
 //[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static")]
 public class SubsetBufferedBench
 {
-	IReadOnlyList<int> FullSet = Array.Empty<int>();
+	int[] FullSet = Array.Empty<int>();
 	ReadOnlyMemory<int> FullMemorySet = ReadOnlyMemory<int>.Empty;
 
 	[Params(3, 7)]
@@ -31,7 +31,7 @@ public class SubsetBufferedBench
 	[Params(9, 32)]
 	public int Range
 	{
-		get => FullSet.Count;
+		get => FullSet.Length;
 		set
 		{
 			int[] s = Enumerable.Range(0, value).ToArray();

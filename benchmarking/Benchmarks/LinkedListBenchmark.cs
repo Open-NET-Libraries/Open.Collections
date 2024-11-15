@@ -4,12 +4,10 @@ using System.Collections.Generic;
 
 namespace Open.Collections;
 
-public class LinkedListBenchmark : BenchmarkBase<Func<ILinkedList<object>>>
+public class LinkedListBenchmark(
+	uint size, uint repeat, Func<ILinkedList<object>> factory)
+	: BenchmarkBase<Func<ILinkedList<object>>>(size, repeat, factory)
 {
-	public LinkedListBenchmark(uint size, uint repeat, Func<ILinkedList<object>> factory) : base(size, repeat, factory)
-	{
-	}
-
 	protected readonly object _item = new();
 
 	protected override IEnumerable<TimedResult> TestOnceInternal()

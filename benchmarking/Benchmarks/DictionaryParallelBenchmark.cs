@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 
 namespace Open.Collections;
 
-public class DictionaryParallelBenchmark : CollectionParallelBenchmark<KeyValuePair<int, object>>
+public class DictionaryParallelBenchmark(
+	uint size, uint repeat, Func<IDictionary<int, object>> factory)
+	: CollectionParallelBenchmark<KeyValuePair<int, object>>(size, repeat, factory, i => new KeyValuePair<int, object>(i, new object()))
 {
-	public DictionaryParallelBenchmark(uint size, uint repeat, Func<IDictionary<int, object>> factory)
-		: base(size, repeat, factory, i => new KeyValuePair<int, object>(i, new object()))
-	{
-	}
-
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
 		//foreach (TimedResult t in base.TestOnceInternal())

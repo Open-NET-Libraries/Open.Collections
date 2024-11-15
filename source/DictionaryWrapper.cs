@@ -8,6 +8,7 @@ namespace Open.Collections;
 [ExcludeFromCodeCoverage]
 public class DictionaryWrapper<TKey, TValue>
 	: DictionaryWrapperBase<TKey, TValue, IDictionary<TKey, TValue>>
+	where TKey : notnull
 {
 	/// <inheritdoc />
 	public DictionaryWrapper()
@@ -61,6 +62,11 @@ public class DictionaryWrapper<TKey, TValue>
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public override bool TryGetValue(TKey key, out TValue value)
+	public override bool TryGetValue(TKey key,
+#if NET9_0_OR_GREATER
+		[MaybeNullWhen(false)]
+#else
+#endif
+		out TValue value)
 		=> InternalSource.TryGetValue(key, out value);
 }

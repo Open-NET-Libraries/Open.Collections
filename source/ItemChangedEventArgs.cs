@@ -14,25 +14,20 @@ public enum ItemChange
 	Modified
 }
 
-public class ItemChangedEventArgs<T> : EventArgs
+public class ItemChangedEventArgs<T>(
+	ItemChange action, T value, int version)
+	: EventArgs
 {
-	public readonly ItemChange Change;
-	public readonly T Value;
-	public readonly int Version;
-
-	public ItemChangedEventArgs(ItemChange action, T value, int version)
-	{
-		Change = action;
-		Value = value;
-		Version = version;
-	}
+	public readonly ItemChange Change = action;
+	public readonly T Value = value;
+	public readonly int Version = version;
 }
 
-public class ItemChangedEventArgs<TIndex, TValue> : ItemChangedEventArgs<TValue>
+public class ItemChangedEventArgs<TIndex, TValue>(
+	ItemChange action, TIndex index, TValue value, int version)
+	: ItemChangedEventArgs<TValue>(action, value, version)
 {
-	public readonly TIndex Index;
-	public ItemChangedEventArgs(ItemChange action, TIndex index, TValue value, int version)
-		: base(action, value, version) => Index = index;
+	public readonly TIndex Index = index;
 }
 
 public static class ItemChangeEventArgs

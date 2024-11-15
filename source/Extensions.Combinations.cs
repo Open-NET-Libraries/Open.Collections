@@ -160,13 +160,13 @@ public static partial class Extensions
 		Contract.EndContractBlock();
 
 		if (length == 0) return Enumerable.Empty<T[]>();
-		IReadOnlyList<T>? source = elements as IReadOnlyList<T> ?? elements.ToArray();
+		IReadOnlyList<T> source = elements as IReadOnlyList<T> ?? elements.ToArray();
 		int count = source.Count;
 		return count == 0
 			? Enumerable.Empty<T[]>()
 			: uniqueOnly
 			? source.Subsets(length)
-			: CombinationsCore(source, length, true).Select(e => e.Array.AsCopy(length));
+			: CombinationsCore(source, length, true).Select(e => e.Array!.ToArrayOfLength(length));
 	}
 
 	/// <inheritdoc cref="Combinations{T}(IEnumerable{T}, int)"/>

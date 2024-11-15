@@ -38,7 +38,13 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
-	public static void AddRange<T>(this ICollection<T> target, IEnumerable<T> values)
+	/// <summary>
+	/// Adds each value to the end of the <paramref name="target"/> collection.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="target"/> is null.</exception>
+	public static void AddRange<T>(
+		this ICollection<T> target,
+		IEnumerable<T> values)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
@@ -50,6 +56,9 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
+	/// <summary>
+	/// Adds each value to the end of the <paramref name="target"/> collection.
+	/// </summary>
 	public static void AddThese<T>(this ICollection<T> target, T a, T b, params T[] more)
 	{
 		target.Add(a);
@@ -58,6 +67,9 @@ public static partial class Extensions
 			target.AddRange(more);
 	}
 
+	/// <summary>
+	/// Removes each value from the <paramref name="target"/> collection.
+	/// </summary>
 	public static int Remove<T>(this ICollection<T> target, IEnumerable<T> values)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -156,7 +168,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		IList<TValue>? list = c.GetOrAdd(key, _ => new List<TValue>());
+		IList<TValue>? list = c.GetOrAdd(key, _ => []);
 		list.Add(value);
 	}
 

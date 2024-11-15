@@ -6,14 +6,11 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
-/// <inheritdoc />
-public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
-	: ReadWriteSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>, IDictionary<TKey, TValue>
+public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
+	TDictionary dictionary, bool owner = false)
+	: ReadWriteSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>(dictionary, owner), IDictionary<TKey, TValue>
 	where TDictionary : class, IDictionary<TKey, TValue>
 {
-	/// <inheritdoc />
-	public ReadWriteSynchronizedDictionaryWrapper(TDictionary dictionary, bool owner = false) : base(dictionary, owner) { }
-
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public virtual TValue this[TKey key]
@@ -79,7 +76,11 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryGetValue(TKey key, out TValue value)
+	public bool TryGetValue(TKey key,
+#if NET9_0_OR_GREATER
+		[MaybeNullWhen(false)]
+#endif
+		out TValue value)
 		=> InternalSource.TryGetValue(key, out value);
 
 	/// <inheritdoc />
@@ -104,17 +105,16 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>
 }
 
 [ExcludeFromCodeCoverage]
-public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
-	: ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>
+public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>(
+	IDictionary<TKey, TValue> dictionary, bool owner = false)
+	: ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, IDictionary<TKey, TValue>>(dictionary, owner)
 {
-	public ReadWriteSynchronizedDictionaryWrapper(IDictionary<TKey, TValue> dictionary, bool owner = false) : base(dictionary, owner)
-	{
-	}
 }
 
 [ExcludeFromCodeCoverage]
 public class ReadWriteSynchronizedDictionary<TKey, TValue>
 	: ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
+	where TKey : notnull
 {
 	public ReadWriteSynchronizedDictionary() : base(new Dictionary<TKey, TValue>()) { }
 

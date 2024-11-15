@@ -3,15 +3,27 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
+/// <summary>
+/// Static collection of queue implementations.
+/// </summary>
 public static partial class Queue
 {
+	/// <summary>
+	/// A standard queue implementation that is based upon <see cref="Queue{T}"/>.
+	/// </summary>
 	public class Standard<T> : Queue<T>, IQueue<T>
 	{
+		/// <summary>
+		/// Construct an empty queue.
+		/// </summary>
 		[ExcludeFromCodeCoverage]
-		protected Standard()
+		public Standard()
 		{
 		}
 
+		/// <summary>
+		/// Construct a queue with an initial set of items.
+		/// </summary>
 		[ExcludeFromCodeCoverage]
 		public Standard(IEnumerable<T> initial) : base(initial)
 		{
@@ -38,12 +50,16 @@ public static partial class Queue
 
 		/// <inheritdoc />
 		[ExcludeFromCodeCoverage]
-		public new virtual bool TryDequeue(out T item)
+		public new virtual bool TryDequeue(
+			[MaybeNullWhen(false)]
+			out T item)
 			=> base.TryDequeue(out item);
 
 		/// <inheritdoc />
 		[ExcludeFromCodeCoverage]
-		public new virtual bool TryPeek(out T item)
+		public new virtual bool TryPeek(
+			[MaybeNullWhen(false)]
+			out T item)
 			=> base.TryPeek(out item);
 #endif
 

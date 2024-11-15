@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net9.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -26,10 +26,11 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<NoWarn>IDE0130;CA1510;CA1068;IDE0305;IDE0301;RCS1196;</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -50,13 +51,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Open.Text" Version="6.2.*" />
-		<PackageReference Include="Open.Threading" Version="2.2.*" />
-		<PackageReference Include="System.Collections.Immutable" Version="6.*" />
+		<PackageReference Include="Open.Text" Version="8.1.0" />
+		<PackageReference Include="Open.Threading" Version="3.0.3" />
+		<PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Buffers" Version="4.5.1" />
+		<PackageReference Include="System.Buffers" Version="4.6.0" />
 	</ItemGroup>
+
+	<!-- 👇 disable the nullable warnings when compiling for .NET Standard 2.0 -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<NoWarn>$(NoWarn);nullable</NoWarn>
+	</PropertyGroup>
 
 </Project>

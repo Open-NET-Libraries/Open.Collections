@@ -11,6 +11,7 @@ public static partial class Extensions
 	/// Shortcut for removeing a value without needing an 'out' parameter.
 	/// </summary>
 	public static bool TryRemove<TKey, T>(this ConcurrentDictionary<TKey, T> target, TKey key)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
@@ -28,6 +29,7 @@ public static partial class Extensions
 		out bool updated,
 		TKey key,
 		Func<TKey, TValue> valueFactory)
+		where TKey : notnull
 	{
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));
@@ -59,6 +61,7 @@ public static partial class Extensions
 		out bool updated,
 		TKey key,
 		TValue value)
+		where TKey : notnull
 	{
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));
@@ -81,7 +84,10 @@ public static partial class Extensions
 	/// <summary>
 	/// Will return true if the existing <see cref="DateTime"/> value is past due.
 	/// </summary>
-	public static bool UpdateRequired<TKey>(this ConcurrentDictionary<TKey, DateTime> source, TKey key, TimeSpan timeBeforeExpires)
+	public static bool UpdateRequired<TKey>(
+		this ConcurrentDictionary<TKey,
+		DateTime> source, TKey key, TimeSpan timeBeforeExpires)
+		where TKey : notnull
 	{
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));
@@ -113,6 +119,7 @@ public static partial class Extensions
 		this ConcurrentDictionary<TKey, Lazy<TValue>> source,
 		TKey key,
 		Func<TKey, TValue> valueFactory)
+		where TKey : notnull
 	{
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));
@@ -144,6 +151,7 @@ public static partial class Extensions
 		this ConcurrentDictionary<TKey, Lazy<Task<TValue>>> source,
 		TKey key,
 		Func<TKey, Task<TValue>> valueFactory)
+		where TKey : notnull
 	{
 		if (source is null)
 			throw new ArgumentNullException(nameof(source));

@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace Open.Collections;
 
-public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
+public class CollectionParallelBenchmark<T>(
+	uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
+	: CollectionBenchmark<T>(size, repeat, factory, itemFactory)
 {
-	public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory) : base(size, repeat, factory, itemFactory)
-	{
-	}
-
 	protected override IEnumerable<TimedResult> TestOnceInternal()
 	{
 		ICollection<T> c = Param();
@@ -115,13 +113,10 @@ public class CollectionParallelBenchmark<T> : CollectionBenchmark<T>
 	}
 }
 
-public class CollectionParallelBenchmark : CollectionParallelBenchmark<object>
+public class CollectionParallelBenchmark(
+	uint size, uint repeat, Func<ICollection<object>> factory)
+	: CollectionParallelBenchmark<object>(size, repeat, factory, _ => new object())
 {
-	public CollectionParallelBenchmark(uint size, uint repeat, Func<ICollection<object>> factory)
-		: base(size, repeat, factory, _ => new object())
-	{
-	}
-
 	public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
 		=> new CollectionParallelBenchmark<T>(size, repeat, factory, itemFactory).Result;
 

@@ -12,21 +12,11 @@ namespace Open.Collections;
 /// <remarks>
 /// Useful for (re)generating cache keys.
 /// </remarks>
-public class StringJoinPool
+public class StringJoinPool(
+	ITrie<string, string> pool, ReadOnlyMemory<char> separator)
 {
-	private readonly ReadOnlyMemory<char> _separator;
-	private readonly ITrie<string, string> _pool;
+	private readonly ITrie<string, string> _pool = pool ?? throw new ArgumentNullException(nameof(pool));
 	private StringBuilder? _reusableBuilder;
-
-	/// <summary>
-	/// Constructs a <see cref="StringJoinPool"/>.
-	/// </summary>
-	/// <exception cref="ArgumentNullException">If the supplied pool is null.</exception>
-	public StringJoinPool(ITrie<string, string> pool, ReadOnlyMemory<char> separator)
-	{
-		_pool = pool ?? throw new ArgumentNullException(nameof(pool));
-		_separator = separator;
-	}
 
 	/// <inheritdoc cref="StringJoinPool(ITrie{string, string}, ReadOnlyMemory{char})"/>
 	public StringJoinPool(ITrie<string, string> pool, string? separator = null)
@@ -75,7 +65,7 @@ public class StringJoinPool
 			int len = segments.Length;
 			try
 			{
-				if (_separator.IsEmpty)
+				if (separator.IsEmpty)
 				{
 					for (int i = 0; i < len; i++)
 						AppendSegment(sb, segments[i]);
@@ -85,7 +75,7 @@ public class StringJoinPool
 				Debug.Assert(segments.Length != 0);
 
 				AppendSegment(sb, segments[0]);
-				var sepSpan = _separator.Span;
+				var sepSpan = separator.Span;
 				int sLen = sepSpan.Length;
 
 				for (int i = 1; i < len; i++)

@@ -17,7 +17,12 @@ public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 	}
 
 	/// <inheritdoc />
-	public override bool TryDequeue(out T item)
+	public override bool TryDequeue(
+#if NETSTANDARD2_0
+#else
+		[MaybeNullWhen(false)]
+#endif
+		out T item)
 	{
 		if (Count == 0)
 		{
@@ -30,7 +35,12 @@ public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>
 	}
 
 	/// <inheritdoc />
-	public override bool TryPeek(out T item)
+	public override bool TryPeek(
+#if NETSTANDARD2_0
+#else
+		[MaybeNullWhen(false)]
+#endif
+		out T item)
 	{
 		if (Count == 0)
 		{

@@ -13,6 +13,7 @@ namespace Open.Collections.Benchmarks;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Roslynator", "RCS1213:Remove unused member declaration.", Justification = "<Pending>")]
 internal static class Program
 {
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0022:Use expression body for method")]
 	static void Main()
 	{
 		//BenchmarkRunner.Run<SubsetBenchmarks>();
@@ -141,6 +142,7 @@ internal static class Program
 	//	report.Test(1000);
 	//}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0028:Simplify collection initialization")]
 	static void ListTests()
 	{
 		Console.WriteLine("::: Synchronized Lists :::\n");
@@ -164,6 +166,7 @@ internal static class Program
 		report.Test(4000, 4);
 	}
 
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0028:Simplify collection initialization")]
 	static void HashSetTests()
 	{
 		Console.WriteLine("::: Synchronized HashSets :::\n");

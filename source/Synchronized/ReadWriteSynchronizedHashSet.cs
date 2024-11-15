@@ -6,15 +6,28 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A synchronized <see cref="HashSet{T}"/> that uses a <see cref="System.Threading.ReaderWriterLockSlim"/> for thread safety.
+/// </summary>
 public sealed class ReadWriteSynchronizedHashSet<T>
 	: ReadWriteSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
 {
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public ReadWriteSynchronizedHashSet() : base(new HashSet<T>()) { }
+	public ReadWriteSynchronizedHashSet() : base([]) { }
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity.
+	/// </summary>
+	/// <param name="collection"></param>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }
 
+	/// <summary>
+	/// Constructs a new instance with the specified capacity and comparer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer) : base(new HashSet<T>(collection, comparer)) { }
 

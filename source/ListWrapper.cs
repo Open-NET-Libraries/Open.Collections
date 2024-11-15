@@ -3,16 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
-public class ListWrapper<T, TList>
-	: CollectionWrapper<T, TList>, IList<T>
+
+public class ListWrapper<T, TList>(
+	TList source, bool owner = false)
+	: CollectionWrapper<T, TList>(source, owner), IList<T>
 	where TList : class, IList<T>
 {
-	[ExcludeFromCodeCoverage]
-	public ListWrapper(TList source, bool owner = false)
-		: base(source, owner)
-	{
-	}
-
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public virtual T this[int index]

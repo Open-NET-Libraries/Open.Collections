@@ -1,4 +1,6 @@
-﻿namespace Open.Collections;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Open.Collections;
 
 public interface IQueue<T>
 {
@@ -6,10 +8,20 @@ public interface IQueue<T>
 	void Enqueue(T item);
 
 	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue{T}.TryDequeue(out T)"/>
-	bool TryDequeue(out T item);
+	bool TryDequeue(
+#if NETSTANDARD2_0
+#else
+		[MaybeNullWhen(false)]
+#endif
+		out T item);
 
 	/// <inheritdoc cref="System.Collections.Concurrent.ConcurrentQueue{T}.TryPeek(out T)"/>
-	bool TryPeek(out T item);
+	bool TryPeek(
+#if NETSTANDARD2_0
+#else
+		[MaybeNullWhen(false)]
+#endif
+		out T item);
 
 	/// <inheritdoc cref="System.Collections.Generic.Queue{T}.Count"/>
 	int Count { get; }

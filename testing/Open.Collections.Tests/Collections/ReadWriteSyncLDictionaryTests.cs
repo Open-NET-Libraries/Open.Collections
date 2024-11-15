@@ -2,11 +2,7 @@
 
 namespace Open.Collections.Tests;
 public class ReadWriteSyncDictionaryTests
-	: ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
-{
-}
+	: ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>;
 
 public class ReadWriteSyncIndexedDictionaryTests
-	: ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>
-{
-}
+	: ParallelDictionaryTests<ReadWriteSynchronizedDictionary<int, int>>;

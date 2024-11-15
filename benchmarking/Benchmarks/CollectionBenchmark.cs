@@ -72,13 +72,9 @@ public class CollectionBenchmark<T> : BenchmarkBase<Func<ICollection<T>>>
 	}
 }
 
-public class CollectionBenchmark : CollectionBenchmark<object>
+public class CollectionBenchmark(
+	uint size, uint repeat, Func<ICollection<object>> factory) : CollectionBenchmark<object>(size, repeat, factory, _ => new object())
 {
-	public CollectionBenchmark(uint size, uint repeat, Func<ICollection<object>> factory)
-		: base(size, repeat, factory, _ => new object())
-	{
-	}
-
 	public static TimedResult[] Results<T>(uint size, uint repeat, Func<ICollection<T>> factory, Func<int, T> itemFactory)
 		=> new CollectionBenchmark<T>(size, repeat, factory, itemFactory).Result;
 

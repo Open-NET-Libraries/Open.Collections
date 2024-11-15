@@ -2,13 +2,16 @@
 
 namespace Open.Collections;
 
+/// <summary>
+/// An interface for a linked list.
+/// </summary>
 public interface ILinkedList<T> : ICollection<T>
 {
 	/// <inheritdoc cref="LinkedList{T}.First"/>
-	LinkedListNode<T> First { get; }
+	LinkedListNode<T>? First { get; }
 
 	/// <inheritdoc cref="LinkedList{T}.Last"/>
-	LinkedListNode<T> Last { get; }
+	LinkedListNode<T>? Last { get; }
 
 	/// <inheritdoc cref="LinkedList{T}.AddAfter(LinkedListNode{T}, T)"/>
 	LinkedListNode<T> AddAfter(LinkedListNode<T> node, T item);

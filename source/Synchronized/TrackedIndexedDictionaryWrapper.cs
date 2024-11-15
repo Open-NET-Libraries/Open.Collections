@@ -7,6 +7,7 @@ namespace Open.Collections.Synchronized;
 /// <inheritdoc />
 public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
 	: TrackedDictionaryWrapper<TKey, TValue, TDictionary>, IIndexedDictionary<TKey, TValue>
+	where TKey : notnull
 	where TDictionary : class, IIndexedDictionary<TKey, TValue>
 {
 	/// <inheritdoc />
@@ -135,6 +136,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
 
 public class TrackedIndexedDictionaryWrapper<TKey, TValue>
 	: TrackedIndexedDictionaryWrapper<TKey, TValue, IIndexedDictionary<TKey, TValue>>
+	where TKey : notnull
 {
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
@@ -153,6 +155,7 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue>
 
 public sealed class TrackedIndexedDictionary<TKey, TValue>
 	: TrackedIndexedDictionaryWrapper<TKey, TValue>
+	where TKey : notnull
 {
 	[ExcludeFromCodeCoverage]
 	public TrackedIndexedDictionary(int capacity, ModificationSynchronizer? sync = null)

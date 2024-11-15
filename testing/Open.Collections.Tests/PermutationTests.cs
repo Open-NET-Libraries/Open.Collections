@@ -8,16 +8,16 @@ namespace Open.Collections.Tests;
 
 public class PermutationTests
 {
-	static readonly ImmutableArray<int> Set1 = ImmutableArray.Create(1, 2);
+	static readonly ImmutableArray<int> Set1 = [1, 2];
 	static readonly ReadOnlyMemory<char> Set2 = new char[] { 'A', 'B', 'C' };
 
 	[Fact]
 	public void TestPermutation1a()
 	{
-		int[][] expected = new int[][] {
-			new int[] { 1, 2 },
-			new int[] { 2, 1 },
-		};
+		int[][] expected = [
+			[1, 2],
+			[2, 1],
+		];
 		int[][] actual = Set1.Permutations().ToArray();
 		actual.Length.Should().Be(2);
 		Assert.Equal(expected, actual);
@@ -33,10 +33,10 @@ public class PermutationTests
 	[InlineData(24)]
 	public void TestPermutation1b(int bufferLength)
 	{
-		int[][] expected = new int[][] {
-			new int[] { 1, 2 },
-			new int[] { 2, 1 },
-		};
+		int[][] expected = [
+			[1, 2],
+			[2, 1],
+		];
 
 		int[] buffer = new int[bufferLength];
 
@@ -48,14 +48,14 @@ public class PermutationTests
 	[Fact]
 	public void TestPermutation2()
 	{
-		char[][] expected = new char[][] {
-			new char[] { 'A', 'B', 'C' },
-			new char[] { 'B', 'A', 'C' },
-			new char[] { 'C', 'A', 'B' },
-			new char[] { 'A', 'C', 'B' },
-			new char[] { 'B', 'C', 'A' },
-			new char[] { 'C', 'B', 'A' },
-		};
+		char[][] expected = [
+			['A', 'B', 'C'],
+			['B', 'A', 'C'],
+			['C', 'A', 'B'],
+			['A', 'C', 'B'],
+			['B', 'C', 'A'],
+			['C', 'B', 'A'],
+		];
 		char[][] actual = Set2.Permutations().ToArray();
 		Assert.Equal(expected, actual);
 	}

@@ -5,13 +5,22 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A synchronized list that tracks changes.
+/// </summary>
 public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, IList<T>
 {
+	/// <summary>
+	/// Constructs a new instance with the specified list and optional modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedListWrapper(IList<T> list, ModificationSynchronizer? sync = null) : base(list, sync)
 	{
 	}
 
+	/// <summary>
+	/// Constructs a new instance with the specified list and a new modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedListWrapper(IList<T> list, out ModificationSynchronizer sync) : base(list, out sync)
 	{
@@ -24,6 +33,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 		set => SetValue(index, value);
 	}
 
+	/// <inheritdoc />
 	public bool SetValue(int index, T value)
 		=> Sync!.Modifying(
 			AssertIsAliveDelegate,
@@ -115,32 +125,50 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 	}
 }
 
+/// <summary>
+/// A synchronized list that tracks changes.
+/// </summary>
 public sealed class TrackedList<T> : TrackedListWrapper<T>
 {
+	/// <summary>
+	/// Constructs a new instance with the specified initial capacity and optional modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedList(int capacity, ModificationSynchronizer? sync = null)
 		: base(new List<T>(capacity), sync)
 	{
 	}
 
+	/// <summary>
+	/// Constructs a new instance with the specified initial capacity and a new modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedList(int capacity, out ModificationSynchronizer sync)
 		: base(new List<T>(capacity), out sync)
 	{
 	}
 
+	/// <summary>
+	/// Constructs a new instance using the provided modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedList(ModificationSynchronizer? sync)
-		: base(new List<T>(), sync)
+		: base([], sync)
 	{
 	}
 
+	/// <summary>
+	/// Constructs a new instance with a new modification synchronizer.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedList(out ModificationSynchronizer sync)
-		: base(new List<T>(), out sync)
+		: base([], out sync)
 	{
 	}
 
+	/// <summary>
+	/// Constructs a new instance.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedList() : this(null) { }
 }

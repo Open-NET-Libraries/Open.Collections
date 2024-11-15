@@ -23,13 +23,18 @@ public static partial class Extensions
 	/// <returns>True if a value was acquired.</returns>
 	public static bool TryGetValueSynchronized<TKey, TValue>(
 		this IDictionary<TKey, TValue> target,
-		TKey key, out TValue value)
+		TKey key,
+#if NETSTANDARD2_0
+#else
+		[MaybeNullWhen(false)]
+#endif
+		out TValue value)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		TValue result = default!;
+		TValue? result = default;
 		bool success = ThreadSafety.SynchronizeRead(target, key, () =>
 			ThreadSafety.SynchronizeRead(target, () =>
 				target.TryGetValue(key, out result)
@@ -44,8 +49,8 @@ public static partial class Extensions
 	/// <summary>
 	/// Attempts to acquire a specified type from a generic dictonary.
 	/// </summary>
-	[SuppressMessage("Style", "IDE0046:Convert to conditional expression")]
-	public static TValue GetValueSynchronized<TKey, TValue>(this IDictionary<TKey, TValue> target, TKey key, bool throwIfNotExists = true)
+	public static TValue GetValueSynchronized<TKey, TValue>(
+		this IDictionary<TKey, TValue> target, TKey key)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -53,10 +58,22 @@ public static partial class Extensions
 
 		bool exists = target.TryGetValueSynchronized(key, out TValue? value);
 
-		if (!exists && throwIfNotExists)
-			throw new KeyNotFoundException(key.ToString());
+		return exists ? value! : throw new KeyNotFoundException(key.ToString());
+	}
 
-		return exists ? value : default!;
+	/// <summary>
+	/// Attempts to acquire a specified type from a generic dictonary or returns a default value.
+	/// </summary>
+	public static TValue GetValueSynchronized<TKey, TValue>(
+		this IDictionary<TKey, TValue> target, TKey key, TValue defaultValue)
+	{
+		if (target is null) throw new ArgumentNullException(nameof(target));
+		if (key is null) throw new ArgumentNullException(nameof(key));
+		Contract.EndContractBlock();
+
+		bool exists = target.TryGetValueSynchronized(key, out TValue? value);
+
+		return exists ? value! : defaultValue;
 	}
 
 	/// <summary>
@@ -159,6 +176,10 @@ public static partial class Extensions
 		return valueUsed;
 	}
 
+	/// <summary>
+	/// Thread safe shortcut for adding a value to list.
+	/// </summary>
+	/// <exception cref="ArgumentNullException"></exception>
 	public static void AddSynchronized<T>(this ICollection<T> target, T value)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -174,7 +195,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		IList<TValue>? list = c.GetOrAddSynchronized(key, _ => new List<TValue>());
+		IList<TValue>? list = c.GetOrAddSynchronized(key, _ => []);
 		list.AddSynchronized(value);
 	}
 
@@ -224,7 +245,7 @@ public static partial class Extensions
 		ValidateMillisecondsTimeout(millisecondsTimeout);
 		Contract.EndContractBlock();
 
-		T result = default!;
+		T? result = default;
 		bool condition(bool _) => !target.TryGetValue(key, out result);
 
 		void render()
@@ -236,7 +257,7 @@ public static partial class Extensions
 		if (!ThreadSafety.SynchronizeReadWrite(target, condition, render, millisecondsTimeout, throwsOnTimeout))
 			return value; // Value doesn't exist and timeout exceeded? Return the add value...
 
-		return result;
+		return result!;
 	}
 
 	/// <summary>
@@ -255,7 +276,7 @@ public static partial class Extensions
 		ValidateMillisecondsTimeout(millisecondsTimeout);
 		Contract.EndContractBlock();
 
-		T result = default!;
+		T? result = default;
 		// Note, the following sync read is on the TARGET and not the key. See below.
 		bool condition(bool _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
@@ -274,7 +295,7 @@ public static partial class Extensions
 		// 5) The value is then rendered using the ensureRendered query without locking the entire collection.  This allows for other values to be added.
 		// 6) The rendered value is then used to add to the collection if the value is missing, locking the collection if an add is necessary.
 
-		return result;
+		return result!;
 	}
 
 	/// <summary>

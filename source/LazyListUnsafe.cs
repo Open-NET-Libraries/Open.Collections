@@ -16,21 +16,24 @@ namespace Open.Collections;
 /// Only use if you know the results are finite and access is thread safe.
 /// Note: disposing releases the underlying enumerator if it never reached the end of the results.
 /// </summary>
-public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
+public class LazyListUnsafe<T>(IEnumerable<T> source)
+	: DisposableBase, IReadOnlyList<T>
 {
-	protected List<T> _cached;
-	protected IEnumerator<T> _enumerator;
+	/// <summary>
+	/// The memoized results.
+	/// </summary>
+	protected List<T> Cached = [];
 
-	public LazyListUnsafe(IEnumerable<T> source)
-	{
-		_enumerator = source.GetEnumerator();
-		_cached = new List<T>();
-	}
+	/// <summary>
+	/// The enumerator for the source.
+	/// </summary>
+	protected IEnumerator<T> Enumerator = source.GetEnumerator();
 
+	/// <inheritdoc />
 	protected override void OnDispose()
 	{
-		DisposeOf(ref _enumerator);
-		Nullify(ref _cached)?.Clear();
+		DisposeOf(ref Enumerator);
+		Nullify(ref Cached)?.Clear();
 	}
 
 	const string MUST_BE_AT_LEAST_ZERO = "Must be at least zero.";
@@ -49,7 +52,7 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 				throw new ArgumentOutOfRangeException(nameof(index), GREATER_THAN_TOTAL);
 			Contract.EndContractBlock();
 
-			return _cached[index];
+			return Cached[index];
 		}
 	}
 
@@ -60,7 +63,7 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 		{
 			AssertIsAlive();
 			Finish();
-			return _cached.Count;
+			return Cached.Count;
 		}
 	}
 
@@ -77,7 +80,7 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 
 		if (EnsureIndex(index))
 		{
-			value = _cached[index];
+			value = Cached[index];
 			return true;
 		}
 
@@ -103,7 +106,7 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 
 		for (int index = 0; EnsureIndex(index); index++)
 		{
-			T? value = _cached[index];
+			T? value = Cached[index];
 			if (value is null)
 			{
 				if (item is null) return index;
@@ -137,30 +140,36 @@ public class LazyListUnsafe<T> : DisposableBase, IReadOnlyList<T>
 
 	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 
+	/// <summary>
+	/// Ensures that the index is available by enumerating to that index and memoizing results.
+	/// </summary>
 	protected virtual bool EnsureIndex(int maxIndex)
 	{
-		if (maxIndex < _cached.Count)
+		if (maxIndex < Cached.Count)
 			return true;
 
-		if (_enumerator is null)
+		if (Enumerator is null)
 			return false;
 
-		while (_enumerator.MoveNext())
+		while (Enumerator.MoveNext())
 		{
-			if (_cached.Count == int.MaxValue)
+			if (Cached.Count == int.MaxValue)
 				throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
 
-			_cached.Add(_enumerator.Current);
+			Cached.Add(Enumerator.Current);
 
-			if (maxIndex < _cached.Count)
+			if (maxIndex < Cached.Count)
 				return true;
 		}
 
-		DisposeOf(ref _enumerator);
+		DisposeOf(ref Enumerator);
 
 		return false;
 	}
 
+	/// <summary>
+	/// Ensures all results are memoized.
+	/// </summary>
 	protected virtual void Finish()
 	{
 		while (EnsureIndex(int.MaxValue)) { }

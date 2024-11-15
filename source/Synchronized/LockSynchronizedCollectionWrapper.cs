@@ -7,13 +7,15 @@ using System.Linq;
 
 namespace Open.Collections.Synchronized;
 
-public class LockSynchronizedCollectionWrapper<T, TCollection>
-	: CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
-		where TCollection : class, ICollection<T>
+/// <summary>
+/// A disposable synchronized wrapper for a collection.
+/// </summary>
+public class LockSynchronizedCollectionWrapper<T, TCollection>(
+	TCollection source, bool owner = false)
+	: CollectionWrapper<T, TCollection>(source, owner), ISynchronizedCollectionWrapper<T, TCollection>
+	where TCollection : class, ICollection<T>
 {
-	protected LockSynchronizedCollectionWrapper(TCollection source, bool owner = false)
-		: base(source, owner) { }
-
+	/// <inheritdoc />
 	protected override void OnBeforeDispose()
 	{
 		ThreadSafety.Lock(Sync, () => { }, 1000);

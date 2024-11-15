@@ -3,9 +3,7 @@ using Xunit;
 
 namespace Open.Collections.Tests;
 
-public class OrderedDictionaryTests : OrderedDictionaryTests<OrderedDictionary<int, int>>
-{
-}
+public class OrderedDictionaryTests : OrderedDictionaryTests<OrderedDictionary<int, int>>;
 
 public class IndexedDictionaryTests : OrderedDictionaryTests<IndexedDictionary<int, int>>
 {

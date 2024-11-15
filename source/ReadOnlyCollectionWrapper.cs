@@ -7,13 +7,27 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A disposable aware read-only wrapper for a collection.
+/// </summary>
 public class ReadOnlyCollectionWrapper<T, TCollection>
 	: DisposableBase, IReadOnlyCollection<T>
 	where TCollection : class, ICollection<T>
 {
+	/// <summary>
+	/// The underlying collection.
+	/// </summary>
 	protected TCollection? InternalUnsafeSource;
+
+	/// <summary>
+	/// If <see langword="true"/>, will call <see cref="IDisposable.Dispose"/> if the source is <see cref="IDisposable"/> when this is disposed.
+	/// </summary>
 	protected readonly bool SourceOwned;
 
+	/// <summary>
+	/// The underlying collection.
+	/// </summary>
+	/// <exception cref="ObjectDisposedException">If this has been disposed.</exception>
 	protected TCollection InternalSource
 		=> InternalUnsafeSource ?? throw new ObjectDisposedException(GetType().ToString());
 
@@ -27,6 +41,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 	/// </param>
 	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is <see langword="null"/>.</exception>
 	[ExcludeFromCodeCoverage]
+	[SuppressMessage("Style", "IDE0290:Use primary constructor")]
 	public ReadOnlyCollectionWrapper(TCollection source, bool owner = false)
 	{
 		InternalUnsafeSource = source ?? throw new ArgumentNullException(nameof(source));
@@ -36,13 +51,23 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 	private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
 	private Action? _throwIfDisposed;
+
+	/// <summary>
+	/// A delegate to throw an exception if this has been disposed.
+	/// </summary>
 	protected Action ThrowIfDisposedDelegate
 		=> _throwIfDisposed ??= ThrowIfDisposedInternal;
 
+	/// <summary>
+	/// Produces an enumerable that will throw an exception if this has been disposed.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected IEnumerable<T2> ThrowIfDisposed<T2>(IEnumerable<T2> source)
 		=> source.Preflight(ThrowIfDisposedDelegate).BeforeGetEnumerator(ThrowIfDisposedDelegate);
 
+	/// <summary>
+	/// A utility for ensuring the source is not disposed.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected T2 ThrowIfDisposed<T2>(T2 source)
 	{

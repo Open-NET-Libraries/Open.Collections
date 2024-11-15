@@ -2,6 +2,4 @@
 
 namespace Open.Collections.Tests;
 public class ReadWriteSyncListTests
-	: ParallelListTests<ReadWriteSynchronizedList<int>>
-{
-}
+	: ParallelListTests<ReadWriteSynchronizedList<int>>;

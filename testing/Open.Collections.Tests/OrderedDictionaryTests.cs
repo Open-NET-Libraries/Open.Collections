@@ -4,12 +4,9 @@ using System.Linq;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class OrderedDictionaryTests<TDictionary> : BasicDictionaryTests<TDictionary>
+public abstract class OrderedDictionaryTests<TDictionary>(TDictionary dictionary) : BasicDictionaryTests<TDictionary>(dictionary)
 	where TDictionary : IDictionary<int, int>, new()
 {
-	protected OrderedDictionaryTests(TDictionary dictionary)
-		: base(dictionary) { }
-
 	protected OrderedDictionaryTests()
 		: this(new()) { }
 

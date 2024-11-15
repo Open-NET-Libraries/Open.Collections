@@ -4,13 +4,11 @@ using System.Threading.Tasks;
 using Xunit;
 
 namespace Open.Collections.Tests;
-public abstract class ParallelListTests<TList>
-	: BasicListTests<TList>
+public abstract class ParallelListTests<TList>(
+	TList list)
+	: BasicListTests<TList>(list)
 	where TList : IList<int>, new()
 {
-	protected ParallelListTests(TList list)
-		: base(list) { }
-
 	protected ParallelListTests()
 		: this(new()) { }
 

@@ -12,7 +12,7 @@ public class PermutorTests
 	[Fact]
 	public void TestNoDuplicatePermutations()
 	{
-		int[] numbers = { 1, 2, 3, 4 };
+		int[] numbers = [1, 2, 3, 4];
 		var permutations = numbers.Permutations().Select(p => string.Join(",", p.Span.ToArray())).ToHashSet();
 
 		int expectedCount = Factorial(numbers.Length);
@@ -22,17 +22,17 @@ public class PermutorTests
 	[Fact]
 	public void TestSpecificPermutation()
 	{
-		int[] numbers = { 1, 2, 3 };
+		int[] numbers = [1, 2, 3];
 		var permutations = numbers.AsMemory().Permutations().Select(m=>m.ToArray()).ToList();
 		permutations.Count.Should().Be(6);
-		int[] expectedPermutation = new[] { 2, 1, 3 };
+		int[] expectedPermutation = [2, 1, 3];
 		Assert.Contains(expectedPermutation, permutations);
 	}
 
 	[Fact]
 	public void TestExactPermutationsFor123()
 	{
-		int[] numbers = { 1, 2, 3 };
+		int[] numbers = [1, 2, 3];
 		var expectedPermutations = new List<string>
 		{
 			"1,2,3",
@@ -57,7 +57,7 @@ public class PermutorTests
 	[Fact]
 	public void TestStableLexicographicOrder()
 	{
-		int[] original = { 1, 2, 3 };
+		int[] original = [1, 2, 3];
 		Span<int> span = original.AsSpan();
 
 		var permutations = new List<string>();
@@ -80,11 +80,10 @@ public class PermutorTests
 		Assert.Equal(expectedPermutations, permutations);
 	}
 
-
 	[Fact]
 	public void TestStableHeapsAlgorithmOrder()
 	{
-		int[] original = { 1, 2, 3 };
+		int[] original = [1, 2, 3];
 		var permutations = new List<string>();
 		foreach(var s in original.Permutations())
 			permutations.Add(string.Join(",", s.ToArray()));
@@ -105,7 +104,7 @@ public class PermutorTests
 	[Fact]
 	public void TestStableIndexedOrder()
 	{
-		int[] original = { 1, 2, 3 };
+		int[] original = [1, 2, 3];
 		var permutations = new List<string>();
 		for (int i = 0; i < 6; ++i)
 		{
@@ -128,7 +127,6 @@ public class PermutorTests
 
 		Assert.Equal(expectedPermutations, permutations);
 	}
-
 
 	private static int Factorial(int n)
 	{

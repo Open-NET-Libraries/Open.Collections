@@ -1,4 +1,5 @@
 ﻿#if NETSTANDARD2_0
+
 namespace System.Diagnostics.CodeAnalysis;
 
 // Use a shim for simplicity.
@@ -6,18 +7,15 @@ namespace System.Diagnostics.CodeAnalysis;
 /// <summary>
 /// Indicates that the output may be null even if the corresponding type disallows it.
 /// </summary>
+/// <remarks>
+/// Constructs a <see cref="MaybeNullWhenAttribute"/>.
+/// </remarks>
 [AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
-internal sealed class MaybeNullWhenAttribute : Attribute
+internal sealed class MaybeNullWhenAttribute(bool returnValue) : Attribute
 {
-	/// <summary>
-	/// Constructs a <see cref="MaybeNullWhenAttribute"/>.
-	/// </summary>
-	public MaybeNullWhenAttribute(bool returnValue)
-		=> ReturnValue = returnValue;
-
 	/// <summary>
 	/// The return value condition.
 	/// </summary>
-	public bool ReturnValue { get; }
+	public bool ReturnValue { get; } = returnValue;
 }
 #endif

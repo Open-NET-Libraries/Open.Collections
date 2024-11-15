@@ -4,34 +4,25 @@ namespace Open.Collections;
 /// <summary>
 /// A generic Trie collection.
 /// </summary>
-public sealed class Trie<TKey, TValue>
-	: TrieBase<TKey, TValue>
+public sealed class Trie<TKey, TValue>(
+	IEqualityComparer<TKey>? equalityComparer = null)
+	: TrieBase<TKey, TValue>(() => new Node(equalityComparer))
 	where TKey : notnull
 {
-	/// <summary>
-	/// Constructs a <see cref="Trie{TKey, TValue}"/>.
-	/// </summary>
-	public Trie(IEqualityComparer<TKey>? equalityComparer = null)
-		: base(() => new Node(equalityComparer))
-	{ }
-
-	private sealed class Node : NodeBase
+	private sealed class Node(IEqualityComparer<TKey>? equalityComparer)
+		: NodeBase
 	{
-		private readonly IEqualityComparer<TKey>? _equalityComparer;
 		private Dictionary<TKey, ITrieNode<TKey, TValue>>? _children;
-
-		public Node(IEqualityComparer<TKey>? equalityComparer)
-			=> _equalityComparer = equalityComparer;
 
 		public override ITrieNode<TKey, TValue> GetOrAddChild(TKey key)
 		{
 			var children = _children;
 			if (children is null)
-				Children = _children = children = _equalityComparer is null ? new() : new(_equalityComparer);
+				Children = _children = children = equalityComparer is null ? new() : new(equalityComparer);
 			else if (TryGetChildFrom(children, key, out var c))
 				return c;
 
-			var child = new Node(_equalityComparer);
+			var child = new Node(equalityComparer);
 			children[key] = child;
 			return child;
 		}

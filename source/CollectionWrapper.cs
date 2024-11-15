@@ -4,26 +4,39 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A disposable wrapper for a collection.
+/// </summary>
 [ExcludeFromCodeCoverage]
-public class CollectionWrapper<T, TCollection>
-	: ReadOnlyCollectionWrapper<T, TCollection>, ICollection<T>, IAddMultiple<T>
+public class CollectionWrapper<T, TCollection>(
+	TCollection source, bool owner = false)
+	: ReadOnlyCollectionWrapper<T, TCollection>(source, owner), ICollection<T>, IAddMultiple<T>
 	where TCollection : class, ICollection<T>
 {
-	public CollectionWrapper(TCollection source, bool owner = false)
-		: base(source, owner)
-	{
-	}
-
-	protected readonly object Sync = new(); // Could possibly override..
-
 	/// <summary>
 	/// The underlying object used for synchronization.
+	/// </summary>
+#if NET9_0_OR_GREATER
+	protected readonly System.Threading.Lock Sync = new();
+#else
+	protected readonly object Sync = new();
+#endif
+
+	/// <summary>
+	/// The object used for synchronization.
 	/// This is exposed to allow for more complex synchronization operations.
 	/// </summary>
+#if NET9_0_OR_GREATER
+	public System.Threading.Lock SyncRoot => Sync;
+#else
 	public object SyncRoot => Sync;
+#endif
 
 	#region Implementation of ICollection<T>
 
+	/// <summary>
+	/// Manages adding an item to the collection.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected virtual void AddInternal(in T item)
 		=> InternalUnsafeSource!.Add(item);

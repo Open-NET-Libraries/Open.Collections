@@ -7,22 +7,16 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
-public sealed class ReadOnlyCollectionAdapter<T>
+[method: ExcludeFromCodeCoverage]
+public sealed class ReadOnlyCollectionAdapter<T>(
+	IEnumerable<T> source, Func<int> getCount)
 	: IReadOnlyCollection<T>, ICollection<T>
 {
-	readonly IEnumerable<T> _source;
-	readonly Func<int> _getCount;
-	readonly Func<T, bool> _contains;
-
-	[ExcludeFromCodeCoverage]
-	public ReadOnlyCollectionAdapter(IEnumerable<T> source, Func<int> getCount)
-	{
-		_source = source ?? throw new ArgumentNullException(nameof(source));
-		_getCount = getCount ?? throw new ArgumentNullException(nameof(getCount));
-		_contains = source is ICollection<T> c
+	readonly IEnumerable<T> _source = source ?? throw new ArgumentNullException(nameof(source));
+	readonly Func<int> _getCount = getCount ?? throw new ArgumentNullException(nameof(getCount));
+	readonly Func<T, bool> _contains = source is ICollection<T> c
 			? item => c.Contains(item)
 			: item => source.Contains(item);
-	}
 
 	[ExcludeFromCodeCoverage]
 	public ReadOnlyCollectionAdapter(IReadOnlyCollection<T> source)
