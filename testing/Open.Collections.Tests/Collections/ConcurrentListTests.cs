@@ -1,6 +1,6 @@
 ﻿using Open.Collections.Synchronized;
 
-namespace Open.Collections.Tests;
+namespace Open.Collections.Tests.Collections;
 
 public class ConcurrentListTests : BasicListTests<ConcurrentList<int>>
 {

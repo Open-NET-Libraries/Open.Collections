@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
-		<NoWarn>IDE0305;IDE0301;IDE0310;</NoWarn>
+		<NoWarn>IDE0305;IDE0301;</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
