@@ -10,8 +10,16 @@ namespace Open.Collections;
 /// <typeparam name="T">The type of the elements in the array.</typeparam>
 public readonly struct ArrayPoolSegment<T> : IDisposable
 {
+	/// <summary>
+	/// The segment of the array.
+	/// </summary>
 	public readonly ArraySegment<T> Segment;
+
+	/// <summary>
+	/// The <see cref="ArrayPool{T}"/> used to rent the array.
+	/// </summary>
 	public readonly ArrayPool<T>? Pool;
+
 	private readonly bool _clear;
 
 	/// <summary>

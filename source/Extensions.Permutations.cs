@@ -1,12 +1,10 @@
-﻿using Open.Disposable;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 
 namespace Open.Collections;
 

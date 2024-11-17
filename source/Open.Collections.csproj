@@ -18,7 +18,7 @@
 		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>3.2.0</Version>
+		<Version>4.0.0</Version>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -42,8 +42,6 @@
 		  <Pack>True</Pack>
 		  <PackagePath>\</PackagePath>
 		</None>
-		<None Include="Extensions.ConcurrentBag.cs" />
-		<None Include="NonGeneric\Extensions.Synchronized.cs" />
 		<None Include="logo.png">
 			<Pack>True</Pack>
 			<PackagePath></PackagePath>
@@ -51,7 +49,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Open.Text" Version="8.1.0" />
+		<PackageReference Include="Open.Text" Version="8.2.1" />
 		<PackageReference Include="Open.Threading" Version="3.0.3" />
 		<PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
 	</ItemGroup>

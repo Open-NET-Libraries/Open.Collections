@@ -8,16 +8,18 @@ using System.Threading;
 
 namespace Open.Collections.Synchronized;
 
-public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
-	: CollectionWrapper<T, TCollection>, ISynchronizedCollectionWrapper<T, TCollection>
+/// <summary>
+/// A disposable read-write synchronized wrapper for a collection.
+/// </summary>
+public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>(
+	TCollection source, bool owner = false)
+	: CollectionWrapper<T, TCollection>(source, owner), ISynchronizedCollectionWrapper<T, TCollection>
 	where TCollection : class, ICollection<T>
 {
+	/// <summary>
+	/// The <see cref="ReaderWriterLockSlim"/> used for synchronization.
+	/// </summary>
 	protected ReaderWriterLockSlim RWLock = new(LockRecursionPolicy.SupportsRecursion); // Support recursion for read -> write locks.
-
-	protected ReadWriteSynchronizedCollectionWrapper(TCollection source, bool owner = false)
-		: base(source, owner)
-	{
-	}
 
 	#region Implementation of ICollection<T>
 
@@ -118,10 +120,12 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>
 	#endregion
 
 	#region Dispose
-	protected override void OnBeforeDispose() =>
+	/// <inheritdoc />
+	protected override void OnBeforeDispose()
 		// Give everything else a chance to finish up.
-		RWLock.TryWrite(1000, () => { });
+		=> RWLock.TryWrite(1000, () => { });
 
+	/// <inheritdoc />
 	protected override void OnDispose()
 	{
 		RWLock.Dispose();

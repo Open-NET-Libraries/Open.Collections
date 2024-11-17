@@ -131,6 +131,7 @@ public abstract class BasicCollectionTests<TCollection>(TCollection collection)
 			Collection.Add(3);
 			search = 2;
 		}
+
 		Collection.Contains(search).Should().BeTrue();
 
 		if (Collection is not ISynchronizedCollectionWrapper<int, ICollection<int>> c) return;

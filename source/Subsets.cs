@@ -7,6 +7,9 @@ using System.Diagnostics.Contracts;
 
 namespace Open.Collections;
 
+/// <summary>
+/// Provides methods for generating subsets of a set.
+/// </summary>
 public static class Subsets
 {
 	internal static IEnumerable<int[]> IndexesInternal(int sourceLength, int subsetLength, int[] buffer)

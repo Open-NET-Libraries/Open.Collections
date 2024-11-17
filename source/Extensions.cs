@@ -313,19 +313,35 @@ public static partial class Extensions
 		});
 	}
 
-	public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> target)
+	/// <summary>
+	/// Randomizes the order of the source.
+	/// </summary>
+	public static IEnumerable<T> Shuffle<T>(
+		this IEnumerable<T> target, Random? rnd = null)
 	{
 		if (target is null)
 			throw new ArgumentNullException(nameof(target));
 		Contract.EndContractBlock();
 
-		var r = new Random();
+		var r = rnd ?? new Random();
 		return target.OrderBy(_ => r.Next());
 	}
 
-	// Ensures an optimized means of acquiring Any();
-	public static bool HasAny<T>(this IEnumerable<T> source) => source.HasAtLeast(1);
+	/// <summary>
+	/// Tests the count of the source to see if there's any items.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is null.</exception>
+	/// <remarks>
+	/// First checks the type to see if a count can be aquired directly.  If not, it will iterate through the source to count the items.
+	/// </remarks>
+	public static bool HasAny<T>(this IEnumerable<T> source)
+		=> source.HasAtLeast(1);
 
+	/// <summary>
+	/// Tests the count of the source to see if there's at least the <paramref name="minimum"/> number of items.
+	/// </summary>
+	/// <exception cref="ArgumentOutOfRangeException">If the <paramref name="minimum"/> is less than 1.</exception>
+	/// <inheritdoc cref="HasAny{T}(IEnumerable{T})"/>
 	public static bool HasAtLeast<T>(this IEnumerable<T> source, int minimum)
 	{
 		if (source is null)
@@ -338,7 +354,11 @@ public static partial class Extensions
 		{
 			case T[] array:
 				return array.Length >= minimum;
+			case IReadOnlyCollection<T> collection:
+				return collection.Count >= minimum;
 			case ICollection collection:
+				return collection.Count >= minimum;
+			case ICollection<T> collection:
 				return collection.Count >= minimum;
 		}
 
@@ -351,6 +371,9 @@ public static partial class Extensions
 		return false;
 	}
 
+	/// <summary>
+	/// Synchronizes enumerting by locking on the enumerator.
+	/// </summary>
 	public static bool ConcurrentTryMoveNext<T>(this IEnumerator<T> source, out T item)
 	{
 		// Always lock on next to prevent concurrency issues.
@@ -362,10 +385,14 @@ public static partial class Extensions
 				return true;
 			}
 		}
+
 		item = default!;
 		return false;
 	}
 
+	/// <summary>
+	/// Syncronizes enumerting by locking on the enumerator and invokes the provided handlers depending on if .MoveNext() was true.
+	/// </summary>
 	public static bool ConcurrentMoveNext<T>(this IEnumerator<T> source, Action<T> trueHandler, Action? falseHandler = null)
 	{
 		// Always lock on next to prevent concurrency issues.
@@ -477,70 +504,6 @@ retry:
 		return b.ToString();
 	}
 
-	/// <summary>
-	/// Shortcut to String.Join() using "," as a default value.
-	/// </summary>
-	public static string Join(this string[] array, char separator)
-	{
-		if (array is null)
-			throw new ArgumentNullException(nameof(array));
-		Contract.EndContractBlock();
-
-		return string.Join(separator + string.Empty, array);
-	}
-
-	public static string Join(this string[] array, string separator = ",")
-	{
-		if (array is null)
-			throw new ArgumentNullException(nameof(array));
-		if (separator is null)
-			throw new ArgumentNullException(nameof(separator));
-		Contract.EndContractBlock();
-
-		return string.Join(separator, array);
-	}
-
-	/// <summary>
-	/// Concatenates a set of values into a single string using a character as a separator.
-	/// </summary>
-	public static string JoinToString<T>(this IEnumerable<T> source, char separator)
-	{
-		if (source is null) throw new ArgumentNullException(nameof(source));
-		Contract.EndContractBlock();
-
-		var sb = new StringBuilder();
-		using (IEnumerator<T>? enumerator = source.GetEnumerator())
-		{
-			if (enumerator.MoveNext())
-				sb.Append(enumerator.Current);
-			while (enumerator.MoveNext())
-				sb.Append(separator).Append(enumerator.Current);
-		}
-
-		return sb.ToString();
-	}
-
-	/// <summary>
-	/// Concatenates set of values into a single string using another string as a separator.
-	/// </summary>
-	public static string JoinToString<T>(this IEnumerable<T> source, string separator)
-	{
-		if (source is null) throw new ArgumentNullException(nameof(source));
-		if (separator is null) throw new ArgumentNullException(nameof(separator));
-		Contract.EndContractBlock();
-
-		var sb = new StringBuilder();
-		using (IEnumerator<T>? enumerator = source.GetEnumerator())
-		{
-			if (enumerator.MoveNext())
-				sb.Append(enumerator.Current);
-			while (enumerator.MoveNext())
-				sb.Append(separator).Append(enumerator.Current);
-		}
-
-		return sb.ToString();
-	}
-
 	/*public static T ValidateNotNull<T>(this T target)
 	{
 
@@ -548,15 +511,12 @@ retry:
 		return target;
 	}*/
 
-	public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this ParallelQuery<KeyValuePair<TKey, TValue>> source)
-		where TKey : notnull
-	{
-		if (source is null) throw new ArgumentNullException(nameof(source));
-		Contract.EndContractBlock();
-
-		return source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-	}
-
+#if NET9_0_OR_GREATER
+#else
+	/// <summary>
+	/// Returns a dictionary from the source key-value pairs.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is null.</exception>
 	public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
 		where TKey : notnull
 	{
@@ -565,7 +525,12 @@ retry:
 
 		return source.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 	}
+#endif
 
+	/// <summary>
+	/// Converts an enumerable to a sorted dictionary.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is null.</exception>
 	public static SortedDictionary<TKey, TValue> ToSortedDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source)
 		where TKey : notnull
 	{
@@ -579,6 +544,10 @@ retry:
 		return result;
 	}
 
+	/// <summary>
+	/// Converts an enumerable to a sorted dictionary.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="source"/>, <paramref name="keySelector"/>, or <typeparamref name="TValue"/> are null.</exception>
 	public static SortedDictionary<TKey, TValue> ToSortedDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source,
 		Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector)
 		where TKey : notnull
@@ -595,6 +564,10 @@ retry:
 		return result;
 	}
 
+	/// <summary>
+	/// Converts a grouping to a sorted dictionary.
+	/// </summary>
+	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is null.</exception>
 	public static SortedDictionary<TKey, IEnumerable<TValue>> ToSortedDictionary<TKey, TValue>(this IEnumerable<IGrouping<TKey, TValue>> source)
 		where TKey : notnull
 	{
@@ -664,18 +637,8 @@ retry:
 		if (source is null || target is null)
 			return false;
 
-		if (source is IReadOnlyCollection<T> sC && target is IReadOnlyCollection<T> tC && sC.Count != tC.Count)
-			return false;
-
-		using IEnumerator<T>? enumSource = source.GetEnumerator();
-		using IEnumerator<T>? enumTarget = target.GetEnumerator();
-		while (enumSource.MoveNext() && enumTarget.MoveNext())
-		{
-			if (!enumSource.Current.Equals(enumTarget.Current))
-				return false;
-		}
-
-		return true;
+		// Both are not null, okay go.
+		return source.SequenceEqual(target);
 	}
 
 	/// <summary>
@@ -843,6 +806,9 @@ retry:
 	}
 	#endregion
 
+	/// <summary>
+	/// A nullable struct version of FirstOrDefault.
+	/// </summary>
 	public static T? NullableFirstOrDefault<T>(this IEnumerable<T> source)
 		where T : struct
 	{
@@ -854,6 +820,9 @@ retry:
 		return null;
 	}
 
+	/// <summary>
+	/// Rotates through each enumerable and returns the next value until none are left.
+	/// </summary>
 	public static IEnumerable<T> Weave<T>(this IEnumerable<IEnumerable<T>> source)
 	{
 		LinkedList<IEnumerator<T>>? queue = null;
@@ -1067,6 +1036,9 @@ retry:
 			yield return source.Current;
 	}
 
+	/// <summary>
+	/// Executes an action when the begins <paramref name="source"/> enumeration.
+	/// </summary>
 	public static IEnumerable<T> BeforeGetEnumerator<T>(
 		this IEnumerable<T> source,
 		Action before)
