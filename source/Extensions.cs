@@ -1061,4 +1061,41 @@ retry:
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
+
+#if NETSTANDARD2_0
+	private const string MustBeAtLeast0 = "Must be at least 0.";
+	private const string MustBeLessThanTheCount = "Must be less than the count.";
+
+	/// <summary>
+	/// Forms a slice out of the <paramref name="source"/> segment starting at the specified <paramref name="index"/>.
+	/// </summary>
+	public static ArraySegment<T> Slice<T>(this ArraySegment<T> source, int index)
+	{
+		if (index < 0)
+			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeAtLeast0);
+		if (index > source.Count)
+			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeLessThanTheCount);
+		Contract.EndContractBlock();
+
+		return new ArraySegment<T>(source.Array, source.Offset + index, source.Count - index);
+	}
+
+	/// <summary>
+	/// Forms a slice out of the <paramref name="source"/> segment
+	/// starting at the specified <paramref name="index"/>
+	/// and extending for the<paramref name = "count" />.
+	/// </summary>
+	public static ArraySegment<T> Slice<T>(this ArraySegment<T> source, int index, int count)
+	{
+		if (index < 0)
+			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeAtLeast0);
+		if (count < 0)
+			throw new ArgumentOutOfRangeException(nameof(count), count, MustBeAtLeast0);
+		if (index > source.Count)
+			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeLessThanTheCount);
+		Contract.EndContractBlock();
+
+		return new ArraySegment<T>(source.Array, source.Offset + index, count);
+	}
+#endif
 }

@@ -23,6 +23,19 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 	private readonly bool _clear;
 
 	/// <summary>
+	/// Constructs a new <see cref="ArrayPoolSegment{T}"/>.
+	/// </summary>
+	public ArrayPoolSegment(
+		ArraySegment<T> segment,
+		ArrayPool<T>? pool = null,
+		bool clearArrayOnDispose = false)
+	{
+		Segment = segment;
+		Pool = pool;
+		_clear = clearArrayOnDispose;
+	}
+
+	/// <summary>
 	/// Constructs a new <see cref="ArrayPoolSegment{T}"/> from the <see cref="ArrayPool{T}"/>.
 	/// </summary>
 	public ArrayPoolSegment(
@@ -30,11 +43,26 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 		ArrayPool<T>? pool = null,
 		bool clearArrayOnDispose = false)
 	{
-		_clear = clearArrayOnDispose;
 		Pool = pool;
 		T[]? array = pool?.Rent(length) ?? new T[length];
 		Segment = new(array, 0, length);
+		_clear = clearArrayOnDispose;
 	}
+
+	/// <summary>
+	/// Forms a slice out of the segment
+	/// starting at the specified <paramref name="index"/>.
+	/// </summary>
+	public ArrayPoolSegment<T> Slice(int index)
+		=> new(Segment.Slice(index), Pool, _clear);
+
+	/// <summary>
+	/// Forms a slice out of the segment
+	/// starting at the specified <paramref name="index"/>
+	/// and extending for the <paramref name="count"/>.
+	/// </summary>
+	public ArrayPoolSegment<T> Slice(int index, int count)
+		=> new(Segment.Slice(index, count), Pool, _clear);
 
 	/// <summary>
 	/// Returns the array to the pool.

@@ -18,7 +18,7 @@
 		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>4.0.2</Version>
+		<Version>4.0.3</Version>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
