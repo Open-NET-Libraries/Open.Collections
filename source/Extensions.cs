@@ -11,6 +11,7 @@ using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
@@ -1062,40 +1063,85 @@ retry:
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 
-#if NETSTANDARD2_0
 	private const string MustBeAtLeast0 = "Must be at least 0.";
-	private const string MustBeLessThanTheCount = "Must be less than the count.";
+	private const string MustBeLessThanTheSize = "Must be less than the size.";
 
 	/// <summary>
-	/// Forms a slice out of the <paramref name="source"/> segment starting at the specified <paramref name="index"/>.
+	/// Creates a segment from the array.
 	/// </summary>
-	public static ArraySegment<T> Slice<T>(this ArraySegment<T> source, int index)
+	public static ArraySegment<T> AsSegment<T>(this T[] array)
+		=> new(array);
+
+	/// <summary>
+	/// Creates a segment from the array starting at the specified <paramref name="offset"/>.
+	/// </summary>
+	public static ArraySegment<T> AsSegment<T>(this T[] array, int offset)
 	{
-		if (index < 0)
-			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeAtLeast0);
-		if (index > source.Count)
-			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeLessThanTheCount);
+		if (array is null) throw new ArgumentNullException(nameof(array));
+		if (offset < 0)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeAtLeast0);
+		if (offset > array.Length)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeLessThanTheSize);
 		Contract.EndContractBlock();
 
-		return new ArraySegment<T>(source.Array, source.Offset + index, source.Count - index);
+		return new(array, offset, array.Length - offset);
+	}
+
+	/// <summary>
+	/// Creates a segment from the array starting at the specified <paramref name="offset"/> and extending for the <paramref name="count"/>.
+	/// </summary>
+	public static ArraySegment<T> AsSegment<T>(this T[] array, int offset, int count)
+	{
+		if (array is null) throw new ArgumentNullException(nameof(array));
+		if (offset < 0)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeAtLeast0);
+		Contract.EndContractBlock();
+
+		return new(array, offset, count);
+	}
+
+#if NETSTANDARD2_0
+	/// <summary>
+	/// Enumerates the source segment.
+	/// </summary>
+	public static IEnumerator<T> GetEnumerator<T>(this ArraySegment<T> source)
+	{
+		int start = source.Offset;
+		int end = start + source.Count;
+		for (int i = start; i < end; i++)
+			yield return source.Array[i];
+	}
+
+	/// <summary>
+	/// Forms a slice out of the <paramref name="array"/> segment starting at the specified <paramref name="offset"/>.
+	/// </summary>
+	public static ArraySegment<T> Slice<T>(this ArraySegment<T> array, int offset)
+	{
+		if (offset < 0)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeAtLeast0);
+		if (offset > array.Count)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeLessThanTheSize);
+		Contract.EndContractBlock();
+
+		return new ArraySegment<T>(array.Array, array.Offset + offset, array.Count - offset);
 	}
 
 	/// <summary>
 	/// Forms a slice out of the <paramref name="source"/> segment
-	/// starting at the specified <paramref name="index"/>
+	/// starting at the specified <paramref name="offset"/>
 	/// and extending for the<paramref name = "count" />.
 	/// </summary>
-	public static ArraySegment<T> Slice<T>(this ArraySegment<T> source, int index, int count)
+	public static ArraySegment<T> Slice<T>(this ArraySegment<T> source, int offset, int count)
 	{
-		if (index < 0)
-			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeAtLeast0);
+		if (offset < 0)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeAtLeast0);
 		if (count < 0)
 			throw new ArgumentOutOfRangeException(nameof(count), count, MustBeAtLeast0);
-		if (index > source.Count)
-			throw new ArgumentOutOfRangeException(nameof(index), index, MustBeLessThanTheCount);
+		if (offset > source.Count)
+			throw new ArgumentOutOfRangeException(nameof(offset), offset, MustBeLessThanTheSize);
 		Contract.EndContractBlock();
 
-		return new ArraySegment<T>(source.Array, source.Offset + index, count);
+		return new ArraySegment<T>(source.Array, source.Offset + offset, count);
 	}
 #endif
 }

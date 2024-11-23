@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
@@ -8,7 +10,7 @@ namespace Open.Collections;
 /// Represents a segment of an array rented from an <see cref="ArrayPool{T}"/>.
 /// </summary>
 /// <typeparam name="T">The type of the elements in the array.</typeparam>
-public readonly struct ArrayPoolSegment<T> : IDisposable
+public readonly struct ArrayPoolSegment<T> : IDisposable, IEnumerable<T>
 {
 	/// <summary>
 	/// The segment of the array.
@@ -69,6 +71,10 @@ public readonly struct ArrayPoolSegment<T> : IDisposable
 	/// </summary>
 	/// <inheritdoc />
 	public void Dispose() => Pool?.Return(Segment.Array!, _clear);
+
+	/// <inheritdoc />
+	public IEnumerator<T> GetEnumerator() => Segment.GetEnumerator();
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 	/// <summary>
 	/// Implicitly converts the <see cref="ArrayPoolSegment{T}"/> to an <see cref="ArraySegment{T}"/>.
