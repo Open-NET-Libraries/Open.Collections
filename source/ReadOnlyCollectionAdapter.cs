@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A read-only collection adapter that can be used to wrap an existing collection.
+/// </summary>
 [method: ExcludeFromCodeCoverage]
 public sealed class ReadOnlyCollectionAdapter<T>(
 	IEnumerable<T> source, Func<int> getCount)
@@ -18,10 +21,14 @@ public sealed class ReadOnlyCollectionAdapter<T>(
 			? item => c.Contains(item)
 			: item => source.Contains(item);
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ReadOnlyCollectionAdapter{T}"/> class.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public ReadOnlyCollectionAdapter(IReadOnlyCollection<T> source)
 		: this(source, () => source.Count) { }
 
+	/// <inheritdoc cref="ReadOnlyCollectionAdapter{T}.ReadOnlyCollectionAdapter(ICollection{T})"/>
 	[ExcludeFromCodeCoverage]
 	public ReadOnlyCollectionAdapter(ICollection<T> source)
 		: this(source, () => source.Count) { }

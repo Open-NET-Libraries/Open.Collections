@@ -10,13 +10,23 @@ using System.Threading;
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A wrapper for a collection that tracks changes and provides synchronization.
+/// </summary>
 public class TrackedCollectionWrapper<T, TCollection>
 	: ModificationSynchronizedBase, ICollection<T>,
 	IAddMultiple<T>,
 	ISynchronizedCollectionWrapper<T, TCollection>
 	where TCollection : class, ICollection<T>
 {
+	/// <summary>
+	/// The internal source collection.
+	/// </summary>
 	protected TCollection? InternalUnsafeSource;
+
+	/// <summary>
+	/// The internal source collection when not disposed.
+	/// </summary>
 	protected TCollection InternalSource
 		=> InternalUnsafeSource ?? throw new ObjectDisposedException(GetType().ToString());
 
@@ -30,6 +40,9 @@ public class TrackedCollectionWrapper<T, TCollection>
 	/// </summary>
 	public event EventHandler<ItemChangedEventArgs<T>>? Changed;
 
+	/// <summary>
+	/// True if there are listeners for the <see cref="Changed"/> event.
+	/// </summary>
 	protected bool HasChangedListeners => Changed is not null;
 
 	/// <summary>
@@ -37,14 +50,21 @@ public class TrackedCollectionWrapper<T, TCollection>
 	/// </summary>
 	public event EventHandler<int>? Cleared;
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TrackedCollectionWrapper{T, TCollection}"/> class.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedCollectionWrapper(TCollection collection, ModificationSynchronizer? sync = null)
 		: base(sync) => InternalUnsafeSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TrackedCollectionWrapper{T, TCollection}"/> class.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public TrackedCollectionWrapper(TCollection collection, out ModificationSynchronizer sync)
 		: base(out sync) => InternalUnsafeSource = collection ?? throw new ArgumentNullException(nameof(collection));
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	protected override ModificationSynchronizer InitSync(object? sync = null)
 	{
@@ -52,6 +72,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 		return new ReadWriteModificationSynchronizer(sync as ReaderWriterLockSlim);
 	}
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	protected override void OnDispose()
 	{
@@ -65,6 +86,11 @@ public class TrackedCollectionWrapper<T, TCollection>
 	private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
 	private Action? _throwIfDisposed;
+
+	/// <summary>
+	/// The delegate to invoke to throw an exception if disposed.
+	/// </summary>
+	[ExcludeFromCodeCoverage]
 	protected Action ThrowIfDisposedDelegate
 		=> _throwIfDisposed ??= ThrowIfDisposedInternal;
 
@@ -76,18 +102,30 @@ public class TrackedCollectionWrapper<T, TCollection>
 			return InternalSource.Count;
 		});
 
+	/// <summary>
+	/// Adds an item to the internal collection.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	protected virtual void AddInternal(T item)
 	   => InternalSource.Add(item);
 
+	/// <summary>
+	/// Invoked after the collection has been modified.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void OnModified()
 		=> Modified?.Invoke(this, EventArgs.Empty);
 
+	/// <summary>
+	/// Invoked after a change or group of changes has been made.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected void OnChanged(ItemChange change, T item, int version)
 		=> Changed?.Invoke(this, change.CreateArgs(item, version));
 
+	/// <summary>
+	/// Invoked after a change or group of changes has been made.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected virtual void OnChanged<TIndex>(ItemChange change, TIndex index, T item, int version)
 		=> Changed?.Invoke(this, change.CreateArgs(index, item, version));
@@ -100,6 +138,9 @@ public class TrackedCollectionWrapper<T, TCollection>
 	private void OnRemoved(T item, int version)
 		=> OnChanged(ItemChange.Removed, item, version);
 
+	/// <summary>
+	/// Invoked after the collection has been cleared.
+	/// </summary>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected virtual void OnCleared(int version)
 		=> Cleared?.Invoke(this, version);
@@ -114,8 +155,11 @@ public class TrackedCollectionWrapper<T, TCollection>
 				return true;
 			},
 			version => OnAdded(item, version));
-
+#if NET9_0_OR_GREATER
+	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})" />
+#else
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
+#endif
 	public void AddThese(T item1, T item2, params T[] items)
 		=> Sync!.Modifying(AssertIsAliveDelegate,
 			() =>
@@ -163,6 +207,23 @@ public class TrackedCollectionWrapper<T, TCollection>
 		});
 	}
 
+#if NET9_0_OR_GREATER
+	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})" />
+	[Obsolete("This method has to make a copy of items. Use the local AddThese(T, T, T[]) instead.")]
+	[OverloadResolutionPriority(-1)]
+	public void AddThese(T item1, T item2, params ReadOnlySpan<T> items)
+		=> AddThese(item1, item2, items.ToArray());
+
+	/// <inheritdoc cref="AddRange(IEnumerable{T})"/>
+	[Obsolete("This method has to make a copy of items. Use the local AddThese(T, T, T[]) instead.")]
+	[OverloadResolutionPriority(-1)]
+	public void AddRange(ReadOnlySpan<T> items)
+		=> AddThese(default!, default!, items.ToArray());
+#endif
+
+	/// <summary>
+	/// Clears the internal collection.
+	/// </summary>
 	[ExcludeFromCodeCoverage]
 	protected virtual void ClearInternal()
 		=> InternalUnsafeSource!.Clear();
@@ -273,6 +334,9 @@ public class TrackedCollectionWrapper<T, TCollection>
 	public T[] Snapshot()
 		=> Sync!.Reading(() => InternalSource.ToArray());
 
+	/// <summary>
+	/// Synchronizes exporting the internal collection to the specified collection.
+	/// </summary>
 	public void Export(ICollection<T> to)
 		=> Sync!.Reading(() => to.AddRange(InternalSource));
 }

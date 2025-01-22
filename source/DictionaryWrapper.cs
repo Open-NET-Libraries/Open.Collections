@@ -34,18 +34,21 @@ public class DictionaryWrapper<TKey, TValue>
 	protected override void SetValueInternal(TKey key, TValue value)
 		=> InternalSource[key] = value;
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override ICollection<TKey> GetKeys()
 		=> new ReadOnlyCollectionAdapter<TKey>(
 			ThrowIfDisposed(InternalSource.Keys),
 			() => InternalSource.Count);
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override ICollection<TValue> GetValues()
 		=> new ReadOnlyCollectionAdapter<TValue>(
 			ThrowIfDisposed(InternalSource.Values),
 			() => InternalSource.Count);
 
+	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	protected override void AddInternal(TKey key, TValue value)
 		=> InternalSource.Add(key, value);

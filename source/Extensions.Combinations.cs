@@ -150,6 +150,9 @@ public static partial class Extensions
 		return source.Count == 0 ? Enumerable.Empty<ArraySegment<T>>() : CombinationsCore(source, true, buffer);
 	}
 
+	/// <summary>
+	/// Enumerates all possible combinations of values.
+	/// </summary>
 	[Obsolete("Deprecated in favor of using .Subsets(length) or .Combinations(length) depending on intent.")]
 	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements, int length, bool uniqueOnly)
 	{

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
@@ -57,6 +58,9 @@ public static partial class Extensions
 	}
 
 	/// <inheritdoc cref="AddRange{T}(ICollection{T}, IEnumerable{T})"/>
+#if NET9_0_OR_GREATER
+	[OverloadResolutionPriority(1)]
+#endif
 	public static void AddRange<T>(
 		this ICollection<T> target,
 		ReadOnlySpan<T> values)

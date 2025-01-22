@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -49,8 +50,13 @@ public class CollectionWrapper<T, TCollection>(
 		AddInternal(in item);
 	}
 
+#if NET9_0_OR_GREATER
+	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})"/>
+	public virtual void AddThese(T item1, T item2, params ReadOnlySpan<T> items)
+#else
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])"/>
 	public virtual void AddThese(T item1, T item2, params T[] items)
+#endif
 	{
 		AssertIsAlive();
 		AddInternal(in item1);
@@ -67,6 +73,19 @@ public class CollectionWrapper<T, TCollection>(
 	/// <param name="items">The items to add.</param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public virtual void AddRange(IEnumerable<T> items)
+	{
+		AssertIsAlive();
+		if (items is null) return;
+		foreach (var i in items)
+			AddInternal(in i);
+	}
+
+	/// <inheritdoc cref="AddRange(IEnumerable{T})"/>
+#if NET9_0_OR_GREATER
+	[OverloadResolutionPriority(1)]
+#endif
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public virtual void AddRange(ReadOnlySpan<T> items)
 	{
 		AssertIsAlive();
 		foreach (var i in items)
@@ -86,5 +105,5 @@ public class CollectionWrapper<T, TCollection>(
 	/// <inheritdoc />
 	public override bool IsReadOnly
 		=> InternalSource.IsReadOnly;
-	#endregion
+#endregion
 }

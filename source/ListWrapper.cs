@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A wrapper for <see cref="IList{T}"/> that allows for easy extension.
+/// </summary>
 public class ListWrapper<T, TList>(
 	TList source, bool owner = false)
 	: CollectionWrapper<T, TList>(source, owner), IList<T>
@@ -33,15 +36,22 @@ public class ListWrapper<T, TList>(
 		=> InternalSource.RemoveAt(index);
 }
 
+/// <summary>
+/// A wrapper for <see cref="IList{T}"/> that allows for easy extension.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public class ListWrapper<T>
 	: ListWrapper<T, IList<T>>
 {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ListWrapper{T}"/> class.
+	/// </summary>
 	public ListWrapper(IList<T> source, bool owner = false)
 		: base(source, owner)
 	{
 	}
 
+	/// <inheritdoc cref="ListWrapper{T}.ListWrapper(IList{T}, bool)"/>
 	public ListWrapper(int capacity = 0)
 		: base(new List<T>(capacity))
 	{

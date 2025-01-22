@@ -122,6 +122,7 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 		=> to.AddRange(InternalSource);
 
 	#region Dispose
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	protected override void OnDispose()
 	{

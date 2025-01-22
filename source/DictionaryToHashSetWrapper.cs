@@ -5,11 +5,17 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections;
 
+/// <summary>
+/// A wrapper for a <see cref="IDictionary{TKey, TValue}"/> to implement <see cref="ISet{T}"/>.
+/// </summary>
 [method: ExcludeFromCodeCoverage]
 public class DictionaryToHashSetWrapper<T>(
 	IDictionary<T, bool> source)
 	: ISet<T>
 {
+	/// <summary>
+	/// The internal source dictionary.
+	/// </summary>
 	protected readonly IDictionary<T, bool> InternalSource = source;
 
 	/// <inheritdoc />
