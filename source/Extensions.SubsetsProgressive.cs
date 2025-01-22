@@ -35,6 +35,7 @@ public static partial class Extensions
 					buffer[0] = e;
 					yield return buffer;
 				}
+
 				yield break;
 			}
 
@@ -66,6 +67,7 @@ public static partial class Extensions
 
 						yield return buffer;
 					}
+
 					++n;
 				}
 			}

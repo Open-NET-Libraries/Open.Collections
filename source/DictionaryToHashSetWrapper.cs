@@ -37,6 +37,7 @@ public class DictionaryToHashSetWrapper<T>(
 		{
 			return false;
 		}
+
 		return true;
 	}
 

@@ -85,6 +85,7 @@ public static partial class Extensions
 					count++;
 			}
 		}
+
 		return count;
 	}
 

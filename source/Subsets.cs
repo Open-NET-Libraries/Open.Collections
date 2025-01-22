@@ -21,6 +21,7 @@ public static class Subsets
 				buffer[0] = i;
 				yield return buffer;
 			}
+
 			yield break;
 		}
 

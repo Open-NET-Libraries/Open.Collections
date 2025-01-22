@@ -20,6 +20,7 @@ public class DictionaryParallelBenchmark(
 
 		int testSize;
 		checked { testSize = (int)TestSize; }
+
 		const int mixSize = 100;
 		var c = (IDictionary<int, object>)Param();
 		yield return TimedResult.Measure("Fill (.Add(keyValuePair)) (In Parallel)",

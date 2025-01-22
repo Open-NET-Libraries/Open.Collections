@@ -26,6 +26,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 				InternalSource[key] = value;
 				return;
 			}
+
 			using var write = RWLock.WriteLock();
 			InternalSource[key] = value;
 		}

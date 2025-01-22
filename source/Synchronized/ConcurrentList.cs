@@ -71,8 +71,10 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 				capacity = int.MaxValue;
 				break;
 			}
+
 			capacity *= 2;
 		}
+
 		list.Capacity = capacity;
 		return list;
 	}

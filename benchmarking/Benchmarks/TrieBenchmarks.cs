@@ -70,6 +70,7 @@ public class TrieBenchmark
 			{
 				yield return key;
 			}
+
 			stack.Pop();
 		}
 	}
@@ -82,6 +83,7 @@ public class TrieBenchmark
 		{
 			trie.TryGetValue(key.Item1, out result);
 		}
+
 		return result;
 	}
 
@@ -94,6 +96,7 @@ public class TrieBenchmark
 			string[] k = key.Item1;
 			result = trie.GetChild(k[0]).GetChild(k[1]).GetChild(k[2]).GetChild(k[3]).Value;
 		}
+
 		return result;
 	}
 
@@ -105,6 +108,7 @@ public class TrieBenchmark
 		{
 			trie.TryGetValue(key.Item1.ToArray(), out result);
 		}
+
 		return result;
 	}
 
@@ -116,6 +120,7 @@ public class TrieBenchmark
 		{
 			result = dictionary[key.Item2];
 		}
+
 		return result;
 	}
 
@@ -128,6 +133,7 @@ public class TrieBenchmark
 			string[] k = key.Item1;
 			result = dictionary[$"{k[0]}/{k[1]}/{k[2]}/{k[3]}"];
 		}
+
 		return result;
 	}
 
@@ -139,6 +145,7 @@ public class TrieBenchmark
 		{
 			result = dictionary[string.Join("/", key.Item1)];
 		}
+
 		return result;
 	}
 

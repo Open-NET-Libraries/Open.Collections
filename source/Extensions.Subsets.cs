@@ -37,6 +37,7 @@ public static partial class Extensions
 					buffer.Span[0] = e;
 					yield return buffer;
 				}
+
 				yield break;
 			}
 
@@ -146,6 +147,7 @@ loop:
 					buffer.Span[0] = source.Span[i];
 					yield return buffer;
 				}
+
 				yield break;
 			}
 

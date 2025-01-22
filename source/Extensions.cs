@@ -369,6 +369,7 @@ public static partial class Extensions
 			if (--minimum == 0)
 				return true;
 		}
+
 		return false;
 	}
 
@@ -405,6 +406,7 @@ public static partial class Extensions
 				return true;
 			}
 		}
+
 		falseHandler?.Invoke();
 		return false;
 	}
@@ -724,6 +726,7 @@ retry:
 			expr = Expression.Property(expr, pi);
 			type = pi.PropertyType;
 		}
+
 		Type? delegateTypeSource = typeof(Func<,>);
 
 		//var delegateTypeSourceArgs = delegateTypeSource.GetGenericArguments();
@@ -790,6 +793,7 @@ retry:
 							$"Invalid OrderBy string '{item}'. Order By Format: Property, Property2 ASC, Property2 DESC");
 					}
 				}
+
 				i++;
 			}
 
@@ -906,6 +910,7 @@ retry:
 			if (source[i]?.Equals(value) ?? value is null)
 				return i;
 		}
+
 		return -1;
 	}
 
