@@ -33,7 +33,11 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>(
 	}
 
 	/// <inheritdoc />
+#if NET9_0_OR_GREATER
+	public override void AddThese(T item1, T item2, params ReadOnlySpan<T> items)
+#else
 	public override void AddThese(T item1, T item2, params T[] items)
+#endif
 	{
 		using var write = RWLock.WriteLock();
 		AddInternal(item1);
