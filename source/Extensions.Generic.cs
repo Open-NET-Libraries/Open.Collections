@@ -56,15 +56,31 @@ public static partial class Extensions
 			target.Add(value);
 	}
 
+	/// <inheritdoc cref="AddRange{T}(ICollection{T}, IEnumerable{T})"/>
+	public static void AddRange<T>(
+		this ICollection<T> target,
+		ReadOnlySpan<T> values)
+	{
+		if (target is null) throw new ArgumentNullException(nameof(target));
+		Contract.EndContractBlock();
+
+		foreach (T value in values)
+			target.Add(value);
+	}
+
 	/// <summary>
 	/// Adds each value to the end of the <paramref name="target"/> collection.
 	/// </summary>
+#if NET9_0_OR_GREATER
+	public static void AddThese<T>(this ICollection<T> target, T a, T b, params ReadOnlySpan<T> more)
+#else
 	public static void AddThese<T>(this ICollection<T> target, T a, T b, params T[] more)
+#endif
 	{
 		target.Add(a);
 		target.Add(b);
-		if (more.Length != 0)
-			target.AddRange(more);
+		foreach (T value in more)
+			target.Add(value);
 	}
 
 	/// <summary>
@@ -80,8 +96,7 @@ public static partial class Extensions
 		{
 			foreach (T? value in values)
 			{
-				if (
-				target.Remove(value))
+				if (target.Remove(value))
 					count++;
 			}
 		}
@@ -103,6 +118,16 @@ public static partial class Extensions
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
+
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
+			return System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val)
+				? (val = value)
+				: (val = updateValue);
+		}
+#endif
 
 		T valueUsed;
 		if (target.TryGetValue(key, out _))
@@ -127,6 +152,16 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 		Contract.EndContractBlock();
+
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
+			return System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val)
+				? (val = value)
+				: (val = updateValueFactory(key, val));
+		}
+#endif
 
 		T valueUsed;
 		if (target.TryGetValue(key, out T? old))
@@ -154,6 +189,16 @@ public static partial class Extensions
 		if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 		Contract.EndContractBlock();
 
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
+			return System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val)
+				? (val = newValueFactory(key))
+				: (val = updateValueFactory(key, val));
+		}
+#endif
+
 		T valueUsed;
 		if (target.TryGetValue(key, out T? old))
 			target[key] = valueUsed = updateValueFactory(key, old);
@@ -164,7 +209,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Thread safe shortcut for adding a value to list within a dictionary.
+	/// Shortcut for adding a value to list within a dictionary.
 	/// </summary>
 	public static void AddTo<TKey, TValue>(this IDictionary<TKey, IList<TValue>> c, TKey key, TValue value)
 		where TKey : notnull
@@ -178,34 +223,73 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Shortcut for ensuring a cacheKey contains a action.  If no action exists, it adds the provided defaultValue.
+	/// Shortcut for ensuring a cacheKey contains a action.  If no value exists, it adds the provided defaultValue.
 	/// </summary>
 	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
+	[Obsolete("Use TryAdd instead.")]
 	public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key, T defaultValue)
+		where TKey : notnull
+		=> TryAdd(target, key, defaultValue);
+
+	/// <summary>
+	/// Shortcut for ensuring a cacheKey contains a Value.  If no value exists, it adds it using the provided defaultValueFactory.
+	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
+	[Obsolete("Use TryAdd instead.")]
+	public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key,
+		Func<TKey, T> defaultValueFactory)
+		where TKey : notnull
+		=> TryAdd(target, key, defaultValueFactory);
+
+	/// <summary>
+	/// Attempts to add a value to a dictionary if it does not already exist.
+	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
+	public static bool TryAdd<TKey, T>(this IDictionary<TKey, T> target, TKey key, T value)
 		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-		if (!target.ContainsKey(key))
-			target.Add(key, defaultValue);
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
+			if (!exists) val = value;
+			return !exists;
+		}
+#endif
+		if (target.ContainsKey(key))
+			return false;
+
+		target.Add(key, value);
+		return true;
 	}
 
-	/// <summary>
-	/// Shortcut for ensuring a cacheKey contains a Value.  If no action exists, it adds it using the provided defaultValueFactory.
-	/// </summary>
-	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
-	public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key,
+	/// <inheritdoc cref="TryAdd{TKey, T}(IDictionary{TKey, T}, TKey, T)"/>
+	public static bool TryAdd<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		Func<TKey, T> defaultValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		if (defaultValueFactory is null) throw new ArgumentNullException(nameof(defaultValueFactory));
 		Contract.EndContractBlock();
 
-		if (!target.ContainsKey(key))
-			target.Add(key, defaultValueFactory(key));
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
+			if (!exists) val = defaultValueFactory(key);
+			return !exists;
+		}
+#endif
+		if (target.ContainsKey(key))
+			return false;
+
+		target.Add(key, defaultValueFactory(key));
+		return true;
 	}
 
 	/// <summary>
