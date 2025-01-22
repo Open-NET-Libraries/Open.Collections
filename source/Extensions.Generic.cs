@@ -27,8 +27,8 @@ public static partial class Extensions
 
 	/// <summary>
 	/// Adds a value to list only if it does not exist.
-	/// NOT THREAD SAFE: Use only when a collection local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static void Register<T>(this ICollection<T> target, T value)
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
@@ -93,11 +93,12 @@ public static partial class Extensions
 	/// Shortcut for adding a value or updating based on exising value.
 	/// If no value exists, it adds the provided value.
 	/// If a value exists, it sets the value using the updateValueFactory.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static T AddOrUpdate<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		T value,
 		T updateValue)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -116,10 +117,11 @@ public static partial class Extensions
 	/// Shortcut for adding a value or updating based on exising value.
 	/// If no value exists, it adds the provided value.
 	/// If a value exists, it sets the value using the updateValueFactory.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static T AddOrUpdate<TKey, T>(this IDictionary<TKey, T> target, TKey key, T value,
 		Func<TKey, T, T> updateValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -139,11 +141,12 @@ public static partial class Extensions
 	/// Shortcut for adding a value or updating based on exising value.
 	/// If no value exists, it adds the value using the newValueFactory.
 	/// If a value exists, it sets the value using the updateValueFactory.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static T AddOrUpdate<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		Func<TKey, T> newValueFactory,
 		Func<TKey, T, T> updateValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -164,6 +167,7 @@ public static partial class Extensions
 	/// Thread safe shortcut for adding a value to list within a dictionary.
 	/// </summary>
 	public static void AddTo<TKey, TValue>(this IDictionary<TKey, IList<TValue>> c, TKey key, TValue value)
+		where TKey : notnull
 	{
 		if (c is null) throw new ArgumentNullException(nameof(c));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -175,9 +179,10 @@ public static partial class Extensions
 
 	/// <summary>
 	/// Shortcut for ensuring a cacheKey contains a action.  If no action exists, it adds the provided defaultValue.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key, T defaultValue)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -189,8 +194,8 @@ public static partial class Extensions
 
 	/// <summary>
 	/// Shortcut for ensuring a cacheKey contains a Value.  If no action exists, it adds it using the provided defaultValueFactory.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static void EnsureDefault<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		Func<TKey, T> defaultValueFactory)
 	{
@@ -209,6 +214,7 @@ public static partial class Extensions
 	public static T GetOrDefault<TKey, T>(
 		this IDictionary<TKey, T> target,
 		TKey key)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -224,6 +230,7 @@ public static partial class Extensions
 		this IDictionary<TKey, T> target,
 		TKey key,
 		T defaultValue)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -239,6 +246,7 @@ public static partial class Extensions
 		this IDictionary<TKey, T> target,
 		TKey key,
 		Func<TKey, T> valueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -250,38 +258,103 @@ public static partial class Extensions
 
 	/// <summary>
 	/// Tries to acquire a value from the dictionary.  If no value is present it adds it using the valueFactory response.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static T GetOrAdd<TKey, T>(
 		this IDictionary<TKey, T> target,
 		TKey key,
 		Func<TKey, T> valueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
-		if (!target.TryGetValue(key, out T? value))
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
+			if(!exists) val = valueFactory(key);
+			return val!;
+		}
+#endif
+		if (!target.TryGetValue(key, out var value))
 			target.Add(key, value = valueFactory(key));
+
 		return value;
 	}
 
 	/// <summary>
 	/// Tries to acquire a value from the dictionary.  If no value is present it adds the value provided.
-	/// NOT THREAD SAFE: Use only when a dictionary local or is assured single threaded.
 	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
 	public static T GetOrAdd<TKey, T>(
 		this IDictionary<TKey, T> target,
-		TKey key,
-		T value)
+		TKey key, T value)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
+			if (!exists) val = value;
+			return val!;
+		}
+#endif
+
 		if (!target.TryGetValue(key, out T? v))
 			target.Add(key, v = value);
 		return v;
+	}
+
+	/// <summary>
+	/// Tries to update an existing value in the dictionary.
+	/// </summary>
+	/// <remarks>NOT THREAD SAFE: Use only when a dictionary is assured to be single threaded.</remarks>
+	/// <returns>
+	/// <see langword="true"/> if the value was overwritten;
+	/// <see langword="false"/> if there was no original value
+	/// or if <paramref name="compareExisting"/> is <see langword="true"/> and the values are equal.
+	/// </returns>
+	public static bool TryUpdate<TKey, T>(
+		this IDictionary<TKey, T> target,
+		TKey key, T value,
+		bool compareExisting = false)
+		where TKey : notnull
+	{
+		if (target is null) throw new ArgumentNullException(nameof(target));
+		if (key is null) throw new ArgumentNullException(nameof(key));
+		Contract.EndContractBlock();
+
+#if NET9_0_OR_GREATER
+		if (target is Dictionary<TKey, T> d)
+		{
+			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
+			if(System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val))
+				return false;
+
+			if(compareExisting && !AreEqual(val, value))
+				return false;
+
+			val = value;
+			return true;
+		}
+#endif
+
+		if (!target.TryGetValue(key, out var v))
+			return false;
+
+		if (compareExisting && !AreEqual(v, value))
+			return false;
+
+		target[key] = value;
+		return true;
+
+		static bool AreEqual(T a, T b) => a is null ? b is null : a.Equals(b);
 	}
 }

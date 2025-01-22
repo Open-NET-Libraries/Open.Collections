@@ -1,9 +1,17 @@
 ﻿namespace Open.Collections;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+/// <summary>
+/// Represents the direction of sorting.
+/// </summary>
 public enum SortDirection : sbyte
 {
+	/// <summary>
+	/// Ascending Order
+	/// </summary>
 	Ascending = +1,
+
+	/// <summary>
+	/// Descending Order
+	/// </summary>
 	Descending = -1
 }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

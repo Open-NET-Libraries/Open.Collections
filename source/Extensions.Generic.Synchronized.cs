@@ -97,6 +97,7 @@ public static partial class Extensions
 	/// </summary>
 	public static T AddOrUpdateSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key, T value,
 		Func<TKey, T, T> updateValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -134,6 +135,7 @@ public static partial class Extensions
 	public static T AddOrUpdateSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		Func<TKey, T> newValueFactory,
 		Func<TKey, T, T> updateValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -190,6 +192,7 @@ public static partial class Extensions
 	/// Thread safe shortcut for adding a value to list within a dictionary.
 	/// </summary>
 	public static void AddToSynchronized<TKey, TValue>(this IDictionary<TKey, IList<TValue>> c, TKey key, TValue value)
+		where TKey : notnull
 	{
 		if (c is null) throw new ArgumentNullException(nameof(c));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -203,6 +206,7 @@ public static partial class Extensions
 	/// Thread safe shortcut for ensuring a cacheKey contains a action.  If no action exists, it adds the provided defaultValue.
 	/// </summary>
 	public static void EnsureDefaultSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key, T defaultValue)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -218,6 +222,7 @@ public static partial class Extensions
 	/// </summary>
 	public static void EnsureDefaultSynchronized<TKey, T>(this IDictionary<TKey, T> target, TKey key,
 		Func<TKey, T> defaultValueFactory)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -239,6 +244,7 @@ public static partial class Extensions
 		T value,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS,
 		bool throwsOnTimeout = true)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -269,6 +275,7 @@ public static partial class Extensions
 		TKey key,
 		Func<TKey, T> valueFactory,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -309,6 +316,7 @@ public static partial class Extensions
 		TKey key,
 		T value,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -337,6 +345,7 @@ public static partial class Extensions
 		TKey key,
 		Func<T> valueFactory,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -364,6 +373,7 @@ public static partial class Extensions
 		this IDictionary<TKey, T> target,
 		TKey key,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
@@ -389,6 +399,7 @@ public static partial class Extensions
 		TKey key,
 		out T value,
 		int millisecondsTimeout = SYNC_TIMEOUT_DEFAULT_MILLISECONDS)
+		where TKey : notnull
 	{
 		if (target is null) throw new ArgumentNullException(nameof(target));
 		if (key is null) throw new ArgumentNullException(nameof(key));
