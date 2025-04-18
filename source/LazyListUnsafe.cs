@@ -4,10 +4,6 @@
  */
 
 using Open.Disposable;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Threading;
 
 namespace Open.Collections;
 
@@ -154,7 +150,7 @@ public class LazyListUnsafe<T>(IEnumerable<T> source)
 		while (Enumerator.MoveNext())
 		{
 			if (Cached.Count == int.MaxValue)
-				throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
+				throw new Exception("Reached maximum contents for a single list.  Cannot memoize further.");
 
 			Cached.Add(Enumerator.Current);
 

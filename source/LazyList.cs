@@ -4,10 +4,6 @@
  */
 
 using Open.Threading;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Threading;
 
 namespace Open.Collections;
 
@@ -55,7 +51,7 @@ public sealed class LazyList<T>(
 			return true;
 
 		// This is where the fun begins...
-		// Mutliple threads can be out of sync (probably through a memory barrier)
+		// Multiple threads can be out of sync (probably through a memory barrier)
 		// And a sync read operation must be done to ensure safety.
 		int count = Sync.Read(() => Cached.Count);
 		if (maxIndex < count)
@@ -73,7 +69,7 @@ public sealed class LazyList<T>(
 
 		// This very well could be a simple lock{} statement but the ReaderWriterLockSlim recursion protection is actually quite useful.
 		using var uLock = Sync.UpgradableReadLock();
-		// Note: Within an upgradable read, other reads pile up.
+		// Note: Within an upgradeable read, other reads pile up.
 
 		int c = Cached.Count;
 		if (_safeCount != c) // Always do comparisons outside of interlocking first.
@@ -90,7 +86,7 @@ public sealed class LazyList<T>(
 		while (Enumerator.MoveNext())
 		{
 			if (Cached.Count == int.MaxValue)
-				throw new Exception("Reached maximium contents for a single list.  Cannot memoize further.");
+				throw new Exception("Reached maximum contents for a single list.  Cannot memoize further.");
 
 			Cached.Add(Enumerator.Current);
 

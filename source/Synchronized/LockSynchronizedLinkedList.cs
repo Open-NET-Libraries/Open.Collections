@@ -1,15 +1,20 @@
 ﻿using Open.Threading;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
 // LinkedLists are a bit different and don't have an default interface.
 // Overriding the .Value property of the nodes is beyond the scope of this.  All that's needed is to synchronize the collection.
-public sealed class LockSynchronizedLinkedList<T> : LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
+
+/// <summary>
+/// A Monitor synchronized wrapper for a <see cref="LinkedList{T}"/>.
+/// </summary>
+public sealed class LockSynchronizedLinkedList<T>
+	: LockSynchronizedCollectionWrapper<T, LinkedList<T>>, ILinkedList<T>
 {
+	/// <inheritdoc />
 	public LockSynchronizedLinkedList() : base(new LinkedList<T>()) { }
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public LockSynchronizedLinkedList(IEnumerable<T> collection) : base(new LinkedList<T>(collection)) { }
 

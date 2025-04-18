@@ -1,7 +1,7 @@
-﻿using System;
+﻿using FluentAssertions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
 
 namespace Open.Collections.Tests;
@@ -22,7 +22,7 @@ public class PermutorTests
 	public void TestSpecificPermutation()
 	{
 		int[] numbers = [1, 2, 3];
-		var permutations = numbers.AsMemory().Permutations().Select(m=>m.ToArray()).ToList();
+		var permutations = numbers.AsMemory().Permutations().Select(m => m.ToArray()).ToList();
 		permutations.Count.Should().Be(6);
 		int[] expectedPermutation = [2, 1, 3];
 		Assert.Contains(expectedPermutation, permutations);
@@ -84,7 +84,7 @@ public class PermutorTests
 	{
 		int[] original = [1, 2, 3];
 		var permutations = new List<string>();
-		foreach(var s in original.Permutations())
+		foreach (var s in original.Permutations())
 			permutations.Add(string.Join(",", s.ToArray()));
 
 		var expectedPermutations = new List<string>
@@ -109,7 +109,7 @@ public class PermutorTests
 		{
 			string s = string.Join(",", original.ToArray().AsSpan().Permutation(i).ToArray());
 			int c = permutations.IndexOf(s);
-			Assert.True(c==-1, $"{s} already exists in the set at index [{c}] of {permutations.Count}.");
+			Assert.True(c == -1, $"{s} already exists in the set at index [{c}] of {permutations.Count}.");
 			permutations.Contains(s).Should().BeFalse(s + " ");
 			permutations.Add(s);
 		}

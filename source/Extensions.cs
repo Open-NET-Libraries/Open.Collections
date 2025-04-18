@@ -1,21 +1,13 @@
 ﻿using Microsoft.Extensions.Primitives;
 using Open.Text;
-using System;
 using System.Buffers;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 
 namespace Open.Collections;
 
@@ -149,12 +141,14 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Coerces to a collection either by matching the type or by creating a new array.
+	/// If the source is already a collection, it will be returned as is.  If not, it will be converted to a list.
 	/// </summary>
-	public static ICollection<T> ToCollection<T>(this IEnumerable<T> source)
-		=> source is null
-			? null!
-			: source as ICollection<T> ?? source.ToArray();
+	public static ICollection<T> ToCollection<T>(this IEnumerable<T>? source)
+		=> source is null ? [] : source as ICollection<T> ?? source.ToList();
+
+	/// <inheritdoc cref="ToCollection{T}(IEnumerable{T}?)"/>
+	public static IReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> source)
+		=> source is null ? [] : source as IReadOnlyCollection<T> ?? Array.AsReadOnly(source.ToArray());
 
 	/// <summary>
 	/// Iterates over the source in parallel.
@@ -275,11 +269,11 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Iterates over the source and can be cancelled.
+	/// Iterates over the source and can be canceled.
 	/// </summary>
 	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Allows for simpler implementation. Other methods cover non-cancellable case.")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1068:CancellationToken parameters must come last", Justification = "Allows for simpler implementation. Other methods cover non-cancelable case.")]
 #pragma warning restore IDE0079 // Remove unnecessary suppression
 	public static void ForEach<T>(this IEnumerable<T> target, CancellationToken token, Action<T> closure)
 	{
@@ -295,7 +289,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Iterates over the source with a lock and can be cancelled.
+	/// Iterates over the source with a lock and can be canceled.
 	/// </summary>
 	/// <exception cref="ArgumentNullException">The <paramref name="target"/> or <paramref name="closure"/> are null.</exception>
 	public static void ForEach<T>(this ISynchronizedCollection<T> target, CancellationToken token, Action<T> closure)
@@ -333,7 +327,7 @@ public static partial class Extensions
 	/// </summary>
 	/// <exception cref="ArgumentNullException">If the <paramref name="source"/> is null.</exception>
 	/// <remarks>
-	/// First checks the type to see if a count can be aquired directly.  If not, it will iterate through the source to count the items.
+	/// First checks the type to see if a count can be acquired directly.  If not, it will iterate through the source to count the items.
 	/// </remarks>
 	public static bool HasAny<T>(this IEnumerable<T> source)
 		=> source.HasAtLeast(1);
@@ -374,7 +368,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Synchronizes enumerting by locking on the enumerator.
+	/// Synchronizes enumerating by locking on the enumerator.
 	/// </summary>
 	public static bool ConcurrentTryMoveNext<T>(this IEnumerator<T> source, out T item)
 	{
@@ -393,7 +387,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Syncronizes enumerting by locking on the enumerator and invokes the provided handlers depending on if .MoveNext() was true.
+	/// Synchronizes enumerating by locking on the enumerator and invokes the provided handlers depending on if .MoveNext() was true.
 	/// </summary>
 	public static bool ConcurrentMoveNext<T>(this IEnumerator<T> source, Action<T> trueHandler, Action? falseHandler = null)
 	{
@@ -742,7 +736,7 @@ retry:
 					? "OrderBy"
 					: "OrderByDescending";
 
-		//TODO: apply caching to the generic methodsinfos?
+		//TODO: apply caching to the generic method-infos?
 		System.Reflection.MethodInfo[]? methods = typeof(Queryable).GetMethods();
 		System.Reflection.MethodInfo? r1 = methods
 			.Single(method => method.Name == methodName
@@ -847,7 +841,7 @@ retry:
 
 		if (queue is null) yield break;
 
-		// Start by getting the first enuerator if it exists.
+		// Start by getting the first enumerator if it exists.
 		LinkedListNode<IEnumerator<T>>? n = queue.First;
 		while (n is not null)
 		{

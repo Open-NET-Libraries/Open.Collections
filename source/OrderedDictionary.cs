@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// A dictionary that maintains the order of items as they are added
@@ -97,7 +90,9 @@ public class OrderedDictionary<TKey, TValue>
 	/// Adds a node to the lookup dictionary.
 	/// </summary>
 #if NETSTANDARD2_0
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 	[SuppressMessage("Roslynator", "RCS1242:Do not pass non-read-only struct by read-only reference.", Justification = "KeyValuePairs are not truly readonly until NET Standard 2.1.")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 #endif
 	protected virtual LinkedListNode<KeyValuePair<TKey, TValue>> AddNode(
 		in KeyValuePair<TKey, TValue> kvp)

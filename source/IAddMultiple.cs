@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// Represents a collection that can add multiple items.

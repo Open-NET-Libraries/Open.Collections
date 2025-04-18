@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace Open.Collections.Synchronized;
 
-namespace Open.Collections.Synchronized;
-
+/// <summary>
+/// A synchronized <see cref="OrderedDictionary{TKey, TValue}"/>.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public sealed class LockSynchronizedOrderedDictionary<TKey, TValue>(
 	int capacity = 0)

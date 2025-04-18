@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// Represents a generic items of key/value pairs that are ordered independently of the key and value.

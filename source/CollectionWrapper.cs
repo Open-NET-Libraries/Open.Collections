@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// A disposable wrapper for a collection.
@@ -18,7 +13,7 @@ public class CollectionWrapper<T, TCollection>(
 	/// The underlying object used for synchronization.
 	/// </summary>
 #if NET9_0_OR_GREATER
-	protected readonly System.Threading.Lock Sync = new();
+	protected readonly Lock Sync = new();
 #else
 	protected readonly object Sync = new();
 #endif
@@ -28,7 +23,7 @@ public class CollectionWrapper<T, TCollection>(
 	/// This is exposed to allow for more complex synchronization operations.
 	/// </summary>
 #if NET9_0_OR_GREATER
-	public System.Threading.Lock SyncRoot => Sync;
+	public Lock SyncRoot => Sync;
 #else
 	public object SyncRoot => Sync;
 #endif
@@ -66,7 +61,7 @@ public class CollectionWrapper<T, TCollection>(
 	}
 
 	/// <summary>
-	/// Adds mutliple items to the collection.
+	/// Adds multiple items to the collection.
 	/// It's important to avoid locking for too long so an array is used to add multiple items.
 	/// An enumerable is potentially slow as it may be yielding to a process.
 	/// </summary>
@@ -105,5 +100,5 @@ public class CollectionWrapper<T, TCollection>(
 	/// <inheritdoc />
 	public override bool IsReadOnly
 		=> InternalSource.IsReadOnly;
-#endregion
+	#endregion
 }

@@ -1,6 +1,4 @@
 ﻿using Open.Threading;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
@@ -110,6 +108,9 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
 		return result;
 	}
 
+	/// <summary>
+	/// Synchronizes adding an item to the internal collection.
+	/// </summary>
 	protected override int AddSynchronized(TKey key, TValue value)
 	{
 		int index = -1;
@@ -134,6 +135,9 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue, TDictionary>
 		=> AddSynchronized(key, value);
 }
 
+/// <summary>
+/// A synchronized wrapper for a dictionary that uses a <see cref="ModificationSynchronizer"/> for synchronization.
+/// </summary>
 public class TrackedIndexedDictionaryWrapper<TKey, TValue>
 	: TrackedIndexedDictionaryWrapper<TKey, TValue, IIndexedDictionary<TKey, TValue>>
 	where TKey : notnull
@@ -153,22 +157,28 @@ public class TrackedIndexedDictionaryWrapper<TKey, TValue>
 	}
 }
 
+/// <summary>
+/// A synchronized dictionary that uses a <see cref="ModificationSynchronizer"/> for synchronization.
+/// </summary>
 public sealed class TrackedIndexedDictionary<TKey, TValue>
 	: TrackedIndexedDictionaryWrapper<TKey, TValue>
 	where TKey : notnull
 {
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public TrackedIndexedDictionary(int capacity, ModificationSynchronizer? sync = null)
 		: base(new IndexedDictionary<TKey, TValue>(capacity), sync)
 	{
 	}
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public TrackedIndexedDictionary(int capacity, out ModificationSynchronizer sync)
 		: base(new IndexedDictionary<TKey, TValue>(capacity), out sync)
 	{
 	}
 
+	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public TrackedIndexedDictionary(ModificationSynchronizer? sync)
 		: base(new IndexedDictionary<TKey, TValue>(), sync)
@@ -190,9 +200,11 @@ public sealed class TrackedIndexedDictionary<TKey, TValue>
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public override TKey GetKeyAt(int index) => InternalSource.GetKeyAt(index);
+	public override TKey GetKeyAt(int index)
+		=> InternalSource.GetKeyAt(index);
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public override TValue GetValueAt(int index) => InternalSource.GetValueAt(index);
+	public override TValue GetValueAt(int index)
+		=> InternalSource.GetValueAt(index);
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Buffers;
 
 namespace Open.Collections;
 
@@ -244,7 +238,7 @@ public static partial class Extensions
 	/// Enumerates all possible combinations of values.
 	/// Results can be different permutations of another set.
 	/// </summary>
-	/// <example>[0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutatation of the same set.</example>
+	/// <example>[0, 0], [0, 1], [1, 0], [1, 1] where [0, 1] and [1, 0] are a different permutation of the same set.</example>
 	/// <param name="elements">The elements to draw from.</param>
 	public static IEnumerable<T[]> Combinations<T>(this IEnumerable<T> elements)
 	{
@@ -258,7 +252,7 @@ public static partial class Extensions
 	/// Enumerates all possible distinct set combinations.
 	/// In contrast a set that has its items reordered is not distinct from the original.
 	/// </summary>
-	/// <example>[0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a disticnt set from [0, 1].</example>
+	/// <example>[0, 0], [0, 1], [1, 1] where [1, 0] is not included as it is not a distinct set from [0, 1].</example>
 	/// <param name="elements">The elements to draw from.</param>
 	public static IEnumerable<T[]> CombinationsDistinct<T>(this IEnumerable<T> elements)
 	{

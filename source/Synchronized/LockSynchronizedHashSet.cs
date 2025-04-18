@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections.Synchronized;
+﻿namespace Open.Collections.Synchronized;
 
 /// <summary>
-/// A synchronized <see cref="HashSet{T}"/>.
+/// A Monitor synchronized <see cref="HashSet{T}"/>.
 /// </summary>
 public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapper<T, HashSet<T>>, ISet<T>
 {
@@ -19,7 +15,7 @@ public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapp
 	/// Constructs a new instance with the specified capacity.
 	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public LockSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }
+	public LockSynchronizedHashSet(IEnumerable<T> collection) : base([.. collection]) { }
 
 	/// <summary>
 	/// Constructs a new instance with the specified capacity and comparer.

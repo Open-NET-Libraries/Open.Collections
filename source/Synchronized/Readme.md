@@ -19,7 +19,7 @@ A "snapshot" is simply a copy of the collection at a given moment that can then 
 ### Reads
 
 Any operation that the collection cannot be changing (adding/removing) while executing.  
-ie. ```.Contains(item)```
+i.e. ```.Contains(item)```
 
 ### Writes
 

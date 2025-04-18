@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 public static partial class Extensions
 {
@@ -109,7 +104,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Shortcut for adding a value or updating based on exising value.
+	/// Shortcut for adding a value or updating based on existing value.
 	/// If no value exists, it adds the provided value.
 	/// If a value exists, it sets the value using the updateValueFactory.
 	/// </summary>
@@ -143,7 +138,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Shortcut for adding a value or updating based on exising value.
+	/// Shortcut for adding a value or updating based on existing value.
 	/// If no value exists, it adds the provided value.
 	/// If a value exists, it sets the value using the updateValueFactory.
 	/// </summary>
@@ -177,7 +172,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Shortcut for adding a value or updating based on exising value.
+	/// Shortcut for adding a value or updating based on existing value.
 	/// If no value exists, it adds the value using the newValueFactory.
 	/// If a value exists, it sets the value using the updateValueFactory.
 	/// </summary>
@@ -363,7 +358,7 @@ public static partial class Extensions
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
-			if(!exists) val = valueFactory(key);
+			if (!exists) val = valueFactory(key);
 			return val!;
 		}
 #endif
@@ -423,10 +418,10 @@ public static partial class Extensions
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
-			if(System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val))
+			if (System.Runtime.CompilerServices.Unsafe.IsNullRef(ref val))
 				return false;
 
-			if(compareExisting && !AreEqual(val, value))
+			if (compareExisting && !AreEqual(val, value))
 				return false;
 
 			val = value;

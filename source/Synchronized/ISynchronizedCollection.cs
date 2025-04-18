@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Open.Collections;
 
-namespace Open.Collections;
-
+/// <summary>
+/// Interface for a collection that can be synchronized (thread-safe).
+/// </summary>
 public interface ISynchronizedCollection<T> : ICollection<T>
 {
 	/// <summary>

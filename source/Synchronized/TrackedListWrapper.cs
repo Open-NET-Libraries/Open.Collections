@@ -1,7 +1,4 @@
 ﻿using Open.Threading;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
@@ -103,7 +100,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 	void IList<T>.RemoveAt(int index) => RemoveAt(index);
 
 	/// <summary>
-	/// Synchonizes finding an item (<paramref name="target"/>), and if found, replaces it with the <paramref name="replacement"/>.
+	/// Synchronizes finding an item (<paramref name="target"/>), and if found, replaces it with the <paramref name="replacement"/>.
 	/// </summary>
 	/// <exception cref="ArgumentException">If <paramref name="throwIfNotFound"/> is true and the <paramref name="target"/> is not found.</exception>
 	public bool Replace(T target, T replacement, bool throwIfNotFound = false)

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// A minimal implementation of <see cref="IIndexedDictionary{TKey, TValue}"/> that is inherently not thread safe.
@@ -82,8 +75,13 @@ public class IndexedDictionary<TKey, TValue>
 	}
 
 #if NETSTANDARD2_0
+#pragma warning disable IDE0079 // Remove unnecessary suppression
 	[SuppressMessage("Roslynator", "RCS1242:Do not pass non-read-only struct by read-only reference.", Justification = "KeyValuePairs are not truly readonly until NET Standard 2.1.")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 #endif
+	// Even though in later versions of .NET KeyValuePair is readonly,
+	// We allow the `in` keyword to keep the API consistent and easy to implement.
+	// This doesn't change the performance of the code.
 	private int AddToLists(in KeyValuePair<TKey, TValue> kvp)
 	{
 		int i = _entries.Count;

@@ -1,8 +1,4 @@
 ﻿using Open.Threading;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 
 namespace Open.Collections;
 
@@ -18,7 +14,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Thread safe value for syncronizing acquiring a value from a generic dictionary.
+	/// Thread safe value for synchronizing acquiring a value from a generic dictionary.
 	/// </summary>
 	/// <returns>True if a value was acquired.</returns>
 	public static bool TryGetValueSynchronized<TKey, TValue>(
@@ -47,7 +43,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Attempts to acquire a specified type from a generic dictonary.
+	/// Attempts to acquire a specified type from a generic dictionary.
 	/// </summary>
 	public static TValue GetValueSynchronized<TKey, TValue>(
 		this IDictionary<TKey, TValue> target, TKey key)
@@ -62,7 +58,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Attempts to acquire a specified type from a generic dictonary or returns a default value.
+	/// Attempts to acquire a specified type from a generic dictionary or returns a default value.
 	/// </summary>
 	public static TValue GetValueSynchronized<TKey, TValue>(
 		this IDictionary<TKey, TValue> target, TKey key, TValue defaultValue)
@@ -77,7 +73,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Thread safe value for syncronizing adding a value to list only if it does not exist.
+	/// Thread safe value for synchronizing adding a value to list only if it does not exist.
 	/// </summary>
 	public static void RegisterSynchronized<T>(this ICollection<T> target, T value)
 	{
@@ -91,7 +87,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Thread safe shortcut for adding a value or updating based on exising value.
+	/// Thread safe shortcut for adding a value or updating based on existing value.
 	/// If no value exists, it adds the provided value.
 	/// If a value exists, it sets the value using the updateValueFactory.
 	/// </summary>
@@ -119,7 +115,7 @@ public static partial class Extensions
 			}
 			else
 			{
-				// Fallback for if the action changed.  Will end up locking the collection but what can we do.. :(
+				// Fall-back for if the action changed.  Will end up locking the collection but what can we do.. :(
 				ThreadSafety.SynchronizeWrite(target, () => valueUsed = target.AddOrUpdate(key, value, updateValueFactory));
 			}
 		});
@@ -128,7 +124,7 @@ public static partial class Extensions
 	}
 
 	/// <summary>
-	/// Thread safe shortcut for adding a value or updating based on exising value.
+	/// Thread safe shortcut for adding a value or updating based on existing value.
 	/// If no value exists, it adds the value using the newValueFactory.
 	/// If a value exists, it sets the value using the updateValueFactory.
 	/// </summary>
@@ -287,7 +283,7 @@ public static partial class Extensions
 		// Note, the following sync read is on the TARGET and not the key. See below.
 		bool condition(bool _) => !ThreadSafety.SynchronizeRead(target, () => target.TryGetValue(key, out result));
 
-		// Once a per value write lock is established, execute the scheduler, and syncronize adding...
+		// Once a per value write lock is established, execute the scheduler, and synchronize adding...
 		void render() => target.GetOrAddSynchronized(key, result = valueFactory(key), millisecondsTimeout);
 
 		// This will queue up subsequent reads for the same value.
@@ -297,7 +293,7 @@ public static partial class Extensions
 		// ^^^ What actually happens...
 		// 1) Value is checked for without a lock and if acquired returns it using the 'condition' query.
 		// 2) Value is checked for WITH a lock and if acquired returns it using the 'condition' query.
-		// 3) A localized lock is acquired for the the key which tells other _threads to wait while the value is generated and added.
+		// 3) A localized lock is acquired for the key which tells other _threads to wait while the value is generated and added.
 		// 4) Value is checked for without a lock and if acquired returns it using the 'condition' query.
 		// 5) The value is then rendered using the ensureRendered query without locking the entire collection.  This allows for other values to be added.
 		// 6) The rendered value is then used to add to the collection if the value is missing, locking the collection if an add is necessary.

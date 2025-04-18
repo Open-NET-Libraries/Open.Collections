@@ -1,6 +1,4 @@
 ﻿using Open.Threading;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Open.Collections.Synchronized;
 
@@ -16,7 +14,7 @@ public sealed class ReadWriteSynchronizedLinkedList<T>
 	/// </summary>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedLinkedList()
-		: base(new LinkedList<T>()) { }
+		: base([]) { }
 
 	/// <summary>
 	/// Constructs a new instance with the specified collection.

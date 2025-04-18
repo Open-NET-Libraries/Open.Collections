@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// Static collection of queue implementations.

@@ -1,8 +1,4 @@
 ﻿using Open.Threading;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 
 namespace Open.Collections.Synchronized;
 
@@ -23,7 +19,7 @@ public sealed class ReadWriteSynchronizedHashSet<T>
 	/// </summary>
 	/// <param name="collection"></param>
 	[ExcludeFromCodeCoverage]
-	public ReadWriteSynchronizedHashSet(IEnumerable<T> collection) : base(new HashSet<T>(collection)) { }
+	public ReadWriteSynchronizedHashSet(IEnumerable<T> collection) : base([.. collection]) { }
 
 	/// <summary>
 	/// Constructs a new instance with the specified capacity and comparer.
@@ -31,7 +27,7 @@ public sealed class ReadWriteSynchronizedHashSet<T>
 	[ExcludeFromCodeCoverage]
 	public ReadWriteSynchronizedHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer) : base(new HashSet<T>(collection, comparer)) { }
 
-	// Asumes that .Contains is a thread-safe read-only operation.
+	// Assumes that .Contains is a thread-safe read-only operation.
 	// But any potentially iterative operation will be locked.
 
 	/// <inheritdoc />

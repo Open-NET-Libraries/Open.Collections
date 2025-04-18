@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Open.Collections;
+﻿namespace Open.Collections;
 
 /// <summary>
 /// An interface for a linked list.

@@ -1,12 +1,11 @@
 ﻿using Open.Threading;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 
 namespace Open.Collections.NonGeneric;
 
+/// <summary>
+/// Extensions for non-generic collections.
+/// </summary>
 [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Global")]
 public static partial class Extensions
 {

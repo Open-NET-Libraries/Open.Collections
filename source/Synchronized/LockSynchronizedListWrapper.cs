@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿namespace Open.Collections.Synchronized;
 
-namespace Open.Collections.Synchronized;
-
+/// <summary>
+/// A Monitor synchronized list wrapper.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedListWrapper<T, TList>(
 	TList list, bool owner = false)
@@ -39,6 +39,7 @@ public class LockSynchronizedListWrapper<T, TList>(
 	}
 }
 
+/// <inheritdoc />
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedListWrapper<T>(
 	IList<T> list, bool owner = false)

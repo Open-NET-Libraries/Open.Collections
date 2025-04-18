@@ -1,17 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿namespace Open.Collections;
 
-namespace Open.Collections;
-
+/// <summary>
+/// The container for <see cref="Standard{T}"/>.
+/// </summary>
 public static class LinkedList
 {
+	/// <summary>
+	/// A standard <see cref="LinkedList{T}"/> implementation that allows for the <see cref="ILinkedList{T}"/> interface.
+	/// </summary>
+	/// <remarks>This allows for other linked lists to be used interchangeably.</remarks>
 	public sealed class Standard<T> : LinkedList<T>, ILinkedList<T>
 	{
+		///<inheritdoc />
 		[ExcludeFromCodeCoverage]
-		public Standard()
+		public Standard() : base()
 		{
 		}
 
+		///<inheritdoc />
 		[ExcludeFromCodeCoverage]
 		public Standard(IEnumerable<T> initial) : base(initial)
 		{

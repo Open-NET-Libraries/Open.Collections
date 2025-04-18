@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace Open.Collections;
 
-namespace Open.Collections;
-
+/// <summary>
+/// A queue interface.
+/// </summary>
 public interface IQueue<T>
 {
 	/// <inheritdoc cref="System.Collections.Generic.Queue{T}.Enqueue(T)"/>

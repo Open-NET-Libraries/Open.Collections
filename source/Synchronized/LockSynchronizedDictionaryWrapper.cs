@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿namespace Open.Collections.Synchronized;
 
-namespace Open.Collections.Synchronized;
-
+/// <summary>
+/// A Monitor synchronized wrapper for a dictionary.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(TDictionary dictionary)
 	: LockSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>(dictionary), IDictionary<TKey, TValue>

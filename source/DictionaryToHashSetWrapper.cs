@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections;
 
 namespace Open.Collections;
 
@@ -71,7 +68,7 @@ public class DictionaryToHashSetWrapper<T>(
 	/// Returns a copy of the underlying keys.
 	/// </summary>
 	[ExcludeFromCodeCoverage]
-	public HashSet<T> ToHashSet() => new(InternalSource.Keys);
+	public HashSet<T> ToHashSet() => [.. InternalSource.Keys];
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]

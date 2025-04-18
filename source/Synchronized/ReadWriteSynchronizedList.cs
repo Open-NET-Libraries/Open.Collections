@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections.Synchronized;
+﻿namespace Open.Collections.Synchronized;
 
 /// <summary>
 /// A synchronized <see cref="List{T}"/> that uses a <see cref="System.Threading.ReaderWriterLockSlim"/> for thread safety.
@@ -26,5 +23,5 @@ public sealed class ReadWriteSynchronizedList<T>
 	/// Constructs a new instance with the specified collection.
 	/// </summary>
 	public ReadWriteSynchronizedList(IEnumerable<T> collection)
-		: base(new List<T>(collection)) { }
+		: base([.. collection]) { }
 }

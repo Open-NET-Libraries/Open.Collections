@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
 namespace Open.Collections;
 
 /// <summary>
@@ -12,6 +8,7 @@ public static class KeyValuePair
 	/// <summary>
 	/// Creates a new <see cref="KeyValuePair{TKey, TValue}"/>.
 	/// </summary>
+	[Pure]
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static KeyValuePair<TKey, TValue> Create<TKey, TValue>(TKey key, TValue value) => new(key, value);

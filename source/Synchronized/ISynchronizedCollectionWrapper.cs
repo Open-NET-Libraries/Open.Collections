@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace Open.Collections.Synchronized;
 
-namespace Open.Collections.Synchronized;
-
+/// <summary>
+/// Interface for a wrapper around a collection that allows for tread-safe modification.
+/// </summary>
 public interface ISynchronizedCollectionWrapper<T, out TCollection>
 	: ISynchronizedCollection<T>
 		where TCollection : ICollection<T>

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections.Synchronized;
+﻿namespace Open.Collections.Synchronized;
 
 /// <summary>
 /// A synchronized list.
@@ -23,5 +20,5 @@ public sealed class LockSynchronizedList<T>
 	/// <summary>
 	/// Constructs a new instance with the specified collection.
 	/// </summary>
-	public LockSynchronizedList(IEnumerable<T> collection) : base(new List<T>(collection)) { }
+	public LockSynchronizedList(IEnumerable<T> collection) : base([.. collection]) { }
 }

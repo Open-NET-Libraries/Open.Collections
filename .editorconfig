@@ -223,6 +223,15 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 # IDE0057: Use range operator
 dotnet_diagnostic.IDE0057.severity = silent
 
+# VSSpell001: Spell Check
+dotnet_diagnostic.VSSpell001.severity = none
+
+# VSSpell002: Spell Check
+dotnet_diagnostic.VSSpell002.severity = none
+
+# IDE0306: Simplify collection initialization
+dotnet_diagnostic.IDE0306.severity = silent
+
 dotnet_diagnostic.CS1591.severity = suggestion
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent

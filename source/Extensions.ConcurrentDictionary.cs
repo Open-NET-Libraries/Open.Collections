@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 
 namespace Open.Collections;
 
 public static partial class Extensions
 {
 	/// <summary>
-	/// Shortcut for removeing a value without needing an 'out' parameter.
+	/// Shortcut for removing a value without needing an 'out' parameter.
 	/// </summary>
 	public static bool TryRemove<TKey, T>(this ConcurrentDictionary<TKey, T> target, TKey key)
 		where TKey : notnull

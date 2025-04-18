@@ -4,6 +4,7 @@
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net9.0</TargetFrameworks>
 		<LangVersion>latest</LangVersion>
 		<Nullable>enable</Nullable>
+		<ImplicitUsings>true</ImplicitUsings>
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -18,7 +19,7 @@
 		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>4.1.0</Version>
+		<Version>4.1.1</Version>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -31,6 +32,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="PurelySharp.Attributes" Version="0.0.1" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>

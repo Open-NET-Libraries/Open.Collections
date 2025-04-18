@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Open.Collections.Synchronized;
+﻿namespace Open.Collections.Synchronized;
 
 [ExcludeFromCodeCoverage]
 public class LockSynchronizedQueue<T> : Queue.Standard<T>, IQueue<T>

@@ -1,9 +1,5 @@
 ﻿using Open.Threading;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace Open.Collections.Synchronized;
 
@@ -83,7 +79,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>(
 		lock (Sync) return base.Remove(item);
 	}
 
-#endregion
+	#endregion
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]

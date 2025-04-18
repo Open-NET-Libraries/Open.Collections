@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Diagnostics.Contracts;
+﻿using System.Collections;
 
 namespace Open.Collections.NonGeneric;
 

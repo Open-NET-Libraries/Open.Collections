@@ -1,7 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace Open.Collections.Synchronized;
 
-namespace Open.Collections.Synchronized;
-
+/// <summary>
+/// A Monitor synchronized <see cref="IndexedDictionary{TKey, TValue}"/>.
+/// </summary>
 [ExcludeFromCodeCoverage] // Nothing worth covering here yet.
 public sealed class LockSynchronizedIndexedDictionary<TKey, TValue>(int capacity = 0)
 	: LockSynchronizedDictionaryWrapper<TKey, TValue, IndexedDictionary<TKey, TValue>>(new IndexedDictionary<TKey, TValue>(capacity)), IIndexedDictionary<TKey, TValue>

@@ -30,8 +30,8 @@ public class DictionaryParallelBenchmark(
 			() => Parallel.For(0, testSize, i => c[i] = _items[i].Value));
 
 #if DEBUG
-        for (int i = 0; i < testSize; ++i)
-            Debug.Assert(c[i] == _items[i].Value);
+		for (int i = 0; i < testSize; ++i)
+			Debug.Assert(c[i] == _items[i].Value);
 #endif
 
 		//yield return TimedResult.Measure("Enumerate (8 times)", () =>
