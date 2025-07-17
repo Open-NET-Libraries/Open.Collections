@@ -974,15 +974,6 @@ retry:
 	}
 
 	/// <summary>
-	/// Builds an immutable array using the contents of the span.
-	/// </summary>
-	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlySpan<T> span) => [.. span];
-
-	/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlySpan{T})"/>
-	public static ImmutableArray<T> ToImmutableArray<T>(this Span<T> span)
-		=> [.. span];
-
-	/// <summary>
 	/// Builds an immutable array using the contents of the memory.
 	/// </summary>
 	public static ImmutableArray<T> ToImmutableArray<T>(this ReadOnlyMemory<T> memory)
@@ -1008,7 +999,7 @@ retry:
 	public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this ReadOnlyMemory<T> memory)
 		=> memory.Span.ToReadOnlyCollection();
 
-	/// <inheritdoc cref="ToImmutableArray{T}(ReadOnlyMemory{T})"/>
+	/// <inheritdoc cref="ToReadOnlyCollection{T}(ReadOnlyMemory{T})"/>
 	public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this Memory<T> memory)
 		=> memory.Span.ToReadOnlyCollection();
 

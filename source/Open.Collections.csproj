@@ -19,7 +19,7 @@
 		<PackageProjectUrl>https://github.com/Open-NET-Libraries/Open.Collections/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/Open-NET-Libraries/Open.Collections/</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Version>4.1.1</Version>
+		<Version>4.2.0</Version>
 		<PackageReleaseNotes></PackageReleaseNotes>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -32,7 +32,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="PurelySharp.Attributes" Version="0.0.1" PrivateAssets="All" />
+		<PackageReference Include="PurelySharp.Attributes" Version="0.0.3" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -54,11 +54,11 @@
 		<PackageReference Include="Open.Text" Version="9.0.0" />
 		<PackageReference Include="Open.Threading" Version="3.0.4" />
 		<PackageReference Include="System.Collections.Immutable" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
-		<PackageReference Include="System.Collections.Immutable" Version="8.0.0" Condition="'$(TargetFramework)' != 'net9.0'" />
+		<PackageReference Include="System.Collections.Immutable" Version="9.0.7" Condition="'$(TargetFramework)' != 'net9.0'" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-		<PackageReference Include="System.Buffers" Version="4.6.0" />
+		<PackageReference Include="System.Buffers" Version="4.6.1" />
 	</ItemGroup>
 
 	<!-- 👇 disable the nullable warnings when compiling for .NET Standard 2.0 -->
