@@ -28,6 +28,11 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>(
 	protected abstract void SetValueInternal(TKey key, TValue value);
 
 	/// <inheritdoc />
+	/// <remarks>
+	/// A subclass that implements this in terms of <see cref="KeyCollection"/> must also override
+	/// <see cref="KeyCollection"/>, which otherwise calls back into this property and recurses.
+	/// See <see cref="DictionaryWrapper{TKey, TValue}"/>, which overrides both.
+	/// </remarks>
 	public abstract IReadOnlyCollection<TKey> Keys { get; }
 
 	/// <summary>
@@ -45,6 +50,9 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>(
 	ICollection<TKey> IDictionary<TKey, TValue>.Keys => KeyCollection;
 
 	/// <inheritdoc />
+	/// <remarks>
+	/// See <see cref="Keys"/>; the same applies between this and <see cref="ValueCollection"/>.
+	/// </remarks>
 	public abstract IReadOnlyCollection<TValue> Values { get; }
 
 	/// <summary>
