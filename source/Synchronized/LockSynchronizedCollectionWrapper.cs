@@ -62,6 +62,17 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>(
 	}
 
 	/// <inheritdoc />
+	public override void AddRange(ReadOnlySpan<T> items)
+	{
+		lock (Sync)
+		{
+			AssertIsAlive();
+			foreach (var i in items)
+				AddInternal(in i);
+		}
+	}
+
+	/// <inheritdoc />
 	public override void Clear()
 	{
 		lock (Sync) base.Clear();

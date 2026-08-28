@@ -57,6 +57,15 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>(
 	}
 
 	/// <inheritdoc />
+	public override void AddRange(ReadOnlySpan<T> items)
+	{
+		using var write = RWLock.WriteLock();
+		AssertIsAlive();
+		foreach (var i in items)
+			AddInternal(in i);
+	}
+
+	/// <inheritdoc />
 	public override void Clear()
 	{
 		using var write = RWLock.WriteLock();
