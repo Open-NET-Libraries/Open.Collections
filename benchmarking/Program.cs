@@ -166,7 +166,6 @@ internal static class Program
 		report.Test(4000, 4);
 	}
 
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0028:Simplify collection initialization")]
 	static void HashSetTests()
 	{
 		Console.WriteLine("::: Synchronized HashSets :::\n");

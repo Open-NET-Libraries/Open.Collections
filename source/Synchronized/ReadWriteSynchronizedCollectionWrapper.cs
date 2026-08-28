@@ -78,13 +78,10 @@ public class ReadWriteSynchronizedCollectionWrapper<T, TCollection>(
 	}
 
 	/// <inheritdoc />
-	public override int Count
+	protected override int GetCount()
 	{
-		get
-		{
-			using var read = RWLock.ReadLock();
-			return base.Count;
-		}
+		using var read = RWLock.ReadLock();
+		return base.GetCount();
 	}
 
 	/// <inheritdoc />

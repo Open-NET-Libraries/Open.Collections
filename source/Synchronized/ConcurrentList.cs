@@ -13,13 +13,10 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public override int Count
+	protected override int GetCount()
 	{
-		get
-		{
-			AssertIsAlive();
-			return _count;
-		}
+		AssertIsAlive();
+		return _count;
 	}
 
 	private readonly Queue.Concurrent<T> _buffer = new();

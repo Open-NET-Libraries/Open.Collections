@@ -79,14 +79,11 @@ public class TrackedCollectionWrapper<T, TCollection>
 
 	private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
-	private Action? _throwIfDisposed;
-
 	/// <summary>
 	/// The delegate to invoke to throw an exception if disposed.
 	/// </summary>
 	[ExcludeFromCodeCoverage]
-	protected Action ThrowIfDisposedDelegate
-		=> _throwIfDisposed ??= ThrowIfDisposedInternal;
+	protected Action ThrowIfDisposedDelegate => field ??= ThrowIfDisposedInternal;
 
 	/// <inheritdoc />
 	public int Count

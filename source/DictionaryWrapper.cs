@@ -31,18 +31,26 @@ public class DictionaryWrapper<TKey, TValue>
 		=> InternalSource[key] = value;
 
 	/// <inheritdoc />
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected override ICollection<TKey> GetKeys()
-		=> new ReadOnlyCollectionAdapter<TKey>(
-			ThrowIfDisposed(InternalSource.Keys),
-			() => InternalSource.Count);
+	protected override ICollection<TKey> KeyCollection => InternalSource.Keys;
 
 	/// <inheritdoc />
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected override ICollection<TValue> GetValues()
-		=> new ReadOnlyCollectionAdapter<TValue>(
-			ThrowIfDisposed(InternalSource.Values),
-			() => InternalSource.Count);
+	public override IReadOnlyCollection<TKey> Keys
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var keys = KeyCollection;
+			return keys is IReadOnlyCollection<TKey> k ? k : new ReadOnlyCollectionAdapter<TKey>(keys);
+		})!;
+
+	/// <inheritdoc />
+	protected override ICollection<TValue> ValueCollection => InternalSource.Values;
+
+	/// <inheritdoc />
+	public override IReadOnlyCollection<TValue> Values
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var values = ValueCollection;
+			return values is IReadOnlyCollection<TValue> v ? v : new ReadOnlyCollectionAdapter<TValue>(values);
+		})!;
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
