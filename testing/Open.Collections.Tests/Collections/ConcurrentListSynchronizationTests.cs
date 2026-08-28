@@ -15,11 +15,15 @@ namespace Open.Collections.Tests.Collections;
 /// undrained items.
 /// </summary>
 /// <remarks>
-/// This file intentionally does <b>not</b> cover the <see cref="ConcurrentList{T}.Read(Action)"/> /
-/// <see cref="ConcurrentList{T}.Read{TResult}(Func{TResult})"/> reentrant-drain fix (a non-empty buffer
-/// touched from inside <c>Read</c> needs to upgrade to a write lock, which a plain read lock can never
-/// do under any recursion policy). That fix and its tests live in a separate, later change built on top
-/// of this one.
+/// The tests at the bottom of this file cover a related but distinct bug: the
+/// <see cref="ConcurrentList{T}.Read(Action)"/> / <see cref="ConcurrentList{T}.Read{TResult}(Func{TResult})"/>
+/// reentrant-drain hazard. A non-empty buffer touched from inside <c>Read</c> (directly, or via the
+/// indexer, <c>IndexOf</c>, <c>Contains</c>, <c>CopyTo</c>, <c>Export</c>, or <c>Snapshot</c>) needs to
+/// upgrade to a write lock to drain, which a plain read lock can never do under any recursion policy.
+/// Rather than switching <c>Read</c> to an upgradable-read lock (which would serialize all <c>Read</c>
+/// calls against each other), the affected members detect reentrancy via the thread-local
+/// <see cref="ReaderWriterLockSlim.IsReadLockHeld"/> and, when already inside a read lock, read straight
+/// through the drained list followed by the still-buffered tail instead of draining.
 /// </remarks>
 public class ConcurrentListSynchronizationTests
 {
@@ -317,5 +321,358 @@ public class ConcurrentListSynchronizationTests
 
 		failure.Should().BeNull(failure?.ToString());
 		reads.Should().BeGreaterThan(0, "the readers should have had a chance to run at all");
+	}
+
+	// Bug 4 (the deterministic repro from the bug report): Read(Action) holds a plain read lock while
+	// invoking user code. If that code touches the indexer while the buffer is non-empty, DumpBuffer()
+	// requests a write lock from inside a read lock and throws LockRecursionException - a plain read
+	// lock can never legally upgrade to a write lock, under any recursion policy. The fix detects this
+	// via the thread-local IsReadLockHeld and reads straight through InternalSource + the buffered tail
+	// instead of draining.
+	[Fact]
+	public void Read_ReentrantIndexerAccessWithPendingBuffer_DoesNotThrow()
+	{
+		using var list = new ConcurrentList<int>();
+		int observed = -1;
+
+		var exception = Record.Exception(() =>
+			list.Read(() =>
+			{
+				list.Add(1); // Buffers the item; does not drain or take any lock.
+				observed = list[0]; // Must NOT try to drain (would throw); must read the buffer instead.
+			}));
+
+		exception.Should().BeNull();
+		observed.Should().Be(1);
+	}
+
+	// Same reentrancy hazard via the Func<TResult> overload.
+	[Fact]
+	public void ReadOfT_ReentrantIndexerAccessWithPendingBuffer_DoesNotThrow()
+	{
+		using var list = new ConcurrentList<int>();
+
+		int result = -1;
+		var exception = Record.Exception(() =>
+		{
+			result = list.Read(() =>
+			{
+				list.Add(42);
+				return list[0];
+			});
+		});
+
+		exception.Should().BeNull();
+		result.Should().Be(42);
+	}
+
+	// The indexer must correctly resolve BOTH sides of the drained/buffered split while reentrant:
+	// indices below InternalSource.Count come straight from the list, indices at or above it come
+	// from walking the still-buffered ConcurrentQueue tail in FIFO order.
+	[Fact]
+	public void Read_IndexerReentrant_ResolvesBothDrainedAndBufferedIndices()
+	{
+		using var list = new ConcurrentList<int>();
+		for (int i = 0; i < 5; i++) list.Add(i);
+		list.Count.Should().Be(5); // Force a drain: indices 0-4 now live in InternalSource.
+
+		list.Read(() =>
+		{
+			for (int i = 5; i < 10; i++) list.Add(i); // Buffers 5-9; never drained inside Read().
+
+			for (int i = 0; i < 10; i++)
+				list[i].Should().Be(i, $"index {i} should resolve whether drained or still buffered");
+		});
+	}
+
+	// Reading past the end of the logical (drained + buffered) range while reentrant must still throw
+	// ArgumentOutOfRangeException, matching the non-reentrant indexer's contract, rather than silently
+	// returning a wrong value or throwing an unrelated exception from the manual buffer walk.
+	[Fact]
+	public void Read_IndexerReentrant_OutOfRangeIndexThrows()
+	{
+		using var list = new ConcurrentList<int>();
+		list.Read(() =>
+		{
+			list.Add(1); // One buffered item; index 0 is valid, index 1 is not.
+			Action act = () => _ = list[1];
+			act.Should().Throw<ArgumentOutOfRangeException>();
+		});
+	}
+
+	// IndexOf/Contains must also see buffered-but-undrained items from inside Read().
+	[Fact]
+	public void Read_IndexOfAndContainsReentrant_SeeBufferedItems()
+	{
+		using var list = new ConcurrentList<int>();
+		list.Add(1);
+		list.Count.Should().Be(1); // Force a drain.
+
+		list.Read(() =>
+		{
+			list.Add(2); // Buffered; never drained inside Read().
+
+			list.IndexOf(1).Should().Be(0);
+			list.IndexOf(2).Should().Be(1);
+			list.IndexOf(99).Should().Be(-1);
+			list.Contains(2).Should().BeTrue();
+			list.Contains(99).Should().BeFalse();
+		});
+	}
+
+	// Count must reflect buffered additions made from inside Read() itself (GetCount() reads the
+	// Interlocked _count field directly and was never affected by this bug, but this locks the
+	// end-to-end behavior in as part of the reentrancy fix).
+	[Fact]
+	public void Read_CountReflectsBufferedAdditionsMadeInsideTheDelegate()
+	{
+		using var list = new ConcurrentList<int>();
+		list.Read(() =>
+		{
+			list.Add(1);
+			list.Add(2);
+			list.Count.Should().Be(2);
+		});
+	}
+
+	// Snapshot(), Export(), CopyTo(T[], int), and CopyTo(Span<T>) must all see buffered-but-undrained
+	// items when called reentrantly from inside Read(), the same as they do outside of Read().
+	[Fact]
+	public void Read_SnapshotExportAndCopyToReentrant_SeeBufferedItems()
+	{
+		using var list = new ConcurrentList<int>();
+		list.Add(1);
+		list.Count.Should().Be(1); // Force a drain.
+
+		list.Read(() =>
+		{
+			list.Add(2);
+			list.Add(3); // Buffered; never drained inside Read().
+
+			list.Snapshot().Should().Equal(1, 2, 3);
+
+			var exported = new List<int>();
+			list.Export(exported);
+			exported.Should().Equal(1, 2, 3);
+
+			var array = new int[3];
+			list.CopyTo(array, 0);
+			array.Should().Equal(1, 2, 3);
+
+			Span<int> span = new int[3];
+			var result = list.CopyTo(span);
+			result.ToArray().Should().Equal(1, 2, 3);
+		});
+	}
+
+	// Nested Read() calls hit the identical hazard as the indexer: the inner Read() unconditionally
+	// called DumpBuffer() too. Guarding that call the same way (skip it when this thread already holds
+	// the read lock) fixes reentrant Read() itself, not just the members it might call.
+	[Fact]
+	public void Read_NestedReadWithPendingBuffer_DoesNotThrow()
+	{
+		using var list = new ConcurrentList<int>();
+		int observed = -1;
+
+		var exception = Record.Exception(() =>
+			list.Read(() =>
+			{
+				list.Add(1); // Buffers; the outer Read() already holds the read lock.
+				list.Read(() =>
+				{
+					observed = list[0]; // Reentrant indexer access one level deeper.
+				});
+			}));
+
+		exception.Should().BeNull();
+		observed.Should().Be(1);
+	}
+
+	// Mutating members cannot be made to work from inside Read() - draining still requires an illegal
+	// read-to-write upgrade - but they should fail with a clear, purpose-built diagnostic instead of a
+	// raw LockRecursionException leaking out of DumpBuffer()/RWLock internals.
+	[Theory]
+	[InlineData(nameof(ConcurrentList<int>.Insert))]
+	[InlineData(nameof(ConcurrentList<int>.RemoveAt))]
+	[InlineData(nameof(ConcurrentList<int>.Remove))]
+	[InlineData(nameof(ConcurrentList<int>.Clear))]
+	[InlineData("IndexerSet")]
+	public void Read_MutatingFromWithinDelegate_ThrowsClearInvalidOperationException(string member)
+	{
+		using var list = new ConcurrentList<int>();
+		list.Add(1);
+		list.Count.Should().Be(1); // Force a drain.
+
+		Exception exception = null;
+		list.Read(() =>
+		{
+			exception = Record.Exception(() =>
+			{
+				switch (member)
+				{
+					case nameof(ConcurrentList<int>.Insert): list.Insert(0, 2); break;
+					case nameof(ConcurrentList<int>.RemoveAt): list.RemoveAt(0); break;
+					case nameof(ConcurrentList<int>.Remove): list.Remove(1); break;
+					case nameof(ConcurrentList<int>.Clear): list.Clear(); break;
+					case "IndexerSet": list[0] = 2; break;
+				}
+			});
+		});
+
+		exception.Should().BeOfType<InvalidOperationException>();
+	}
+
+	// The zero-caller-misuse variant of the bug: no thread ever touches the indexer from inside its own
+	// Read() delegate. Instead, one thread runs a purely read-only Read() that repeatedly indexes the
+	// list, while a second thread concurrently calls the ordinary, unsynchronized Add() (which lands in
+	// the buffer without taking any lock). Before the fix, the reader's own indexer calls would try to
+	// drain a buffer that some unrelated thread filled, hitting the exact same illegal write-lock
+	// upgrade from within its own held read lock.
+	[Fact]
+	public void Read_ConcurrentAddFromAnotherThreadWhileReading_DoesNotThrow()
+	{
+		using var list = new ConcurrentList<int>();
+		for (int i = 0; i < 10; i++) list.Add(i);
+		list.Count.Should().Be(10); // Force a drain before the race begins.
+
+		using var cts = new CancellationTokenSource();
+		var token = cts.Token;
+		Exception readerFailure = null;
+		Exception writerFailure = null;
+
+		var reader = new Thread(() =>
+		{
+			try
+			{
+				while (!token.IsCancellationRequested)
+				{
+					list.Read(() =>
+					{
+						long sum = 0;
+						int count = list.Count;
+						for (int i = 0; i < count; i++) sum += list[i];
+					});
+				}
+			}
+			catch (Exception ex)
+			{
+				readerFailure = ex;
+				cts.Cancel();
+			}
+		})
+		{ IsBackground = true };
+
+		var writer = new Thread(() =>
+		{
+			try
+			{
+				int next = 10;
+				while (!token.IsCancellationRequested)
+					list.Add(next++);
+			}
+			catch (Exception ex)
+			{
+				writerFailure = ex;
+				cts.Cancel();
+			}
+		})
+		{ IsBackground = true };
+
+		reader.Start();
+		writer.Start();
+		cts.CancelAfter(TimeSpan.FromSeconds(1));
+		reader.Join(TimeSpan.FromSeconds(10)).Should().BeTrue();
+		writer.Join(TimeSpan.FromSeconds(10)).Should().BeTrue();
+
+		readerFailure.Should().BeNull(readerFailure?.ToString());
+		writerFailure.Should().BeNull(writerFailure?.ToString());
+	}
+
+	// The entire point of the tail-fallback design over an upgradable-read lock: concurrent Read() calls
+	// from different threads must genuinely overlap, not serialize. Proven by tracking the high-water
+	// mark of how many threads are simultaneously inside a Read() delegate at once: if Read() held an
+	// exclusive lock (an upgradable-read lock allows only one holder at a time, by design), that
+	// high-water mark could never exceed 1, no matter how the OS happens to schedule the threads. This
+	// does not require every thread to land on one exact rendezvous instant (which would be flaky under
+	// scheduler/CPU contention from the rest of the suite) - just that at least two threads are ever
+	// observed inside at the same time during a short, deliberately-held window.
+	[Fact]
+	public void Read_ConcurrentCallsFromMultipleThreads_GenuinelyOverlap()
+	{
+		const int threadCount = 8;
+		using var list = new ConcurrentList<int>();
+		list.Add(1);
+		list.Count.Should().Be(1); // Force a drain.
+
+		int insideCount = 0;
+		int maxObservedInside = 0;
+		using var release = new ManualResetEventSlim(false);
+		using var allDone = new CountdownEvent(threadCount);
+		Exception failure = null;
+
+		var threads = new Thread[threadCount];
+		for (int t = 0; t < threadCount; t++)
+		{
+			threads[t] = new Thread(() =>
+			{
+				try
+				{
+					list.Read(() =>
+					{
+						int now = Interlocked.Increment(ref insideCount);
+						int observedMax;
+						do
+						{
+							observedMax = maxObservedInside;
+							if (now <= observedMax) break;
+						}
+						while (Interlocked.CompareExchange(ref maxObservedInside, now, observedMax) != observedMax);
+
+						// Hold this thread inside the delegate briefly so other threads have a real
+						// chance to pile in concurrently before any of them leave.
+						release.Wait(TimeSpan.FromSeconds(10));
+						Interlocked.Decrement(ref insideCount);
+					});
+				}
+				catch (Exception ex)
+				{
+					failure = ex;
+				}
+				finally
+				{
+					allDone.Signal();
+				}
+			})
+			{ IsBackground = true };
+		}
+
+		foreach (var thread in threads) thread.Start();
+		Thread.Sleep(TimeSpan.FromMilliseconds(500)); // Let threads pile up inside Read() before releasing.
+		release.Set();
+
+		allDone.Wait(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken).Should().BeTrue("all Read() calls should complete without deadlocking");
+
+		failure.Should().BeNull(failure?.ToString());
+		maxObservedInside.Should().BeGreaterThan(1,
+			"multiple threads should be able to be inside Read() at the same time; an exclusive " +
+			"(e.g. upgradable-read) lock would make this impossible regardless of scheduling");
+	}
+
+	[Fact]
+	public void CopyTo_Reentrant_UndersizedArray_ThrowsArgumentException()
+	{
+		var list = new ConcurrentList<int>();
+		list.Read(() =>
+		{
+			list.Add(1);
+			list.Add(2);
+			list.Add(3);
+
+			// The reentrant branch writes the drained portion then the buffered tail by index.
+			// Without an up-front length check that walk overruns with IndexOutOfRangeException,
+			// where ICollection<T>.CopyTo is contractually an ArgumentException.
+			var tooSmall = new int[2];
+			Assert.Throws<ArgumentException>(() => list.CopyTo(tooSmall, 0));
+		});
 	}
 }
