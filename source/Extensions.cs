@@ -776,7 +776,7 @@ retry:
 						break;
 
 					case 1:
-						dir = "desc".Equals(segment.Trim(), StringComparison.OrdinalIgnoreCase)
+						dir = segment.Trim().Equals("desc", StringComparison.OrdinalIgnoreCase)
 							? SortDirection.Descending
 							: SortDirection.Ascending;
 						break;
@@ -901,7 +901,7 @@ retry:
 		int len = source.Length;
 		for (int i = 0; i < len; i++)
 		{
-			if (source[i]?.Equals(value) ?? value is null)
+			if (source[i]?.Equals(value) ?? (value is null))
 				return i;
 		}
 

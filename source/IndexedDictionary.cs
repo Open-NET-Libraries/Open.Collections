@@ -50,28 +50,23 @@ public class IndexedDictionary<TKey, TValue>
 		=> _entries.GetEnumerator().Preflight(ThrowIfDisposedDelegate);
 
 	/// <inheritdoc />
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected override ICollection<TKey> GetKeys()
-		=> new ReadOnlyCollectionAdapter<TKey>(
+	public override IReadOnlyCollection<TKey> Keys
+		=> LazyInitializer.EnsureInitialized(ref field, () => new ReadOnlyCollectionAdapter<TKey>(
 			ThrowIfDisposed(_entries.Select(e => e.Key)),
-			() => _entries.Count);
+			GetCount))!;
 
 	/// <inheritdoc />
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected override ICollection<TValue> GetValues()
-		=> new ReadOnlyCollectionAdapter<TValue>(
+	public override IReadOnlyCollection<TValue> Values
+		=> LazyInitializer.EnsureInitialized(ref field, () => new ReadOnlyCollectionAdapter<TValue>(
 			ThrowIfDisposed(_entries.Select(e => e.Value)),
-			() => _entries.Count);
+			GetCount))!;
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public override int Count
+	protected override int GetCount()
 	{
-		get
-		{
-			AssertIsAlive();
-			return _entries.Count;
-		}
+		AssertIsAlive();
+		return _entries.Count;
 	}
 
 #if NETSTANDARD2_0
@@ -212,7 +207,7 @@ public class IndexedDictionary<TKey, TValue>
 		}
 
 		index = GetIndex(key);
-		if (prevValue?.Equals(value) ?? value is null)
+		if (prevValue?.Equals(value) ?? (value is null))
 			return false;
 
 		InternalSource[key] = value;
@@ -228,7 +223,7 @@ public class IndexedDictionary<TKey, TValue>
 		if (!InternalSource.TryGetValue(key, out var previous))
 			throw new Exception(OUTOFSYNC);
 
-		if (previous?.Equals(value) ?? value is null)
+		if (previous?.Equals(value) ?? (value is null))
 			return false;
 
 		InternalSource[key] = value;

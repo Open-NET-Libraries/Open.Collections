@@ -6,7 +6,7 @@
 [ExcludeFromCodeCoverage]
 public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>(
 	TCollection source, bool owner = false)
-	: CollectionWrapper<KeyValuePair<TKey, TValue>, TCollection>(source, owner), IDictionary<TKey, TValue>
+	: CollectionWrapper<KeyValuePair<TKey, TValue>, TCollection>(source, owner), IReadOnlyDictionary<TKey, TValue>, IDictionary<TKey, TValue>
 	where TKey : notnull
 	where TCollection : class, ICollection<KeyValuePair<TKey, TValue>>
 {
@@ -27,24 +27,39 @@ public abstract class DictionaryWrapperBase<TKey, TValue, TCollection>(
 	/// </summary>
 	protected abstract void SetValueInternal(TKey key, TValue value);
 
-	ICollection<TKey>? _keys;
 	/// <inheritdoc />
-	public ICollection<TKey> Keys => _keys ??= GetKeys();
+	public abstract IReadOnlyCollection<TKey> Keys { get; }
 
 	/// <summary>
-	/// Get the keys.
+	/// Get the key collection as an <see cref="ICollection{T}"/>.
 	/// </summary>
-	protected abstract ICollection<TKey> GetKeys();
+	protected virtual ICollection<TKey> KeyCollection
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var keys = ThrowIfDisposed(Keys);
+			return keys is ICollection<TKey> k ? k : new ReadOnlyCollectionAdapter<TKey>(keys);
+		})!;
 
-	ICollection<TValue>? _values;
+	IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+
+	ICollection<TKey> IDictionary<TKey, TValue>.Keys => KeyCollection;
 
 	/// <inheritdoc />
-	public ICollection<TValue> Values => _values ??= GetValues();
+	public abstract IReadOnlyCollection<TValue> Values { get; }
 
 	/// <summary>
-	/// Get the values.
+	/// Get the value collection as an <see cref="ICollection{T}"/>.
 	/// </summary>
-	protected abstract ICollection<TValue> GetValues();
+	protected virtual ICollection<TValue> ValueCollection
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var values = ThrowIfDisposed(Values);
+			return values is ICollection<TValue> v ? v : new ReadOnlyCollectionAdapter<TValue>(values);
+		})!;
+
+	IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
+	ICollection<TValue> IDictionary<TKey, TValue>.Values => ValueCollection;
 
 	/// <summary>
 	/// Add a key and value to the dictionary.

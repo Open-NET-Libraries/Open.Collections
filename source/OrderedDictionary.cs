@@ -62,7 +62,7 @@ public class OrderedDictionary<TKey, TValue>
 			return true;
 		}
 
-		if (node.Value.Value?.Equals(value) ?? value is null)
+		if (node.Value.Value?.Equals(value) ?? (value is null))
 			return false;
 
 		node.Value = new KeyValuePair<TKey, TValue>(key, value);
@@ -70,16 +70,20 @@ public class OrderedDictionary<TKey, TValue>
 	}
 
 	/// <inheritdoc />
-	protected override ICollection<TKey> GetKeys()
-		=> new ReadOnlyCollectionAdapter<TKey>(
-			ThrowIfDisposed(InternalSource.Select(e => e.Key)),
-			() => InternalSource.Count);
+	public override IReadOnlyCollection<TKey> Keys
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var keys = InternalSource.Select(e => e.Key);
+			return keys is IReadOnlyCollection<TKey> k ? k : new ReadOnlyCollectionAdapter<TKey>(keys, GetCount);
+		})!;
 
 	/// <inheritdoc />
-	protected override ICollection<TValue> GetValues()
-		=> new ReadOnlyCollectionAdapter<TValue>(
-			ThrowIfDisposed(InternalSource.Select(e => e.Value)),
-			() => InternalSource.Count);
+	public override IReadOnlyCollection<TValue> Values
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var values = InternalSource.Select(e => e.Value);
+			return values is IReadOnlyCollection<TValue> v ? v : new ReadOnlyCollectionAdapter<TValue>(values, GetCount);
+		})!;
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -149,7 +153,7 @@ public class OrderedDictionary<TKey, TValue>
 	{
 		var key = item.Key;
 		if (Lookup.TryGetValue(key, out var node)
-			&& (node.Value.Value?.Equals(item.Value) ?? item.Value is null))
+			&& (node.Value.Value?.Equals(item.Value) ?? (item.Value is null)))
 		{
 			Debug.Assert(key.Equals(node.Value.Key));
 			bool removed = Lookup.Remove(key);

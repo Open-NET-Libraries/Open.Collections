@@ -2,6 +2,9 @@
 
 namespace Open.Collections.Synchronized;
 
+/// <summary>
+/// A read/write synchronized wrapper for a dictionary.
+/// </summary>
 public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	TDictionary dictionary, bool owner = false)
 	: ReadWriteSynchronizedCollectionWrapper<KeyValuePair<TKey, TValue>, TDictionary>(dictionary, owner), IDictionary<TKey, TValue>
@@ -28,23 +31,24 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 		}
 	}
 
-	ICollection<TKey>? _keys;
-	/// <inheritdoc />
-	public ICollection<TKey> Keys => _keys ??= GetKeys();
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected virtual ICollection<TKey> GetKeys()
-		=> new ReadOnlyCollectionAdapter<TKey>(
-			ThrowIfDisposed(InternalSource.Keys),
-			() => InternalSource.Count);
+	ICollection<TKey> IDictionary<TKey, TValue>.Keys => InternalSource.Keys;
 
-	ICollection<TValue>? _values;
-	/// <inheritdoc />
-	public ICollection<TValue> Values => _values ??= GetValues();
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	protected virtual ICollection<TValue> GetValues()
-		=> new ReadOnlyCollectionAdapter<TValue>(
-			ThrowIfDisposed(InternalSource.Values),
-			() => InternalSource.Count);
+	/// <inheritdoc cref="IDictionary{TKey, TValue}.Keys"/>
+	public IReadOnlyCollection<TKey> Keys
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var keys = InternalSource.Keys;
+			return keys is IReadOnlyCollection<TKey> k ? k : new ReadOnlyCollectionAdapter<TKey>(keys);
+		})!;
+
+	ICollection<TValue> IDictionary<TKey, TValue>.Values => InternalSource.Values;
+	/// <inheritdoc cref="IDictionary{TKey, TValue}.Values"/>
+	public IReadOnlyCollection<TValue> Values
+		=> LazyInitializer.EnsureInitialized(ref field, () =>
+		{
+			var values = InternalSource.Values;
+			return values is IReadOnlyCollection<TValue> v ? v : new ReadOnlyCollectionAdapter<TValue>(values);
+		})!;
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
@@ -101,6 +105,9 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	}
 }
 
+/// <summary>
+/// A read/write synchronized wrapper for a dictionary.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>(
 	IDictionary<TKey, TValue> dictionary, bool owner = false)
@@ -108,12 +115,21 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>(
 {
 }
 
+/// <summary>
+/// A read/write synchronized dictionary.
+/// </summary>
 [ExcludeFromCodeCoverage]
 public class ReadWriteSynchronizedDictionary<TKey, TValue>
 	: ReadWriteSynchronizedDictionaryWrapper<TKey, TValue>
 	where TKey : notnull
 {
+	/// <summary>
+	/// Constructs a new instance of <see cref="ReadWriteSynchronizedDictionary{TKey, TValue}"/> with the default capacity.
+	/// </summary>
 	public ReadWriteSynchronizedDictionary() : base(new Dictionary<TKey, TValue>()) { }
 
+	/// <summary>
+	/// Constructs a new instance of <see cref="ReadWriteSynchronizedDictionary{TKey, TValue}"/> with the specified capacity.
+	/// </summary>
 	public ReadWriteSynchronizedDictionary(int capacity) : base(new Dictionary<TKey, TValue>(capacity)) { }
 }

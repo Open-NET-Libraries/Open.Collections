@@ -74,7 +74,7 @@ public class TrackedDictionaryWrapper<TKey, TValue, TDictionary>
 	{
 		bool changing
 			= !InternalSource.TryGetValue(key, out var current)
-			|| !(current?.Equals(value) ?? value is null);
+			|| !(current?.Equals(value) ?? (value is null));
 		if (changing)
 			InternalSource[key] = value;
 		return changing;

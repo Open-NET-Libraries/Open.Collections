@@ -46,13 +46,10 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 
 	private void ThrowIfDisposedInternal() => base.AssertIsAlive();
 
-	private Action? _throwIfDisposed;
-
 	/// <summary>
 	/// A delegate to throw an exception if this has been disposed.
 	/// </summary>
-	protected Action ThrowIfDisposedDelegate
-		=> _throwIfDisposed ??= ThrowIfDisposedInternal;
+	protected Action ThrowIfDisposedDelegate => field ??= ThrowIfDisposedInternal;
 
 	/// <summary>
 	/// Produces an enumerable that will throw an exception if this has been disposed.
@@ -78,10 +75,15 @@ public class ReadOnlyCollectionWrapper<T, TCollection>
 	public virtual bool Contains(T item)
 		=> InternalSource.Contains(item);
 
+	/// <inheritdoc cref="IReadOnlyCollection{T}.Count" />
+	[ExcludeFromCodeCoverage]
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	protected virtual int GetCount()
+		=> InternalSource.Count;
+
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
-	public virtual int Count
-		=> InternalSource.Count;
+	public int Count => GetCount();
 
 	/// <inheritdoc cref="ICollection{T}.IsReadOnly" />
 	[ExcludeFromCodeCoverage]

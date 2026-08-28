@@ -154,7 +154,7 @@ public static partial class Extensions
 			() =>
 				valueUsed = target.AddOrUpdate(key,
 					newValueFactory,
-					(k, o) => k!.Equals(key) && (o?.Equals(old) ?? old is null) ? updateValue : updateValueFactory(k, o)
+					(k, o) => k!.Equals(key) && (o?.Equals(old) ?? (old is null)) ? updateValue : updateValueFactory(k, o)
 		));
 			}
 			else

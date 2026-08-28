@@ -41,7 +41,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 	{
 		bool changing
 			= index >= InternalSource.Count
-			|| !(InternalSource[index]?.Equals(value) ?? value is null);
+			|| !(InternalSource[index]?.Equals(value) ?? (value is null));
 		if (changing)
 			InternalSource[index] = value;
 		return changing;
@@ -107,7 +107,7 @@ public class TrackedListWrapper<T> : TrackedCollectionWrapper<T, IList<T>>, ILis
 	{
 		AssertIsAlive();
 		int index = -1;
-		return !(target?.Equals(replacement) ?? replacement is null)
+		return !(target?.Equals(replacement) ?? (replacement is null))
 			&& Sync!.Modifying(
 			() =>
 			{
