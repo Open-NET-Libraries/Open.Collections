@@ -275,3 +275,5 @@ benchmarking/.vscode/launch.json
 benchmarking/.vscode/tasks.json
 /source/nuget.config
 BenchmarkDotNet.Artifacts
+# Claude Code agent worktrees / scratch
+.claude/worktrees/
