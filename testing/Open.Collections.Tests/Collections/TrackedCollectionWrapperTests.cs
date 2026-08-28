@@ -67,6 +67,7 @@ public class TrackedCollectionWrapperTests
 
 		wrapper.Count.Should().Be(0);
 		changedCount.Should().Be(0);
+		modifiedCount.Should().Be(0);
 	}
 
 	[Fact]
