@@ -58,7 +58,7 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>(
 		if (enumerable.Count == 0)
 			return;
 
-		lock (Sync) base.AddRange(items);
+		lock (Sync) base.AddRange(enumerable);
 	}
 
 	/// <inheritdoc />
