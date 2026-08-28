@@ -90,6 +90,16 @@ public class LockSynchronizedCollectionWrapper<T, TCollection>(
 		lock (Sync) return base.Remove(item);
 	}
 
+	/// <inheritdoc />
+	/// <remarks>
+	/// <see cref="Dictionary{TKey, TValue}"/> computes <c>Count</c> from two fields, so an
+	/// unsynchronized read can observe a value that was never true.
+	/// </remarks>
+	protected override int GetCount()
+	{
+		lock (Sync) return base.GetCount();
+	}
+
 	#endregion
 
 	/// <inheritdoc />

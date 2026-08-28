@@ -96,8 +96,11 @@ public abstract class BasicCollectionTests<TCollection>(TCollection collection)
 		Collection.Count.Should().Be(count);
 		c.AddRange(Array.Empty<int>());
 		Collection.Count.Should().Be(count);
+
+		// Re-adding the same values is a no-op for a set (no duplicates), but grows a non-set collection.
+		int expected = Collection is ISet<int> ? count : count + 4;
 		c.AddRange(e.ToImmutableArray());
-		Collection.Count.Should().Be(count + 4);
+		Collection.Count.Should().Be(expected);
 	}
 
 	[Fact]
