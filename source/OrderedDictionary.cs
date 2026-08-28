@@ -71,19 +71,15 @@ public class OrderedDictionary<TKey, TValue>
 
 	/// <inheritdoc />
 	public override IReadOnlyCollection<TKey> Keys
-		=> LazyInitializer.EnsureInitialized(ref field, () =>
-		{
-			var keys = InternalSource.Select(e => e.Key);
-			return keys is IReadOnlyCollection<TKey> k ? k : new ReadOnlyCollectionAdapter<TKey>(keys, GetCount);
-		})!;
+		=> LazyInitializer.EnsureInitialized(ref field, () => new ReadOnlyCollectionAdapter<TKey>(
+			ThrowIfDisposed(InternalSource.Select(e => e.Key)),
+			GetCount))!;
 
 	/// <inheritdoc />
 	public override IReadOnlyCollection<TValue> Values
-		=> LazyInitializer.EnsureInitialized(ref field, () =>
-		{
-			var values = InternalSource.Select(e => e.Value);
-			return values is IReadOnlyCollection<TValue> v ? v : new ReadOnlyCollectionAdapter<TValue>(values, GetCount);
-		})!;
+		=> LazyInitializer.EnsureInitialized(ref field, () => new ReadOnlyCollectionAdapter<TValue>(
+			ThrowIfDisposed(InternalSource.Select(e => e.Value)),
+			GetCount))!;
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -52,8 +52,7 @@
 	<ItemGroup>
 		<PackageReference Include="Open.Text" Version="10.3.0" />
 		<PackageReference Include="Open.Threading" Version="3.0.4" />
-		<PackageReference Include="System.Collections.Immutable" Version="9.0.0" Condition="'$(TargetFramework)' == 'net9.0'" />
-		<PackageReference Include="System.Collections.Immutable" Version="10.0.11" Condition="'$(TargetFramework)' != 'net9.0'" />
+		<PackageReference Include="System.Collections.Immutable" Version="10.0.11" Condition="$(TargetFramework.StartsWith('netstandard'))" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
