@@ -206,7 +206,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 		=> AddThese(item1, item2, items.ToArray());
 
 	/// <inheritdoc cref="AddRange(IEnumerable{T})"/>
-	[Obsolete("This method has to make a copy of items. Use the local AddThese(T, T, T[]) instead.")]
+	[Obsolete("This method has to make a copy of items. Use AddRange(IEnumerable<T>) instead.")]
 	[OverloadResolutionPriority(-1)]
 	public void AddRange(ReadOnlySpan<T> items)
 		=> AddRange(items.ToArray());
