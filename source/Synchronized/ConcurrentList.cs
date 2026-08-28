@@ -25,19 +25,8 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 	/// The lock used to synchronize access to <c>InternalSource</c>.
 	/// </summary>
 	/// <remarks>
-	/// Uses <see cref="LockRecursionPolicy.SupportsRecursion"/> (unlike a plain
-	/// <see cref="ReadWriteSynchronizedCollectionWrapper{T,TCollection}"/>-style lock, this is required
-	/// rather than merely convenient here) because <see cref="Read(Action)"/> and
-	/// <see cref="Read{TResult}(Func{TResult})"/> hold a read lock for the entire duration of the
-	/// caller-supplied delegate. That delegate is free to call back into this instance from the same
-	/// thread &#8212; e.g. the indexer, <see cref="CopyTo(Span{T})"/>, or <see cref="Export(ICollection{T})"/>
-	/// &#8212; and each of those acquires a nested read lock of its own. Recursive read &#8594; read
-	/// acquisition on the same thread is legal only under <see cref="LockRecursionPolicy.SupportsRecursion"/>;
-	/// under <see cref="LockRecursionPolicy.NoRecursion"/> the nested acquisition throws
-	/// <see cref="LockRecursionException"/> even though both acquisitions are read-only. This alone does
-	/// <b>not</b> make it safe to drain a <i>non-empty</i> buffer from within <see cref="Read(Action)"/>:
-	/// doing that requires upgrading to a write lock, which a plain read lock can never do, under any
-	/// recursion policy.
+	/// Requires <see cref="LockRecursionPolicy.SupportsRecursion"/>: <see cref="Read(Action)"/> holds a
+	/// read lock across the caller's delegate, which may re-enter members that take their own read lock.
 	/// </remarks>
 	private readonly ReaderWriterLockSlim RWLock = new(LockRecursionPolicy.SupportsRecursion);
 
@@ -126,17 +115,9 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 
 	/// <inheritdoc />
 	/// <remarks>
-	/// This indexer takes a lock, unlike the sibling <see cref="LockSynchronizedListWrapper{T,TList}.this[int]"/>
-	/// and <see cref="ReadWriteSynchronizedListWrapper{T,TList}.this[int]"/>, which are deliberately left
-	/// unlocked. Those two carry an explicit comment disclaiming full synchronization ("This is a
-	/// simplified version ... If that fine grained of read-write control is necessary, then use the
-	/// ThreadSafety utility and extensions.") and are marked <see cref="ExcludeFromCodeCoverageAttribute"/>
-	/// to signal that intentional gap. <see cref="ConcurrentList{T}"/> carries no such disclaimer anywhere
-	/// in its history, and this indexer already calls <c>DumpBuffer()</c> before touching
-	/// <c>InternalSource</c> &#8212; i.e. the author's intent was full thread safety here; only the lock
-	/// itself was missing. Without it, a concurrent <see cref="RemoveAt"/>/<see cref="Insert"/> could be
-	/// observed mid-mutation (a torn read) or the index could go out of range between the bounds check
-	/// and the access.
+	/// Locked, unlike the deliberately unsynchronized <see cref="LockSynchronizedListWrapper{T,TList}.this[int]"/>
+	/// and <see cref="ReadWriteSynchronizedListWrapper{T,TList}.this[int]"/>. Those disclaim synchronization
+	/// in a comment; this type does not, and already drains the buffer here.
 	/// </remarks>
 	public override T this[int index]
 	{
@@ -260,14 +241,9 @@ public sealed class ConcurrentList<T> : ListWrapper<T, List<T>>, ISynchronizedCo
 
 	/// <inheritdoc />
 	/// <remarks>
-	/// This drains the buffer before enumerating but, like every other non-thread-safe .NET collection
-	/// enumerator, does not hold a lock for the full duration of the enumeration: a structural change to
-	/// <c>InternalSource</c> made by another thread while the caller is iterating will surface as the
-	/// standard <see cref="InvalidOperationException"/> ("Collection was modified"). Making the walk itself
-	/// atomic would require either allocating a full snapshot on every call (paid even when nothing mutates
-	/// concurrently) or holding a lock for a caller-controlled, unbounded duration (which would block
-	/// writers indefinitely). Callers that need a fully safe point-in-time view should use
-	/// <see cref="Snapshot"/> instead.
+	/// Drains the buffer, but does not hold a lock for the enumeration; a concurrent structural change
+	/// surfaces as <see cref="InvalidOperationException"/>, as it would for <see cref="List{T}"/>.
+	/// Use <see cref="Snapshot"/> for a stable view.
 	/// </remarks>
 	[ExcludeFromCodeCoverage]
 	public override IEnumerator<T> GetEnumerator()
