@@ -62,9 +62,21 @@ public class CollectionWrapper<T, TCollection>(
 
 	/// <summary>
 	/// Adds multiple items to the collection.
-	/// It's important to avoid locking for too long so an array is used to add multiple items.
-	/// An enumerable is potentially slow as it may be yielding to a process.
 	/// </summary>
+	/// <remarks>
+	/// This base implementation enumerates <paramref name="items"/> directly.
+	/// The synchronized overrides materialize it to an array first, for two reasons:
+	/// the lock must not be held while enumerating a caller-supplied sequence, which may
+	/// be slow or yielding to a process; and the copy acts as a snapshot against a source
+	/// whose <em>size</em> could change while the items are being added.
+	/// The two exempted shapes are the ones the runtime guarantees are both cheap to enumerate
+	/// -- no user callback, no blocking, no reentrant locking -- and fixed in extent for the
+	/// duration of the call: <see cref="System.Array"/> and
+	/// <see cref="System.Collections.Immutable.IImmutableList{T}"/>. An array&apos;s elements may change,
+	/// but that cannot invalidate an enumeration in progress, and an immutable list cannot change at
+	/// all. Every other <see cref="IEnumerable{T}"/> is copied because the type system gives no such
+	/// guarantee -- not because its size is necessarily unstable.
+	/// </remarks>
 	/// <param name="items">The items to add.</param>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public virtual void AddRange(IEnumerable<T> items)
