@@ -129,7 +129,7 @@ public class ConcurrentListSynchronizationTests
 					{
 						TornProbe value = list[index];
 						Interlocked.Increment(ref reads);
-						bool valid = value.A == 49 || value.A == 50;
+						bool valid = value.A is 49 or 50;
 						if (!value.IsConsistent || !valid)
 						{
 							readerFailure = new Exception(
@@ -269,7 +269,7 @@ public class ConcurrentListSynchronizationTests
 					{
 						int capacity = list.Capacity;
 						Interlocked.Increment(ref reads);
-						if (capacity != 0 && capacity != 16 && capacity != 32)
+						if (capacity is not 0 and not 16 and not 32)
 						{
 							failure = new Exception($"Observed unexpected Capacity value: {capacity}.");
 							cts.Cancel();

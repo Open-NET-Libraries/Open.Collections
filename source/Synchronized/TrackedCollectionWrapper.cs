@@ -146,7 +146,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 				return true;
 			},
 			version => OnAdded(item, version));
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})" />
 #else
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, T[])" />
@@ -198,7 +198,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 		});
 	}
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})" />
 	[Obsolete("This method has to make a copy of items. Use the local AddThese(T, T, T[]) instead.")]
 	[OverloadResolutionPriority(-1)]

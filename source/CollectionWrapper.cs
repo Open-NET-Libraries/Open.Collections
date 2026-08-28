@@ -12,7 +12,7 @@ public class CollectionWrapper<T, TCollection>(
 	/// <summary>
 	/// The underlying object used for synchronization.
 	/// </summary>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	protected readonly Lock Sync = new();
 #else
 	protected readonly object Sync = new();
@@ -22,7 +22,7 @@ public class CollectionWrapper<T, TCollection>(
 	/// The object used for synchronization.
 	/// This is exposed to allow for more complex synchronization operations.
 	/// </summary>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	public Lock SyncRoot => Sync;
 #else
 	public object SyncRoot => Sync;
@@ -45,7 +45,7 @@ public class CollectionWrapper<T, TCollection>(
 		AddInternal(in item);
 	}
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	/// <inheritdoc cref="IAddMultiple{T}.AddThese(T, T, ReadOnlySpan{T})"/>
 	public virtual void AddThese(T item1, T item2, params ReadOnlySpan<T> items)
 #else
@@ -81,7 +81,7 @@ public class CollectionWrapper<T, TCollection>(
 	}
 
 	/// <inheritdoc cref="AddRange(IEnumerable{T})"/>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	[OverloadResolutionPriority(1)]
 #endif
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

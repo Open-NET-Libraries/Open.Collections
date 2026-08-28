@@ -19,9 +19,11 @@ public class SynchronizedOrderedDictionaryTests
 	[Fact]
 	public void LockSyncOrderedDictionary_AddAndRetrieve()
 	{
-		var dictionary = new LockSynchronizedOrderedDictionary<int, int>();
-		dictionary.Add(1, 10);
-		dictionary.Add(2, 20);
+		var dictionary = new LockSynchronizedOrderedDictionary<int, int>
+		{
+			{ 1, 10 },
+			{ 2, 20 }
+		};
 		dictionary[1].Should().Be(10);
 		dictionary[2].Should().Be(20);
 		dictionary.Count.Should().Be(2);
@@ -30,9 +32,11 @@ public class SynchronizedOrderedDictionaryTests
 	[Fact]
 	public void ReadWriteSyncOrderedDictionary_AddAndRetrieve()
 	{
-		var dictionary = new ReadWriteSynchronizedOrderedDictionary<int, int>();
-		dictionary.Add(1, 10);
-		dictionary.Add(2, 20);
+		var dictionary = new ReadWriteSynchronizedOrderedDictionary<int, int>
+		{
+			{ 1, 10 },
+			{ 2, 20 }
+		};
 		dictionary[1].Should().Be(10);
 		dictionary[2].Should().Be(20);
 		dictionary.Count.Should().Be(2);
@@ -41,8 +45,10 @@ public class SynchronizedOrderedDictionaryTests
 	[Fact]
 	public void LockSyncOrderedDictionary_CountThrowsAfterDispose()
 	{
-		var dictionary = new LockSynchronizedOrderedDictionary<int, int>();
-		dictionary.Add(1, 10);
+		var dictionary = new LockSynchronizedOrderedDictionary<int, int>
+		{
+			{ 1, 10 }
+		};
 		dictionary.Dispose();
 		Assert.Throws<ObjectDisposedException>(() => _ = dictionary.Count);
 	}
@@ -50,8 +56,10 @@ public class SynchronizedOrderedDictionaryTests
 	[Fact]
 	public void ReadWriteSyncOrderedDictionary_CountThrowsAfterDispose()
 	{
-		var dictionary = new ReadWriteSynchronizedOrderedDictionary<int, int>();
-		dictionary.Add(1, 10);
+		var dictionary = new ReadWriteSynchronizedOrderedDictionary<int, int>
+		{
+			{ 1, 10 }
+		};
 		dictionary.Dispose();
 		Assert.Throws<ObjectDisposedException>(() => _ = dictionary.Count);
 	}

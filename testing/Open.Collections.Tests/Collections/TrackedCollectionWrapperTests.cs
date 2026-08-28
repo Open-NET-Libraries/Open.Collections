@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Open.Collections.Synchronized;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Open.Collections.Tests.Collections;
@@ -34,9 +34,9 @@ public class TrackedCollectionWrapperTests
 
 		ReadOnlySpan<int> span = [1, 2, 3];
 
-#pragma warning disable CS0618 // Intentionally exercising the obsolete span overload.
+#pragma warning disable CS0618 // Type or member is obsolete
 		wrapper.AddRange(span);
-#pragma warning restore CS0618
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		// The exact bug: previously this would be [0, 0, 1, 2, 3].
 		wrapper.Snapshot().Should().Equal(1, 2, 3);
@@ -61,9 +61,8 @@ public class TrackedCollectionWrapperTests
 
 		ReadOnlySpan<int> span = [];
 
-#pragma warning disable CS0618 // Intentionally exercising the obsolete span overload.
+#pragma warning disable CS0618 // Type or member is obsolete
 		wrapper.AddRange(span);
-#pragma warning restore CS0618
 
 		wrapper.Count.Should().Be(0);
 		changedCount.Should().Be(0);
@@ -79,9 +78,9 @@ public class TrackedCollectionWrapperTests
 		var wrapper = new TrackedCollectionWrapper<int, List<int>>([]);
 		ReadOnlySpan<int> extra = [3, 4];
 
-#pragma warning disable CS0618 // Intentionally exercising the obsolete span overload.
+#pragma warning disable CS0618 // Type or member is obsolete
 		wrapper.AddThese(1, 2, extra);
-#pragma warning restore CS0618
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		wrapper.Snapshot().Should().Equal(1, 2, 3, 4);
 	}

@@ -53,7 +53,7 @@ public static partial class Extensions
 	}
 
 	/// <inheritdoc cref="AddRange{T}(ICollection{T}, IEnumerable{T})"/>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	[OverloadResolutionPriority(1)]
 #endif
 	public static void AddRange<T>(
@@ -70,7 +70,7 @@ public static partial class Extensions
 	/// <summary>
 	/// Adds each value to the end of the <paramref name="target"/> collection.
 	/// </summary>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	public static void AddThese<T>(this ICollection<T> target, T a, T b, params ReadOnlySpan<T> more)
 #else
 	public static void AddThese<T>(this ICollection<T> target, T a, T b, params T[] more)
@@ -118,7 +118,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
@@ -152,7 +152,7 @@ public static partial class Extensions
 		if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
@@ -188,7 +188,7 @@ public static partial class Extensions
 		if (updateValueFactory is null) throw new ArgumentNullException(nameof(updateValueFactory));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);
@@ -251,7 +251,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
@@ -276,7 +276,7 @@ public static partial class Extensions
 		if (defaultValueFactory is null) throw new ArgumentNullException(nameof(defaultValueFactory));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
@@ -354,7 +354,7 @@ public static partial class Extensions
 		if (valueFactory is null) throw new ArgumentNullException(nameof(valueFactory));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
@@ -381,7 +381,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrAddDefault(d, key, out bool exists);
@@ -414,7 +414,7 @@ public static partial class Extensions
 		if (key is null) throw new ArgumentNullException(nameof(key));
 		Contract.EndContractBlock();
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		if (target is Dictionary<TKey, T> d)
 		{
 			ref var val = ref System.Runtime.InteropServices.CollectionsMarshal.GetValueRefOrNullRef(d, key);

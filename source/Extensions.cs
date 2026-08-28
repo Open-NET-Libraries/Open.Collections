@@ -508,7 +508,7 @@ retry:
 		return target;
 	}*/
 
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 #else
 	/// <summary>
 	/// Returns a dictionary from the source key-value pairs.

@@ -17,7 +17,7 @@ public interface IAddMultiple<T>
 	/// <param name="item1">First item to add.</param>
 	/// <param name="item2">Additional item to add.</param>
 	/// <param name="items">Extended param items to add.</param>
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 	void AddThese(T item1, T item2, params System.ReadOnlySpan<T> items);
 
 	/// <inheritdoc cref="AddRange(IEnumerable{T})"/>/>

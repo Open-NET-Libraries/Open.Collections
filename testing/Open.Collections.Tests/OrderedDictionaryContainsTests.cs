@@ -1,7 +1,6 @@
 #nullable enable
 
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit;
@@ -161,7 +160,7 @@ public sealed class ComparisonCounter
 /// <see cref="ComparisonCounter"/>, so tests can assert on the NUMBER of comparisons
 /// performed rather than on wall-clock time (which is fragile under CI load).
 /// </summary>
-public readonly struct CountingKey(int value, ComparisonCounter counter) : IEquatable<CountingKey>
+public readonly struct CountingKey(int value, ComparisonCounter counter)
 {
 	/// <summary>The logical value this key represents.</summary>
 	public int Value { get; } = value;
@@ -181,6 +180,12 @@ public readonly struct CountingKey(int value, ComparisonCounter counter) : IEqua
 
 	/// <inheritdoc />
 	public override int GetHashCode() => Value.GetHashCode();
+
+	public static bool operator ==(CountingKey left, CountingKey right)
+		=> left.Equals(right);
+
+	public static bool operator !=(CountingKey left, CountingKey right)
+		=> !(left == right);
 }
 
 /// <summary>
@@ -225,7 +230,7 @@ public abstract class OrderedDictionaryContainsComplexityTests<TDictionary>(TDic
 
 		found.Should().BeTrue();
 		counter.Count.Should().BeLessThan(MaxExpectedComparisons,
-			$"Contains should use an O(1) key lookup, not a linear scan "
+			"Contains should use an O(1) key lookup, not a linear scan "
 			+ $"(observed {counter.Count} comparisons over {Count} entries)");
 	}
 
@@ -244,7 +249,7 @@ public abstract class OrderedDictionaryContainsComplexityTests<TDictionary>(TDic
 
 		found.Should().BeFalse();
 		counter.Count.Should().BeLessThan(MaxExpectedComparisons,
-			$"Contains should use an O(1) key lookup, not a linear scan "
+			"Contains should use an O(1) key lookup, not a linear scan "
 			+ $"(observed {counter.Count} comparisons over {Count} entries)");
 	}
 }

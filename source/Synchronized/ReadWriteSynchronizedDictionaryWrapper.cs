@@ -78,7 +78,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool TryGetValue(TKey key,
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		[MaybeNullWhen(false)]
 #endif
 		out TValue value)

@@ -1,7 +1,7 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Open.Collections.Synchronized;
+using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Open.Collections.Tests.Collections;
@@ -26,7 +26,6 @@ public class TrackedCollectionWrapperInterfaceProbeTests
 	public void InterfaceTyped_AddRange_WithArrayArgument_DoesNotRecurse_AndAddsCorrectly()
 	{
 		var wrapper = new TrackedCollectionWrapper<int, List<int>>([]);
-		IAddMultiple<int> iface = wrapper;
 
 		// This mirrors BasicCollectionTests<T>.AddRange()'s
 		// `c.AddRange(Array.Empty<int>())` / `c.AddRange(e)` pattern where `c`
@@ -36,7 +35,7 @@ public class TrackedCollectionWrapperInterfaceProbeTests
 		// attributes are meant to resolve. If this recursed, the test would
 		// hang/stack-overflow rather than fail an assertion.
 		int[] arr = [10, 20, 30];
-		iface.AddRange(arr);
+		wrapper.AddRange(arr);
 
 		wrapper.Snapshot().Should().Equal(10, 20, 30);
 		wrapper.Count.Should().Be(3);
@@ -46,23 +45,23 @@ public class TrackedCollectionWrapperInterfaceProbeTests
 	public void InterfaceTyped_AddRange_WithEmptyArray_AddsNothing()
 	{
 		var wrapper = new TrackedCollectionWrapper<int, List<int>>([]);
-		IAddMultiple<int> iface = wrapper;
 
 		int changed = 0;
 		wrapper.Changed += (_, _) => changed++;
 
-		iface.AddRange(Array.Empty<int>());
+		wrapper.AddRange(Array.Empty<int>());
 
 		wrapper.Count.Should().Be(0);
 		changed.Should().Be(0);
 	}
 
-#if NET9_0_OR_GREATER
+	private static readonly int[] A789 = [7, 8, 9];
+
+#if NET10_0_OR_GREATER
 	[Fact]
 	public void InterfaceTyped_AddRange_WithRealSpanLiteral_DoesNotRecurse()
 	{
 		var wrapper = new TrackedCollectionWrapper<int, List<int>>([]);
-		IAddMultiple<int> iface = wrapper;
 
 		// A genuine ReadOnlySpan<int> argument at an interface-typed call site
 		// has only one applicable candidate (ReadOnlySpan<T> can't convert to
@@ -70,7 +69,9 @@ public class TrackedCollectionWrapperInterfaceProbeTests
 		// concrete type. If that method's internal call back to `AddRange(...)`
 		// resolved back to itself (ignoring the class's own priority(-1)
 		// attribute), this would stack-overflow.
-		iface.AddRange((ReadOnlySpan<int>)[7, 8, 9]);
+#pragma warning disable CS0618 // Type or member is obsolete
+		wrapper.AddRange(A789.AsSpan());
+#pragma warning restore CS0618 // Type or member is obsolete
 
 		wrapper.Snapshot().Should().Equal(7, 8, 9);
 	}

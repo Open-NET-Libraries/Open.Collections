@@ -31,11 +31,7 @@ public class LockSyncListAddRangeTests
 		public IEnumerator<int> GetEnumerator()
 		{
 			EnumerationCount++;
-			if (EnumerationCount > 1)
-				throw new InvalidOperationException("This sequence may only be enumerated once.");
-
-			return Enumerate();
-
+			return EnumerationCount > 1 ? throw new InvalidOperationException("This sequence may only be enumerated once.") : Enumerate();
 			IEnumerator<int> Enumerate()
 			{
 				foreach (int i in source)

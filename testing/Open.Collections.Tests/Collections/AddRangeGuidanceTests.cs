@@ -1,8 +1,9 @@
+using FluentAssertions;
+using Open.Collections.Synchronized;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using FluentAssertions;
-using Open.Collections.Synchronized;
+using System.Diagnostics.CodeAnalysis;
 using Xunit;
 
 namespace Open.Collections.Tests.Collections;
@@ -34,10 +35,10 @@ public class AddRangeGuidanceTests
 	{
 		int[] payload = [1, 2, 3];
 
-#pragma warning disable CS0618 // deliberately exercising the obsolete overload
-		var viaSpan = Capture(w => w.AddRange(new ReadOnlySpan<int>(payload)));
-#pragma warning restore CS0618
-		var viaEnumerable = Capture(w => w.AddRange((IEnumerable<int>)payload));
+#pragma warning disable CS0618 // Type or member is obsolete
+		var viaSpan = Capture(w => w.AddRange(payload.AsSpan()));
+#pragma warning restore CS0618 // Type or member is obsolete
+		var viaEnumerable = Capture(w => w.AddRange(payload));
 
 		viaSpan.Contents.Should().Equal(1, 2, 3);
 		viaSpan.Should().BeEquivalentTo(viaEnumerable,
@@ -49,9 +50,9 @@ public class AddRangeGuidanceTests
 	{
 		int[] rest = [3, 4];
 
-#pragma warning disable CS0618 // deliberately exercising the obsolete overload
-		var viaSpan = Capture(w => w.AddThese(1, 2, new ReadOnlySpan<int>(rest)));
-#pragma warning restore CS0618
+#pragma warning disable CS0618 // Type or member is obsolete
+		var viaSpan = Capture(w => w.AddThese(1, 2, rest.AsSpan()));
+#pragma warning restore CS0618 // Type or member is obsolete
 		var viaArray = Capture(w => w.AddThese(1, 2, rest));
 
 		viaSpan.Contents.Should().Equal(1, 2, 3, 4);
@@ -62,9 +63,9 @@ public class AddRangeGuidanceTests
 	[Fact]
 	public void AddRange_EmptySpan_MatchesEmptyEnumerable()
 	{
-#pragma warning disable CS0618
+#pragma warning disable CS0618 // Type or member is obsolete
 		var viaSpan = Capture(w => w.AddRange(ReadOnlySpan<int>.Empty));
-#pragma warning restore CS0618
+#pragma warning restore CS0618 // Type or member is obsolete
 		var viaEnumerable = Capture(w => w.AddRange(Array.Empty<int>()));
 
 		viaSpan.Contents.Should().BeEmpty();
@@ -80,6 +81,8 @@ public class AddRangeGuidanceTests
 	/// has no span conversion, so it forces the intended overload.
 	/// </summary>
 	[Fact]
+	[SuppressMessage("Style", "IDE0300:Simplify collection initialization", Justification = "Required for this test.")]
+	[SuppressMessage("Style", "IDE0028:Simplify collection initialization", Justification = "Required for this test.")]
 	public void AddRange_FixedSizeAndImmutableSources_ProduceCorrectContents()
 	{
 		IEnumerable<int> array = new int[] { 1, 2, 3 };              // hits the T[] arm

@@ -19,7 +19,11 @@ public class SynchronizedCountConsistencyTests
 	{
 		collection.Count.Should().Be(expected);
 		collection.Snapshot().Length.Should().Be(expected);
+#pragma warning disable CA1829 // Use Length/Count property instead of Count() when available
+#pragma warning disable RCS1196 // Call extension method as instance method
 		Enumerable.Count(collection).Should().Be(expected);
+#pragma warning restore RCS1196 // Call extension method as instance method
+#pragma warning restore CA1829 // Use Length/Count property instead of Count() when available
 	}
 
 	private static void ExerciseCountLifecycle<TCollection>(TCollection collection)

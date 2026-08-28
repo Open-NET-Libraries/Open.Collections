@@ -39,7 +39,7 @@ public class TrackedDictionaryWrapper<TKey, TValue, TDictionary>
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	public bool TryGetValue(TKey key,
-#if NET9_0_OR_GREATER
+#if NET10_0_OR_GREATER
 		[MaybeNullWhen(false)]
 #else
 #endif

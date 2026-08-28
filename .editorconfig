@@ -232,6 +232,9 @@ dotnet_diagnostic.VSSpell002.severity = none
 # IDE0306: Simplify collection initialization
 dotnet_diagnostic.IDE0306.severity = silent
 
+# RCS1123: Add parentheses when necessary
+dotnet_diagnostic.RCS1123.severity = silent
+
 dotnet_diagnostic.CS1591.severity = suggestion
 csharp_style_prefer_method_group_conversion = true:silent
 csharp_style_prefer_top_level_statements = true:silent

@@ -32,25 +32,23 @@ public class LockSyncGetCountRegressionTests
 	private sealed class SteppableCollection : ICollection<int>
 	{
 		private readonly List<int> _items = [];
-		private int _count;
-
 		public readonly ManualResetEventSlim PausedMidAdd = new(false);
 		public readonly ManualResetEventSlim ResumeAdd = new(false);
 
 		/// <summary>The "torn-capable" computed Count, analogous to Dictionary's <c>_count - _freeCount</c>.</summary>
-		public int Count => _count;
+		public int Count { get; private set; }
 
 		public bool IsReadOnly => false;
 
 		public void Add(int item)
 		{
-			_count++;              // Bookkeeping updated first...
+			Count++;              // Bookkeeping updated first...
 			PausedMidAdd.Set();
 			ResumeAdd.Wait();
 			_items.Add(item);      // ...the item is only actually committed/visible after this.
 		}
 
-		public void Clear() { _items.Clear(); _count = 0; }
+		public void Clear() { _items.Clear(); Count = 0; }
 		public bool Contains(int item) => _items.Contains(item);
 		public void CopyTo(int[] array, int arrayIndex) => _items.CopyTo(array, arrayIndex);
 		public bool Remove(int item) => _items.Remove(item);
@@ -100,8 +98,10 @@ public class LockSyncGetCountRegressionTests
 		});
 
 		writer.Start();
+#pragma warning disable xUnit1051 // Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken
 		backing.PausedMidAdd.Wait(TimeSpan.FromSeconds(5))
 			.Should().BeTrue("the writer thread should reach its pause point inside Add");
+#pragma warning restore xUnit1051 // Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken
 
 		reader.Start();
 		// Give the reader every opportunity to race ahead of the writer if Count isn't locked.
@@ -177,7 +177,7 @@ public class LockSyncGetCountRegressionTests
 				{
 					for (int i = 0; i < itemsPerWriter; i++)
 					{
-						int key = (threadIndex * itemsPerWriter) + i;
+						int key = threadIndex * itemsPerWriter + i;
 						dictionary.Add(key, key);
 						dictionary.Remove(key);
 					}
