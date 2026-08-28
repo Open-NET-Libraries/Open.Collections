@@ -160,4 +160,9 @@ public class OrderedDictionary<TKey, TValue>
 
 		return false;
 	}
+
+	/// <inheritdoc />
+	public override bool Contains(KeyValuePair<TKey, TValue> item)
+		=> Lookup.TryGetValue(item.Key, out var node)
+			&& EqualityComparer<TValue>.Default.Equals(node.Value.Value, item.Value);
 }
