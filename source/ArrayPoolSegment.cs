@@ -86,9 +86,8 @@ public readonly struct ArrayPoolSegment<T> : IDisposable, IEnumerable<T>
 	/// </summary>
 	/// <remarks>
 	/// Because this is a <see langword="readonly struct"/>, copies made by
-	/// assignment, passing by value, boxing, or the implicit conversion
-	/// operators below all share the same <see cref="Pool"/> reference and
-	/// underlying array. Calling <see cref="Dispose"/> on more than one such
+	/// assignment, passing by value, or boxing all share the same
+	/// <see cref="Pool"/> reference and underlying array. Calling <see cref="Dispose"/> on more than one such
 	/// copy of the <em>original</em> rented segment will return the same
 	/// array to the pool more than once, which corrupts the pool. Dispose
 	/// exactly once per rented segment (e.g. via a single <see langword="using"/>
