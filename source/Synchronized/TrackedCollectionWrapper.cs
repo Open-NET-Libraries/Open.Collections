@@ -209,7 +209,7 @@ public class TrackedCollectionWrapper<T, TCollection>
 	[Obsolete("This method has to make a copy of items. Use the local AddThese(T, T, T[]) instead.")]
 	[OverloadResolutionPriority(-1)]
 	public void AddRange(ReadOnlySpan<T> items)
-		=> AddThese(default!, default!, items.ToArray());
+		=> AddRange(items.ToArray());
 #endif
 
 	/// <summary>
