@@ -32,12 +32,25 @@ public sealed class LockSynchronizedHashSet<T> : LockSynchronizedCollectionWrapp
 		=> InternalSource.Contains(item);
 
 	/// <inheritdoc />
+	/// <remarks>
+	/// The unsynchronized pre-check keeps a no-op add off the lock entirely.
+	/// Beyond that, <see cref="HashSet{T}.Add(T)"/> already reports whether it
+	/// added, so delegating to it avoids re-probing inside the lock and avoids
+	/// allocating a closure to carry the item.
+	/// </remarks>
 	public new bool Add(T item)
-		=> IfNotContains(item, c => c.Add(item));
+	{
+		if (InternalSource.Contains(item)) return false;
+		lock (Sync) return InternalSource.Add(item);
+	}
 
 	/// <inheritdoc />
+	/// <remarks>See <see cref="Add(T)"/>; the same applies here.</remarks>
 	public override bool Remove(T item)
-		=> IfContains(item, c => c.Remove(item));
+	{
+		if (!InternalSource.Contains(item)) return false;
+		lock (Sync) return InternalSource.Remove(item);
+	}
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
