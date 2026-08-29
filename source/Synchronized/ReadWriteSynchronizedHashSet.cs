@@ -37,8 +37,18 @@ public sealed class ReadWriteSynchronizedHashSet<T>
 		=> InternalSource.Contains(item);
 
 	/// <inheritdoc />
+	/// <remarks>
+	/// The unsynchronized pre-check keeps a no-op add off the lock entirely.
+	/// Beyond that, <see cref="HashSet{T}.Add(T)"/> already reports whether it
+	/// added, so delegating to it avoids re-probing under the lock and avoids
+	/// allocating a closure to carry the item.
+	/// </remarks>
 	public new bool Add(T item)
-		=> IfNotContains(item, c => c.Add(item));
+	{
+		if (InternalSource.Contains(item)) return false;
+		using var write = RWLock.WriteLock();
+		return InternalSource.Add(item);
+	}
 
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]

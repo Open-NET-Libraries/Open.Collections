@@ -15,20 +15,29 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	public virtual TValue this[TKey key]
 	{
 		get => InternalSource[key];
-		set
-		{
-			// With a dictionary, setting can be like adding.
-			// Collection size might change.  Gotta be careful.
-			using var upgradable = RWLock.UpgradableReadLock();
-			if (InternalSource.ContainsKey(key))
-			{
-				InternalSource[key] = value;
-				return;
-			}
+		set => SetValueInternal(key, value);
+	}
 
-			using var write = RWLock.WriteLock();
+	/// <summary>
+	/// Stores the value for the key.
+	/// </summary>
+	/// <remarks>
+	/// Override to provide a faster path when the concrete dictionary type is known.
+	/// A key that is already present is a non-structural change: it cannot bump the
+	/// dictionary's version and so cannot invalidate an enumerator, which is why the
+	/// write lock is only taken when the key is absent.
+	/// </remarks>
+	protected virtual void SetValueInternal(TKey key, TValue value)
+	{
+		using var upgradable = RWLock.UpgradableReadLock();
+		if (InternalSource.ContainsKey(key))
+		{
 			InternalSource[key] = value;
+			return;
 		}
+
+		using var write = RWLock.WriteLock();
+		InternalSource[key] = value;
 	}
 
 	ICollection<TKey> IDictionary<TKey, TValue>.Keys => InternalSource.Keys;
@@ -62,7 +71,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool ContainsKey(TKey key)
+	public virtual bool ContainsKey(TKey key)
 		=> InternalSource.ContainsKey(key);
 
 	/// <inheritdoc />
@@ -77,7 +86,7 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 	/// <inheritdoc />
 	[ExcludeFromCodeCoverage]
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryGetValue(TKey key,
+	public virtual bool TryGetValue(TKey key,
 #if NET10_0_OR_GREATER
 		[MaybeNullWhen(false)]
 #endif
@@ -132,4 +141,32 @@ public class ReadWriteSynchronizedDictionary<TKey, TValue>
 	/// Constructs a new instance of <see cref="ReadWriteSynchronizedDictionary{TKey, TValue}"/> with the specified capacity.
 	/// </summary>
 	public ReadWriteSynchronizedDictionary(int capacity) : base(new Dictionary<TKey, TValue>(capacity)) { }
+
+#if NET10_0_OR_GREATER
+	/// <inheritdoc />
+	/// <remarks>
+	/// This type always constructs a <see cref="Dictionary{TKey, TValue}"/>, so one
+	/// ref lookup can serve as both the presence test and the destination. That
+	/// replaces the ContainsKey-then-store pair with a single probe. The type test
+	/// remains because the base declares the source as <see cref="IDictionary{TKey, TValue}"/>.
+	/// </remarks>
+	protected override void SetValueInternal(TKey key, TValue value)
+	{
+		using var upgradable = RWLock.UpgradableReadLock();
+		if (InternalSource is Dictionary<TKey, TValue> d)
+		{
+			ref var slot = ref System.Runtime.InteropServices.CollectionsMarshal
+				.GetValueRefOrNullRef(d, key);
+			if (!System.Runtime.CompilerServices.Unsafe.IsNullRef(ref slot))
+			{
+				// Key present: a non-structural change, so the write lock is not needed.
+				slot = value;
+				return;
+			}
+		}
+
+		using var write = RWLock.WriteLock();
+		InternalSource[key] = value;
+	}
+#endif
 }

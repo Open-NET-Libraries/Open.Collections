@@ -12,12 +12,18 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(TDicti
 	public virtual TValue this[TKey key]
 	{
 		get => InternalSource[key];
-		set
-		{
-			// With a dictionary, setting can be like adding.
-			// Collection size might change.  Gotta be careful.
-			lock (Sync) InternalSource[key] = value;
-		}
+		set => SetValueInternal(key, value);
+	}
+
+	/// <summary>
+	/// Stores the value for the key.
+	/// </summary>
+	/// <remarks>
+	/// Override to provide a faster path when the concrete dictionary type is known.
+	/// </remarks>
+	protected virtual void SetValueInternal(TKey key, TValue value)
+	{
+		lock (Sync) InternalSource[key] = value;
 	}
 
 	ICollection<TKey> IDictionary<TKey, TValue>.Keys => InternalSource.Keys;
@@ -48,7 +54,7 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(TDicti
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool ContainsKey(TKey key)
+	public virtual bool ContainsKey(TKey key)
 		=> InternalSource.ContainsKey(key);
 
 	/// <inheritdoc />
@@ -60,7 +66,7 @@ public class LockSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(TDicti
 
 	/// <inheritdoc />
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryGetValue(TKey key,
+	public virtual bool TryGetValue(TKey key,
 #if NET10_0_OR_GREATER
 		[MaybeNullWhen(false)]
 #endif
