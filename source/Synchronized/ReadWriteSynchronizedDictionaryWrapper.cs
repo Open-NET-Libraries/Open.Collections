@@ -17,15 +17,9 @@ public class ReadWriteSynchronizedDictionaryWrapper<TKey, TValue, TDictionary>(
 		get => InternalSource[key];
 		set
 		{
-			// With a dictionary, setting can be like adding.
-			// Collection size might change.  Gotta be careful.
-			using var upgradable = RWLock.UpgradableReadLock();
-			if (InternalSource.ContainsKey(key))
-			{
-				InternalSource[key] = value;
-				return;
-			}
-
+			// A store mutates the dictionary whether or not the key is already
+			// present, so it has to exclude concurrent readers, not just other
+			// writers. An upgradable read lock would only do the latter.
 			using var write = RWLock.WriteLock();
 			InternalSource[key] = value;
 		}
