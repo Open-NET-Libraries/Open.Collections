@@ -45,8 +45,8 @@ public class SynchronizedDictionarySetterTests
 	public void ReadWriteDictionary_StoresEvenWhenValueIsEqual()
 	{
 		using var d = new ReadWriteSynchronizedDictionary<string, string>();
-		var first = new string(['x', 'y']);
-		var second = new string(['x', 'y']);
+		string first = new(['x', 'y']);
+		string second = new(['x', 'y']);
 		first.Should().Be(second);
 		ReferenceEquals(first, second).Should().BeFalse("the test needs two distinct instances");
 

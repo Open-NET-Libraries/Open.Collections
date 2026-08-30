@@ -42,8 +42,10 @@ public class SynchronizedHashSetConcurrencyTests
 	[Fact]
 	public async Task LockSynchronizedHashSet_ConcurrentRemove_ExactlyOneWins()
 	{
-		var set = new LockSynchronizedHashSet<int>();
-		set.Add(7);
+		var set = new LockSynchronizedHashSet<int>
+		{
+			7
+		};
 		(await RaceAsync(() => set.Remove(7)).ConfigureAwait(true)).Should().Be(1);
 		set.Count.Should().Be(0);
 	}
